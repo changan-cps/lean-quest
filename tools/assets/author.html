@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><title>asset author</title>
+<style>html,body{margin:0;background:#222}canvas{display:block}</style></head><body>
+<script type="module">
+import * as THREE from '../../three.module.min.js';
+import { RoomEnvironment } from '../../vendor/three/RoomEnvironment.js';
+import * as A from './author.mjs';
+window.exportAll = async () => {
+  const { out, stats } = await A.exportAll();
+  const b64 = {};
+  for (const [k, v] of Object.entries(out)) { let s = ''; for (let i = 0; i < v.length; i += 32768) s += String.fromCharCode.apply(null, v.subarray(i, i + 32768)); b64[k] = btoa(s); }
+  return { b64, stats };
+};
+window.preview = (what, cam = [6, 3, 6], target = [0, 0.8, 0], w = 900, h = 600) => {
+  const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  r.setSize(w, h); r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true;
+  document.body.innerHTML = ''; document.body.appendChild(r.domElement);
+  const s = new THREE.Scene(); s.background = new THREE.Color('#9aa5ae');
+  s.environment = new THREE.PMREMGenerator(r).fromScene(new RoomEnvironment(r), 0.04).texture;
+  const sun = new THREE.DirectionalLight('#fff', 2.0); sun.position.set(4, 8, 5); sun.castShadow = true; s.add(sun);
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: '#b9bec3', roughness: .5 })); g.rotation.x = -Math.PI / 2; g.receiveShadow = true; s.add(g);
+  for (const nm of what.split(',')) {
+    const [fn, x = 0, z = 0, ry = 0] = nm.split(':');
+    const o = A[fn](); o.position.set(+x, 0, +z); o.rotation.y = +ry;
+    o.traverse(m => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; if (m.name.endsWith('_LOD1')) m.visible = false; } });
+    if (o.animations && o.animations.length) { const mx = new THREE.AnimationMixer(o); const c = o.animations.find(c => c.name === (window.CLIP || 'Idle')); mx.clipAction(c).play(); mx.update(window.CLIPT || 0.5); }
+    s.add(o);
+  }
+  const c = new THREE.PerspectiveCamera(35, w / h, 0.05, 200); c.position.set(...cam); c.lookAt(...target);
+  r.render(s, c); return true;
+};
+window.ready = true;
+</script></body></html>

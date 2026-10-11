@@ -1,0 +1,65 @@
+{
+ "car": {
+  "bytes": 757032,
+  "meshes": 42,
+  "trisLOD0": 24672,
+  "trisLOD1": 5806,
+  "clips": [],
+  "sha256": "7e14946323a974e8a043b40483bcf73f4d89d31437054ff7632d9c98babd0a25"
+ },
+ "worker": {
+  "bytes": 415728,
+  "meshes": 41,
+  "trisLOD0": 11816,
+  "trisLOD1": 3562,
+  "clips": [
+   "Idle",
+   "Pick",
+   "Fasten",
+   "Install",
+   "Inspect",
+   "Walk"
+  ],
+  "sha256": "4af3bbe3ac9812406e4836b4b6b5f75522632dba432337326ae0dd8f2d93cad2"
+ },
+ "station": {
+  "bytes": 125984,
+  "meshes": 29,
+  "trisLOD0": 1650,
+  "trisLOD1": 0,
+  "clips": [],
+  "sha256": "f890cea4f0e5ef4d96a243d0a315b488644b118991936fd4789c5f6169a18def"
+ },
+ "flowrack": {
+  "bytes": 244108,
+  "meshes": 51,
+  "trisLOD0": 4028,
+  "trisLOD1": 480,
+  "clips": [],
+  "sha256": "2d4a0fa2cf6772d96ceeab99ef9fca4d60dc72640c5b3d7f6bc838d0c8a8601f"
+ },
+ "tools": {
+  "bytes": 29568,
+  "meshes": 13,
+  "trisLOD0": 306,
+  "trisLOD1": 0,
+  "clips": [],
+  "sha256": "60a59ffe9e038e843f3351f607dea08a4784700e8248d4605542acd5a52c306d"
+ },
+ "fixtures": {
+  "bytes": 72196,
+  "meshes": 13,
+  "trisLOD0": 1195,
+  "trisLOD1": 0,
+  "clips": [],
+  "sha256": "94f527a790b8d7e534012bbd63e1d10dc383afe6d67f3af6561cddf4f9ae5a00"
+ },
+ "hall": {
+  "bytes": 44992,
+  "meshes": 7,
+  "trisLOD0": 602,
+  "trisLOD1": 0,
+  "clips": [],
+  "sha256": "37422519e1818224a7ffcc417277335cac6d4d8b97f4c6a5e76ed333b4600366"
+ }
+}

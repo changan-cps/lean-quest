@@ -1,0 +1,130 @@
+[
+ {
+  "quality": "low",
+  "viewport": "390x844",
+  "cpuThrottle": 1,
+  "bytes": {
+   "glb": 1689608,
+   "ktx2": 82982,
+   "other": 1774802
+  },
+  "stats": {
+   "fps": 13,
+   "worstFrameMs": 100,
+   "sliceReadyMs": 2343,
+   "drawCalls": 175,
+   "triangles": 57829,
+   "geometries": 154,
+   "textures": 19,
+   "loadState": "ready",
+   "quality": "low",
+   "assetBytes": 1772590,
+   "timings": {
+    "phase1": 818.0999999996275,
+    "phase2": 888.1999999997206,
+    "textures": 1328.6999999997206
+   },
+   "errors": []
+  },
+  "jsHeap": {
+   "used": 29102077,
+   "total": 64898613
+  }
+ },
+ {
+  "quality": "medium",
+  "viewport": "390x844",
+  "cpuThrottle": 1,
+  "bytes": {
+   "glb": 1689608,
+   "ktx2": 1498773,
+   "other": 1774802
+  },
+  "stats": {
+   "fps": 16,
+   "worstFrameMs": 100,
+   "sliceReadyMs": 2912,
+   "drawCalls": 190,
+   "triangles": 125521,
+   "geometries": 154,
+   "textures": 25,
+   "loadState": "ready",
+   "quality": "medium",
+   "assetBytes": 3188381,
+   "timings": {
+    "phase1": 1011.4000000003725,
+    "phase2": 1066,
+    "textures": 1698.1000000000931
+   },
+   "errors": []
+  },
+  "jsHeap": {
+   "used": 30545038,
+   "total": 62948266
+  }
+ },
+ {
+  "quality": "high",
+  "viewport": "390x844",
+  "cpuThrottle": 1,
+  "bytes": {
+   "glb": 1689608,
+   "ktx2": 6096547,
+   "other": 1774802
+  },
+  "stats": {
+   "fps": 15,
+   "worstFrameMs": 100,
+   "sliceReadyMs": 2447,
+   "drawCalls": 178,
+   "triangles": 106665,
+   "geometries": 147,
+   "textures": 25,
+   "loadState": "ready",
+   "quality": "high",
+   "assetBytes": 7786155,
+   "timings": {
+    "phase1": 670.6000000000931,
+    "phase2": 729.7000000001863,
+    "textures": 1619.5
+   },
+   "errors": []
+  },
+  "jsHeap": {
+   "used": 37489609,
+   "total": 72552193
+  }
+ },
+ {
+  "quality": "low",
+  "viewport": "390x844",
+  "cpuThrottle": 4,
+  "bytes": {
+   "glb": 1689608,
+   "ktx2": 82982,
+   "other": 1774802
+  },
+  "stats": {
+   "fps": 15,
+   "worstFrameMs": 100,
+   "sliceReadyMs": 3892,
+   "drawCalls": 175,
+   "triangles": 57829,
+   "geometries": 154,
+   "textures": 19,
+   "loadState": "ready",
+   "quality": "low",
+   "assetBytes": 1772590,
+   "timings": {
+    "phase1": 614.7000000001863,
+    "phase2": 691,
+    "textures": 6526.600000000093
+   },
+   "errors": []
+  },
+  "jsHeap": {
+   "used": 19828767,
+   "total": 58033815
+  }
+ }
+]

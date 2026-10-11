@@ -1,0 +1,576 @@
+{
+ "version": 1,
+ "name": "Lean Quest - Assembly vertical slice",
+ "units": "metres, +Y up, line flows +X",
+ "budget": {
+  "firstSceneBytesMax": 15728640,
+  "targetFps": 30,
+  "note": "Budgets proposed in CLAUDE-3D-BRIEF.md; measured values are in ASSET-REPORT.md"
+ },
+ "quality": {
+  "low": {
+   "textureSize": 512,
+   "maps": [
+    "albedo",
+    "orm"
+   ],
+   "lod": 1,
+   "shadows": false,
+   "pixelRatio": 1
+  },
+  "medium": {
+   "textureSize": 512,
+   "maps": [
+    "albedo",
+    "normal",
+    "orm"
+   ],
+   "lod": 0,
+   "shadows": true,
+   "shadowMap": 1024,
+   "pixelRatio": 1.5
+  },
+  "high": {
+   "textureSize": 1024,
+   "maps": [
+    "albedo",
+    "normal",
+    "orm"
+   ],
+   "lod": 0,
+   "shadows": true,
+   "shadowMap": 2048,
+   "pixelRatio": 2
+  }
+ },
+ "models": {
+  "hall": {
+   "url": "hall.glb",
+   "phase": 1,
+   "bytes": 44992,
+   "sha256": "37422519e1818224a7ffcc417277335cac6d4d8b97f4c6a5e76ed333b4600366",
+   "triangles": {
+    "lod0": 602,
+    "lod1": 0
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "station": {
+   "url": "station.glb",
+   "phase": 1,
+   "bytes": 125984,
+   "sha256": "f890cea4f0e5ef4d96a243d0a315b488644b118991936fd4789c5f6169a18def",
+   "triangles": {
+    "lod0": 1650,
+    "lod1": 0
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "car": {
+   "url": "car.glb",
+   "phase": 1,
+   "bytes": 757032,
+   "sha256": "7e14946323a974e8a043b40483bcf73f4d89d31437054ff7632d9c98babd0a25",
+   "triangles": {
+    "lod0": 24672,
+    "lod1": 5806
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "worker": {
+   "url": "worker.glb",
+   "phase": 1,
+   "bytes": 415728,
+   "sha256": "4af3bbe3ac9812406e4836b4b6b5f75522632dba432337326ae0dd8f2d93cad2",
+   "triangles": {
+    "lod0": 11816,
+    "lod1": 3562
+   },
+   "clips": [
+    "Idle",
+    "Pick",
+    "Fasten",
+    "Install",
+    "Inspect",
+    "Walk"
+   ],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "flowrack": {
+   "url": "flowrack.glb",
+   "phase": 2,
+   "bytes": 244108,
+   "sha256": "2d4a0fa2cf6772d96ceeab99ef9fca4d60dc72640c5b3d7f6bc838d0c8a8601f",
+   "triangles": {
+    "lod0": 4028,
+    "lod1": 480
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "tools": {
+   "url": "tools.glb",
+   "phase": 2,
+   "bytes": 29568,
+   "sha256": "60a59ffe9e038e843f3351f607dea08a4784700e8248d4605542acd5a52c306d",
+   "triangles": {
+    "lod0": 306,
+    "lod1": 0
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  },
+  "fixtures": {
+   "url": "fixtures.glb",
+   "phase": 2,
+   "bytes": 72196,
+   "sha256": "94f527a790b8d7e534012bbd63e1d10dc383afe6d67f3af6561cddf4f9ae5a00",
+   "triangles": {
+    "lod0": 1195,
+    "lod1": 0
+   },
+   "clips": [],
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/author.mjs (geometry, materials, animation clips) - generated, no third-party meshes, scans or photos"
+  }
+ },
+ "textures": {
+  "fabric_normal_1024": {
+   "url": "tex/fabric_normal_1024.ktx2",
+   "bytes": 557128,
+   "sha256": "0bf3c8d6bb0b683fc26f7e7d5def65ba48e9cc5f045e051ddf861a8e88529258",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "fabric_normal_512": {
+   "url": "tex/fabric_normal_512.ktx2",
+   "bytes": 150593,
+   "sha256": "cbcd7fa73c8d52941a15fb1273f180eb01c4389476d2c8a6309e31fa58004a92",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_albedo_1024": {
+   "url": "tex/floor_albedo_1024.ktx2",
+   "bytes": 28927,
+   "sha256": "fae1248956ffd4f67999022dd8bce7c0d863e292a9e6bf3957fb1c574b194eee",
+   "codec": "ETC1S",
+   "colorSpace": "srgb",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_albedo_512": {
+   "url": "tex/floor_albedo_512.ktx2",
+   "bytes": 9045,
+   "sha256": "63fa23819a091bfe9a9eaa11b91c4ed6110a994eb0f59d1814e2da4f73805a65",
+   "codec": "ETC1S",
+   "colorSpace": "srgb",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_normal_1024": {
+   "url": "tex/floor_normal_1024.ktx2",
+   "bytes": 1187186,
+   "sha256": "36cca3180633e59dc311a905e13ad391005659b4f738c34ff38d28823f306076",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_normal_512": {
+   "url": "tex/floor_normal_512.ktx2",
+   "bytes": 322049,
+   "sha256": "f62f78e8153f5ca3392be33da311a4ee5f3d3da6ac1f6e62008b4e002b7198d6",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_orm_1024": {
+   "url": "tex/floor_orm_1024.ktx2",
+   "bytes": 23867,
+   "sha256": "4a53a0e472ebb58d63e7d11dc68176a1af7e4b463592f3cebc233dce936ee7f9",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "floor_orm_512": {
+   "url": "tex/floor_orm_512.ktx2",
+   "bytes": 10557,
+   "sha256": "5ef3a9b27508f9006f582005e5f73e4dfac4b99e92890966a3c5ba97d2b18af3",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "metal_normal_1024": {
+   "url": "tex/metal_normal_1024.ktx2",
+   "bytes": 1306727,
+   "sha256": "46d31ad8b7d627838d15f9e842644fad13623f41d1e725562d1d47fe14360f82",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "metal_normal_512": {
+   "url": "tex/metal_normal_512.ktx2",
+   "bytes": 313835,
+   "sha256": "25ae20ac2ef168eb6dc2c11a5459ed00a35783ebdb7b39e85e21dea7ed058417",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "metal_orm_1024": {
+   "url": "tex/metal_orm_1024.ktx2",
+   "bytes": 51396,
+   "sha256": "41e1fad75818624fc6406c44b13d98bc7b89febb68dbee45a856e7a52a84ed55",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "metal_orm_512": {
+   "url": "tex/metal_orm_512.ktx2",
+   "bytes": 10646,
+   "sha256": "9b165d6e26dc01f1c43959a9cbd2284b1fb60971bb650d99dd0d8f4a31df5472",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "plastic_normal_1024": {
+   "url": "tex/plastic_normal_1024.ktx2",
+   "bytes": 1305930,
+   "sha256": "25913f743f2e93be9d549ba90608e5e43e22795a6d936a5e307ecd51b9a0801a",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "plastic_normal_512": {
+   "url": "tex/plastic_normal_512.ktx2",
+   "bytes": 312592,
+   "sha256": "b1ea0beff99a69cb45d95f854007e184f7e4499beb4efdcbfe7e05de4389fc41",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_albedo_1024": {
+   "url": "tex/slat_albedo_1024.ktx2",
+   "bytes": 47185,
+   "sha256": "2baab5eecc0123074dd34874f99aa22c8f1c94e8af15c18468848b846534385f",
+   "codec": "ETC1S",
+   "colorSpace": "srgb",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_albedo_512": {
+   "url": "tex/slat_albedo_512.ktx2",
+   "bytes": 17118,
+   "sha256": "e34e0d82868f149521cac50a44db6e712de5cb0991cf39ff35b4e294636aea07",
+   "codec": "ETC1S",
+   "colorSpace": "srgb",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_normal_1024": {
+   "url": "tex/slat_normal_1024.ktx2",
+   "bytes": 720231,
+   "sha256": "95cf2c649820d01cbd428ec652e8472f87f097353fec5b7fa86c998987afc5f4",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_normal_512": {
+   "url": "tex/slat_normal_512.ktx2",
+   "bytes": 128116,
+   "sha256": "eaf40030dbe3e43c9cb0601b1af74b307d830a0b521f4808afc2560f3d868f16",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_orm_1024": {
+   "url": "tex/slat_orm_1024.ktx2",
+   "bytes": 45966,
+   "sha256": "22c7d96bb94f36be11ecb4a42962025a76277db1425a3b72e40817ede56de9c2",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "slat_orm_512": {
+   "url": "tex/slat_orm_512.ktx2",
+   "bytes": 14594,
+   "sha256": "4bb06ac990d6df2d19a4933a6f0fb1bf340cae73f843d3c860d47e8f2c506319",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "tread_normal_1024": {
+   "url": "tex/tread_normal_1024.ktx2",
+   "bytes": 767798,
+   "sha256": "1b1cc123ba67425aecfed0f4a10f066bddfd55d4ecef108f14f79f2ea06eebe9",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "tread_normal_512": {
+   "url": "tex/tread_normal_512.ktx2",
+   "bytes": 188606,
+   "sha256": "0dc2c71d374bb5248b8460ccd1351579007444f24bd174681c27c0bbde2d1fab",
+   "codec": "UASTC+Zstd",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "tread_orm_1024": {
+   "url": "tex/tread_orm_1024.ktx2",
+   "bytes": 54206,
+   "sha256": "05b6a2cc8641912c9532326bf5806851d24b5573e84f5531e470b709fab74af5",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  },
+  "tread_orm_512": {
+   "url": "tex/tread_orm_512.ktx2",
+   "bytes": 21022,
+   "sha256": "c2cd2730a8a8ad905925a2e6e0582110513db408c2b563a31f6b66b92793dcc2",
+   "codec": "ETC1S",
+   "colorSpace": "linear",
+   "author": "Lean Quest project (code-authored by Claude for yureepornyk-cmyk/lean-quest)",
+   "license": "CC0-1.0",
+   "source": "tools/assets/textures.py (seeded procedural noise) -> tools/assets/encode-ktx2.cjs (Basis Universal encoder, Apache-2.0)"
+  }
+ },
+ "materials": {
+  "M_FloorEpoxy": {
+   "set": "floor",
+   "repeat": [
+    9,
+    5.5
+   ],
+   "maps": [
+    "albedo",
+    "normal",
+    "orm"
+   ],
+   "normalScale": 0.35
+  },
+  "M_Slat": {
+   "set": "slat",
+   "repeat": [
+    1,
+    1
+   ],
+   "maps": [
+    "albedo",
+    "normal",
+    "orm"
+   ],
+   "normalScale": 1.0
+  },
+  "M_Tyre": {
+   "set": "tread",
+   "repeat": [
+    4,
+    1
+   ],
+   "maps": [
+    "normal",
+    "orm"
+   ],
+   "normalScale": 1.2
+  },
+  "M_Steel": {
+   "set": "metal",
+   "repeat": [
+    2,
+    2
+   ],
+   "maps": [
+    "normal",
+    "orm"
+   ],
+   "normalScale": 0.4
+  },
+  "M_SteelDark": {
+   "set": "metal",
+   "repeat": [
+    2,
+    2
+   ],
+   "maps": [
+    "normal",
+    "orm"
+   ],
+   "normalScale": 0.4
+  },
+  "M_Roller": {
+   "set": "metal",
+   "repeat": [
+    1,
+    1
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.3
+  },
+  "M_UniformShirt": {
+   "set": "fabric",
+   "repeat": [
+    3,
+    3
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.6
+  },
+  "M_UniformPants": {
+   "set": "fabric",
+   "repeat": [
+    3,
+    3
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.6
+  },
+  "M_Gloves": {
+   "set": "fabric",
+   "repeat": [
+    6,
+    6
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.8
+  },
+  "M_SeatFabric": {
+   "set": "fabric",
+   "repeat": [
+    2,
+    2
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.6
+  },
+  "M_BinBlue": {
+   "set": "plastic",
+   "repeat": [
+    2,
+    2
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.5
+  },
+  "M_BinGrey": {
+   "set": "plastic",
+   "repeat": [
+    2,
+    2
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 0.5
+  },
+  "M_RubberMat": {
+   "set": "plastic",
+   "repeat": [
+    6,
+    2
+   ],
+   "maps": [
+    "normal"
+   ],
+   "normalScale": 1.2
+  }
+ },
+ "thirdPartyRuntime": [
+  {
+   "name": "three.js r160 (three.module.min.js, GLTFLoader, KTX2Loader, RoomEnvironment, BufferGeometryUtils, WorkerPool, ktx-parse, zstddec)",
+   "license": "MIT",
+   "path": "three.module.min.js, vendor/three/"
+  },
+  {
+   "name": "Basis Universal transcoder (three.js r160 examples/jsm/libs/basis)",
+   "license": "Apache-2.0",
+   "path": "vendor/three/libs/basis/"
+  }
+ ],
+ "thirdPartyBuildTools": [
+  {
+   "name": "three.js r160 GLTFExporter + TextureUtils",
+   "license": "MIT",
+   "path": "tools/assets/lib/, tools/assets/utils/"
+  },
+  {
+   "name": "meshoptimizer 1.3 simplifier (LOD1 generation)",
+   "license": "MIT",
+   "path": "tools/assets/lib/meshopt_simplifier.js"
+  },
+  {
+   "name": "Basis Universal encoder (webgl/encoder/build, not committed)",
+   "license": "Apache-2.0",
+   "url": "https://github.com/BinomialLLC/basis_universal"
+  }
+ ]
+}
