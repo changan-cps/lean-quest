@@ -931,6 +931,18 @@ body{background:
 #skToast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;z-index:250;background:#15213a;color:#fff;padding:12px 18px;border-radius:999px;font:600 15px var(--f-display);box-shadow:0 6px 0 rgba(0,0,0,.25);transition:.25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
 #skToast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:420px){.skp-grid{gap:6px}.skt{min-height:88px}.skp-drill{width:100%}}
+/* pen-factory card: classroom mode folded inside the same card */
+.gcard .classroom{margin-top:12px;background:var(--sunk);border-radius:16px;padding:4px 12px 10px}
+.gcard .classroom summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px;padding:10px 0;min-height:48px;font:600 16px var(--f-display)}
+.gcard .classroom summary::-webkit-details-marker{display:none}
+.gcard .classroom summary::after{content:"แตะเพื่อเปิด ▾";font:500 12px var(--f-display);color:var(--grape)}
+.gcard .classroom[open] summary::after{content:"ซ่อน ▴"}
+.gcard .classroom summary small{color:var(--muted);font-weight:400;font-size:13px}
+/* live 3D on game cards */
+.gcard .g3d{position:relative;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(180deg,#bfe3f7,#e9f6ff)}
+.gcard .g3d>canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y}
+.gcard .g3d .fs-pins,.gcard .g3d .fs-status,.gcard .g3d .pf-ovl{display:none}
+.gcard .g3d .stage3d-live{left:10px;top:10px}
 
 </style>
 
@@ -1958,23 +1970,36 @@ const SIMHUB=(()=>{
   }
   function myStars(gid,l){return ((prog.sim||{})[gid]||{})[l]||{}}
   function open(){subscribe();if(!ROOMP&&(CAP.room||(window.LQ_SIMROOM&&(WHO.fcode||"").length===4)))joinRoom().catch(()=>{});if(cur){return}renderHub()}
+  // live 3D previews on the game cards (GitHub Pages build only); thumbnails stay as the fallback
+  let PREV=[];
+  function cardPreviews(){PREV.forEach(p=>{try{p.h&&p.h.dispose()}catch(e){}});PREV=[];
+    if(!window.LQ_STANDALONE||!window.WebGLRenderingContext)return;
+    document.querySelectorAll("#simHub [data-g3d]").forEach(el=>{const kind=el.dataset.g3d==="auto"?"auto":"pen";const rec={el,h:null,dead:false};PREV.push(rec);
+      import("./scene3d/card-previews.mjs").then(m=>kind==="auto"?m.autoPreview(el):m.penPreview(el)).then(h=>{if(rec.dead||!document.body.contains(el)){h.dispose();return}rec.h=h;const th=el.querySelector("canvas[data-thumb]");if(th)th.remove();const b=el.querySelector(".stage3d-live");if(b)b.hidden=false})
+      .catch(e=>console.warn("card 3D unavailable",e))})}
+  setInterval(()=>{PREV=PREV.filter(p=>{if(!document.body.contains(p.el)||p.el.offsetParent===null){p.dead=true;try{p.h&&p.h.dispose()}catch(e){}return false}return true})},1500);
   function renderHub(){
     $("simPlay").hidden=true;$("simHub").hidden=false;
     const WHOp=Object.assign({},lsGet("lq-sim-who",{}));WHO.name=WHOp.name||"";WHO.team=WHOp.team||"";WHO.fcode=WHOp.fcode||WHO.fcode||"";
-    const order=["career","auto","factory"],games=order.map(id=>SIMS.find(g=>g.id===id)).filter(Boolean);
+    const order=["career","auto"],games=order.map(id=>SIMS.find(g=>g.id===id)).filter(Boolean),FG=SIMS.find(x=>x.id==="factory");
+    const lvlBtns=g=>g.levels.map((_,l)=>`<button type="button" data-g="${g.id}" data-l="${l}" class="${l===3?"god":""}">${LVN[l]}<small>${starHtml(myStars(g.id,l).stars||0)}</small></button>`).join("");
+    // classroom pen factory lives inside the pen-factory card (same factory, different way to play)
+    const classroom=FG?`<details class="classroom" ${(WHO.fcode&&WHO.fcode.length===4)||(CTL&&CTL.L!=null)?"open":""}><summary>🏫 เล่นในห้องวิทยากร <small>ใส่รหัสห้อง 4 หลัก · แข่งพร้อมกันทั้งห้อง</small></summary>
+      <label class="field" style="margin:10px 0 8px">รหัสห้องจากวิทยากร (4 หลัก)<input id="whoF" inputmode="numeric" maxlength="4" value="${esc(WHO.fcode||"")}" placeholder="เช่น 4127"></label>
+      <div class="lvls">${CTL&&CTL.L!=null?`<button type="button" class="trainer" data-g="factory" data-l="${CTL.L}" ${CTL.stop?"disabled":""}>${CTL.stop?"วิทยากรหยุดเกมแล้ว รอเปิดรอบใหม่":"▶ เข้าร่วม · ระดับ"+LVN[CTL.L]+" (วิทยากรเลือก)"}<small>${starHtml(myStars("factory",CTL.L).stars||0)}</small></button>`:`<p class="note2" style="grid-column:1/-1">${window.LQ_STANDALONE?"ใส่รหัสห้องด้านบน ปุ่มเข้าร่วมจะขึ้นเมื่อวิทยากรเปิดห้อง · หรือฝึกรอบสั้นแบบห้องเรียนด้านล่าง":"รอวิทยากรเปิดห้อง · หรือฝึกรอบสั้นแบบห้องเรียนด้านล่าง"}</p>`+lvlBtns(FG)}</div></details>`:"";
     $("simHub").innerHTML=`<div class="sim-intro"><div><span class="label">Pen Factory · Lean + CPS 6 KUP</span><h1>โรงงานประกอบปากกา</h1><p>บริหารไลน์ผลิตจริงแบบ 3 มิติ เล่นคนเดียวแบบผ่านด่าน หรือแข่งพร้อมกันทั้งห้องเมื่อวิทยากรเปิดห้อง</p></div>
       <div class="who"><button class="btn ghost small" id="howtoBtn">🎬 วิดีโอวิธีเล่น</button><button class="btn ghost small" id="centerBtn" title="ฉายขึ้นจอให้เห็นทุกทีม">📺 จอกลาง (วิทยากร)</button></div></div>
-      <div class="games">${games.map(g=>`<article class="gcard ${g.id}"><canvas width="640" height="360" data-thumb="${g.id}" aria-hidden="true"></canvas><div class="gb">
+      <div class="games">${games.map(g=>`<article class="gcard ${g.id}"><div class="g3d" data-g3d="${g.id}"><canvas width="640" height="360" data-thumb="${g.id}" aria-hidden="true"></canvas><span class="stage3d-live" hidden>● LIVE 3D</span></div><div class="gb">
         <span class="genre">${esc(g.genre)}</span><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p>
         <div class="chips">${g.chips.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
-        ${g.id==="factory"?`<label class="field" style="margin-bottom:8px">รหัสห้องจากวิทยากร (4 หลัก)<input id="whoF" inputmode="numeric" maxlength="4" value="${esc(WHO.fcode||"")}" placeholder="เช่น 4127"></label>`:""}
         <div class="lvls">${g.lvlsHtml?g.lvlsHtml():g.id==="factory"&&CTL&&CTL.L!=null?`<button type="button" class="trainer" data-g="${g.id}" data-l="${CTL.L}" ${CTL.stop?"disabled":""}>${CTL.stop?"วิทยากรหยุดเกมแล้ว รอเปิดรอบใหม่":"▶ เข้าร่วม · ระดับ"+LVN[CTL.L]+" (วิทยากรเลือก)"}<small>${starHtml(myStars(g.id,CTL.L).stars||0)}</small></button>`:g.id==="factory"?`<p class="note2" style="grid-column:1/-1">${window.LQ_STANDALONE?"ใส่รหัสห้องด้านบน แล้วปุ่มเข้าร่วมจะปรากฏเมื่อวิทยากรเปิดห้อง · หรือฝึกเองด้านล่าง":"รอวิทยากรเปิดห้อง · หรือฝึกเองด้านล่าง"}</p>`+g.levels.map((_,l)=>`<button type="button" data-g="${g.id}" data-l="${l}" class="${l===3?"god":""}">${LVN[l]}<small>${starHtml(myStars(g.id,l).stars||0)}</small></button>`).join(""):g.levels.map((_,l)=>`<button type="button" data-g="${g.id}" data-l="${l}" class="${l===3?"god":""}">${LVN[l]}<small>${starHtml(myStars(g.id,l).stars||0)}</small></button>`).join("")}</div>
-      </div></article>`).join("")}</div>`;
+      ${g.id==="career"?classroom:""}</div></article>`).join("")}</div>`;
     $("centerBtn").onclick=center;
     $("howtoBtn").onclick=howto;
     if($("whoF"))$("whoF").oninput=e=>{const q=Object.assign({},lsGet("lq-sim-who",{}),{fcode:e.target.value.replace(/\D/g,"").slice(0,4)});WHO.fcode=q.fcode;lsSet("lq-sim-who",q);if(WHO.fcode.length===4&&!ROOMP)joinRoom().then(()=>renderHub()).catch(()=>{})};
     $("simHub").querySelectorAll(".lvls button").forEach(b=>b.onclick=()=>{if(b.dataset.reset){if(!confirm("เริ่มโรงงานใหม่? ความคืบหน้าเดิมจะหายไป"))return;try{localStorage.removeItem(b.dataset.reset)}catch(e){}}play(b.dataset.g,+b.dataset.l)});
     $("simHub").querySelectorAll("canvas[data-thumb]").forEach(cv=>{const g=SIMS.find(x=>x.id===cv.dataset.thumb);const c=cv.getContext("2d");try{g.thumb(c,640,360,null)}catch(e){}});
+    cardPreviews();
 
   }
   function scoreOf(r,k){const b=r.best||{};if(k==="all")return Object.values(b).reduce((a,v)=>a+(+v||0),0);return +b[k]||0}
