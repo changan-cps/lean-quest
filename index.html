@@ -824,6 +824,113 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600}
 .eq-emo{font-size:30px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
 .eq-it>span svg,.eq-ico svg{filter:drop-shadow(0 3px 4px rgba(0,0,0,.6))}
 .eq-it.lock>span{filter:grayscale(1) brightness(.45)}
+/* ===================== playful game skin for the main app ===================== */
+:root{--pop:0 6px 0 rgba(21,33,58,.12),0 14px 26px -12px rgba(21,33,58,.35);--sun:#ffc233;--sun-d:#d99300;--grass:#3ccf5a;--grass-d:#249a3b;--grape:#8b6cff;--grape-d:#5b3fd1;--berry:#ff5d73}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#eaf6ff}}
+:root[data-theme="light"]{--bg:#eaf6ff}
+body{background:
+  radial-gradient(circle at 10% 6%,rgba(255,255,255,.7) 0 50px,transparent 51px),
+  radial-gradient(circle at 16% 8%,rgba(255,255,255,.55) 0 36px,transparent 37px),
+  radial-gradient(circle at 86% 4%,rgba(255,255,255,.6) 0 44px,transparent 45px),
+  linear-gradient(180deg,#5cc4ff 0,#a9e6ff 360px,var(--bg) 760px) fixed}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body{background:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1.5px) 0 0/34px 34px,linear-gradient(180deg,#1b2350 0,#0f1524 520px) fixed}}
+:root[data-theme="dark"] body{background:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1.5px) 0 0/34px 34px,linear-gradient(180deg,#1b2350 0,#0f1524 520px) fixed}
+.gtop{background:color-mix(in srgb,var(--surface) 88%,transparent);border:0;border-radius:0 0 20px 20px;box-shadow:0 6px 0 rgba(21,33,58,.06)}
+.btn{border-radius:16px;box-shadow:0 5px 0 rgba(21,33,58,.14);border:0}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(21,33,58,.14)}
+.btn.go{background:linear-gradient(180deg,#ffd45c,#ffb21c);box-shadow:0 5px 0 var(--sun-d),0 12px 20px -10px rgba(217,147,0,.7);color:#3b2a00;font-weight:600}
+.btn.go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--sun-d)}
+.btn.ghost{background:var(--surface);box-shadow:0 5px 0 var(--line)}
+.sec-h{display:flex;align-items:center;gap:8px}
+.sec-h::before{content:"";width:10px;height:22px;border-radius:6px;background:linear-gradient(180deg,var(--sun),#ff8a3d)}
+.strip-i,.tile2,.learn-i,.prof-card,.cps-card,.gcard,.panel,.quest{border-radius:20px;box-shadow:var(--pop);border:0}
+.tile2.t-live{background:linear-gradient(150deg,#8b6cff,#5b3fd1);color:#fff}
+.tile2.t-class{background:linear-gradient(150deg,#2fb4ff,#2a6df4);color:#fff}
+.tile2.t-live small,.tile2.t-class small{color:rgba(255,255,255,.85)}
+.bottom-nav{border-radius:22px;box-shadow:0 8px 0 rgba(21,33,58,.08),0 18px 30px -12px rgba(21,33,58,.35)}
+.bottom-nav button[aria-current="page"]{background:linear-gradient(180deg,#ffd45c,#ffb21c);color:#3b2a00;border-radius:16px}
+.chip.xp{box-shadow:0 4px 0 #4a2fb8}
+
+/* ---- home: live 3D stage + lobby card ---- */
+.stage3d{position:relative;margin-bottom:14px}
+.stage3d-view{position:relative;height:clamp(250px,44vw,420px);border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#bfe3f7,#e9f6ff);border:5px solid #fff;box-shadow:var(--pop)}
+.stage3d-view .h-thumb{width:100%;height:100%;object-fit:cover;display:block}
+.stage3d-view canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+.stage3d-view .fs-pins,.stage3d-view .fs-status{display:none}
+.stage3d-live{position:absolute;left:14px;top:12px;z-index:2;background:#ff4b5c;color:#fff;font:700 12px/1 var(--f-display);letter-spacing:.08em;padding:7px 10px;border-radius:999px;box-shadow:0 3px 0 #b8273a}
+.lobby{position:relative;margin:-46px 12px 0;background:var(--surface);border-radius:24px;padding:18px 18px 16px;box-shadow:var(--pop);z-index:3}
+.lobby .eyebrow{display:inline-block;background:var(--grape);color:#fff;font:600 12px/1 var(--f-display);padding:6px 12px;border-radius:999px;box-shadow:0 3px 0 var(--grape-d)}
+.lobby h1{font-size:clamp(22px,5vw,32px);margin:10px 0 6px;line-height:1.2}
+.lobby p{color:var(--muted);margin:0 0 10px}
+.lobby-stats{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+.lobby-stats span{background:var(--sunk);border-radius:12px;padding:6px 10px;font-size:14px}
+.lobby .actions{display:flex;gap:10px;flex-wrap:wrap}
+.lobby .btn.big{flex:1 1 200px}
+
+/* ---- skill journey panel ---- */
+.skp{background:var(--surface);border-radius:24px;padding:16px;box-shadow:var(--pop);margin:16px 0}
+.skp-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.skp-kicker{font:700 11px/1 var(--f-display);letter-spacing:.14em;color:var(--grape)}
+.skp-head h2{margin:4px 0 2px;font-size:22px}
+.skp-head small{color:var(--muted)}
+.skp-drill{display:grid;gap:2px;text-align:left;border:0;border-radius:18px;padding:12px 16px;min-height:56px;background:linear-gradient(160deg,#8b6cff,#5b3fd1);color:#fff;box-shadow:0 5px 0 #3e2899;cursor:pointer;font-family:var(--f-display)}
+.skp-drill b{font-size:18px}.skp-drill small{opacity:.9;font-size:12.5px}
+.skp-drill:active{transform:translateY(3px);box-shadow:0 2px 0 #3e2899}
+.skp-q{display:grid;gap:8px;margin:14px 0}
+.skq{display:flex;gap:10px;align-items:center;background:var(--sunk);border-radius:16px;padding:10px 12px}
+.skq.done{background:color-mix(in srgb,var(--go-soft) 80%,var(--surface))}
+.skq-t{flex:1;min-width:0}.skq-t b{display:block;font-size:14.5px;font-weight:600}
+.skq-t small{color:var(--muted);font-size:12px}
+.skq-bar{height:8px;border-radius:99px;background:color-mix(in srgb,var(--line) 70%,transparent);overflow:hidden;margin:6px 0 2px}
+.skq-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffb21c,#3ccf5a)}
+.skq-go,.skq-claim{border:0;border-radius:12px;padding:10px 12px;min-height:44px;min-width:76px;font:600 14px var(--f-display);cursor:pointer}
+.skq-go{background:var(--surface);color:var(--ink);box-shadow:0 3px 0 var(--line)}
+.skq-claim{background:linear-gradient(180deg,#5fe07a,#3ccf5a);color:#fff;box-shadow:0 3px 0 #249a3b;animation:skpulse 1.2s ease-in-out infinite}
+.skq-ok{font-weight:700;color:var(--go);font-size:14px}
+.skp-chest{border:2px dashed var(--line);border-radius:16px;padding:12px;min-height:48px;background:transparent;color:var(--muted);font:600 15px var(--f-display);cursor:pointer}
+.skp-chest.ready{border:0;background:linear-gradient(180deg,#ffd45c,#ffb21c);color:#3b2a00;box-shadow:0 5px 0 var(--sun-d);animation:skpulse 1.2s ease-in-out infinite}
+.skp-chest:disabled{cursor:default}
+.skp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.skt{display:grid;justify-items:center;gap:2px;border:0;background:var(--sunk);border-radius:16px;padding:8px 4px;min-height:96px;cursor:pointer;color:var(--ink);font-family:var(--f-display)}
+.skt b{font-size:12.5px;font-weight:600}.skt small{font-size:12px;color:var(--grape);font-weight:700}
+@keyframes skpulse{50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion: reduce){.skq-claim,.skp-chest.ready{animation:none}}
+/* profile tree */
+.sktree{margin-top:8px}
+.skrow{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:18px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--pop)}
+.skrow-m{flex:1;min-width:0}.skrow-h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.skrow-h span{color:var(--grape);font-weight:700;font-size:13px}
+.skrow small{color:var(--muted);font-size:12.5px}
+.sk-logh{font-size:16px;margin:14px 0 6px}
+.sk-log div{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.sk-log span{font-size:12px;color:var(--muted);min-width:46px}.sk-log p{flex:1;margin:0;font-size:14px}.sk-log b{color:var(--go)}
+/* drill overlay */
+.skd{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:radial-gradient(circle at 50% 0,#7b5cff,#2b1d78 70%);overflow:auto}
+.skd-card{width:min(560px,100%);background:var(--surface);color:var(--ink);border-radius:26px;padding:18px;box-shadow:0 10px 0 rgba(0,0,0,.2)}
+.skd-top{display:flex;align-items:center;gap:10px}
+.skd-x{border:0;background:var(--sunk);color:var(--ink);width:44px;height:44px;border-radius:14px;font-size:18px;cursor:pointer}
+.skd-dots{flex:1;display:flex;gap:6px;justify-content:center}
+.skd-dots i{width:26px;height:8px;border-radius:9px;background:var(--line)}.skd-dots i.cur{background:var(--grape)}.skd-dots i.ok{background:#3ccf5a}.skd-dots i.no{background:#ff5d73}
+.skd-time{font:700 20px var(--f-display);min-width:36px;text-align:right;color:var(--grape)}
+.skd-timebar{height:8px;border-radius:9px;background:var(--sunk);margin:10px 0 14px;overflow:hidden}.skd-timebar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff5d73,#ffb21c,#3ccf5a);transition:width .1s linear}
+.skd-tag{display:inline-block;background:var(--sunk);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.skd-card h2{font-size:clamp(19px,4.6vw,24px);line-height:1.35;margin:10px 0 14px}
+.skd-opts{display:grid;gap:10px}
+.skd-o{display:flex;gap:12px;align-items:center;text-align:left;border:0;border-radius:16px;padding:12px 14px;min-height:56px;font:500 16px/1.35 var(--f-display);color:#fff;cursor:pointer}
+.skd-o span{display:grid;place-items:center;flex:0 0 32px;height:32px;border-radius:10px;background:rgba(255,255,255,.25);font-weight:700}
+.skd-o.o0{background:#e5484d;box-shadow:0 5px 0 #a8262b}.skd-o.o1{background:#2a6df4;box-shadow:0 5px 0 #1747a8}.skd-o.o2{background:#e9a100;box-shadow:0 5px 0 #a87400}.skd-o.o3{background:#17a65a;box-shadow:0 5px 0 #0e6e3b}
+.skd-o:active{transform:translateY(3px)}
+.skd-o:disabled{opacity:.35;cursor:default}
+.skd-o.right{opacity:1;outline:4px solid #3ccf5a;outline-offset:2px}.skd-o.wrong{opacity:.9;outline:4px solid #ff5d73;outline-offset:2px}
+.skd-why{margin-top:14px;background:var(--sunk);border-radius:16px;padding:12px 14px}
+.skd-why b{font-size:17px}.skd-why p{margin:6px 0 10px;color:var(--muted)}
+.skd-next{border:0;border-radius:14px;padding:12px 18px;min-height:48px;background:linear-gradient(180deg,#ffd45c,#ffb21c);color:#3b2a00;font:700 16px var(--f-display);box-shadow:0 5px 0 #d99300;cursor:pointer}
+.skd-ghost{border:0;border-radius:14px;padding:12px 18px;min-height:48px;background:var(--sunk);color:var(--ink);font:600 16px var(--f-display);cursor:pointer}
+.skd-res{text-align:center}.skd-big{font-size:64px}.skd-xp{font:700 22px var(--f-display);color:var(--grape)}
+.skd-per{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}.skd-per div{background:var(--sunk);border-radius:14px;padding:8px 10px;display:grid;gap:2px;min-width:74px}.skd-per small{color:var(--muted)}
+.skd-hint{color:var(--muted);font-size:14px}.skd-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+#skToast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;z-index:250;background:#15213a;color:#fff;padding:12px 18px;border-radius:999px;font:600 15px var(--f-display);box-shadow:0 6px 0 rgba(0,0,0,.25);transition:.25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+#skToast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:420px){.skp-grid{gap:6px}.skt{min-height:88px}.skp-drill{width:100%}}
 
 </style>
 
@@ -1668,12 +1775,14 @@ function drawThumbs(root){root.querySelectorAll("canvas[data-thumb]").forEach(cv
 function renderHome(){
   const p=PROF.get(),c=lsGet("lq-career",null),se=SEASON.cur(),sk=streakTouch(),my=myRankLocal();
   $("homeBody").innerHTML=`
-  <section class="hero-card">
-    <div class="hero-txt"><span class="eyebrow">${p.name?"สวัสดี "+esc(p.name)+" 👋":"ยินดีต้อนรับสู่ Lean Quest"}</span>
-      <h1>${c?`โรงงานของคุณ · ด่าน ${c.stage}`:"เปิดโรงงานประกอบปากกาของคุณ"}</h1>
-      <p>${c?`เงินสด <b>${c.cash.toLocaleString()} ฿</b> · คะแนนรวม <b>${Math.round(c.total||0).toLocaleString()}</b> · อัปเกรด <b>${Object.keys(c.up||{}).length}/9</b>`:"บริหารไลน์ผลิตจริงแบบ 3 มิติ ผ่านด่าน อัปเกรดโรงงานด้วยหลัก Lean และ CPS 6 KUP เซฟอัตโนมัติ เล่นได้ทุกเมื่อ"}</p>
-      <div class="actions"><button class="btn go big" id="hPlay">${c?(c.runCk?"▶ เล่นต่อจากที่ค้าง":"▶ เล่นต่อ ด่าน "+c.stage):"▶ เปิดโรงงาน"}</button><button class="btn ghost" id="hHow">🎬 วิธีเล่น</button></div></div>
-    <div class="hero-art" id="heroArt">${thumbCanvas("career")}</div>
+  <section class="stage3d">
+    <div class="stage3d-view" id="hero3d">${thumbCanvas("career")}<span class="stage3d-live" hidden>● LIVE 3D</span></div>
+    <div class="lobby">
+      <span class="eyebrow">${p.name?"สวัสดี "+esc(p.name)+" 👋":"ยินดีต้อนรับสู่ Lean Quest"}</span>
+      <h1>${c?`โรงงานของคุณ · ด่าน ${c.stage}`:"เปิดโรงงานประกอบของคุณ"}</h1>
+      ${c?`<div class="lobby-stats"><span>💰 <b>${c.cash.toLocaleString()}</b> ฿</span><span>⭐ <b>${Math.round(c.total||0).toLocaleString()}</b></span><span>🛠️ <b>${Object.keys(c.up||{}).length}/9</b> อัปเกรด</span></div>`:`<p>บริหารไลน์ผลิต ผ่านด่าน อัปเกรดโรงงานด้วยหลัก Lean และ CPS 6 KUP เซฟอัตโนมัติ เล่นได้ทุกเมื่อ</p>`}
+      <div class="actions"><button class="btn go big" id="hPlay">${c?(c.runCk?"▶ เล่นต่อจากที่ค้าง":"▶ เล่นต่อ ด่าน "+c.stage):"▶ เปิดโรงงาน"}</button><button class="btn ghost" id="hHow">🎬 วิธีเล่น</button></div>
+    </div>
   </section>
   <div class="strip">
     ${(()=>{const X=window.CPSLV?CPSLV.level(c):null;return X?`<button type="button" class="strip-i cps-strip" id="hLv"><i>${X.lv.em}</i><div><b>${X.lv.n}</b><small>${X.next?"ภารกิจ: "+X.need.join(" · ").replace(/\(ตอนนี้[^)]*\)/g,""):"ระดับสูงสุด"}</small></div></button>`:""})()}
@@ -1681,6 +1790,7 @@ function renderHome(){
     <div class="strip-i"><i>🗓️</i><div><b>ซีซัน ${se.n}</b><small>${SEASON.fmt(se.a)} – ${SEASON.fmt(se.b)} · เหลือ ${se.left} วัน</small></div></div>
     <div class="strip-i"><i>🏆</i><div><b>${my?"อันดับ #"+my.pos:"ยังไม่มีอันดับ"}</b><small>${my?my.score.toLocaleString()+" คะแนน":"เล่นให้จบ 1 ด่านเพื่อขึ้นตาราง"}</small></div></div>
   </div>
+  ${window.SKILLS?skillPanelHtml():""}
   <h2 class="sec-h">ภารกิจเลื่อนระดับ CPS</h2>${questHtml(c)}
   <h2 class="sec-h">เล่นกับเพื่อนในห้อง</h2>
   <div class="tiles2">
@@ -1691,14 +1801,27 @@ function renderHome(){
   <div class="learn">${[["SQDCPME","ตั้งเป้าหมาย SMART"],["6 KUP","Policy · Time&Data · Std Work · Visual · Confirm · CI"],["5ส + Poka-yoke","จัดโต๊ะ ลดเดิน กันหยิบผิด"],["Line Balance","Takt · Yamazumi · จัดคน"],["Andon · TPM","เห็นปัญหาไว แก้ที่ต้นเหตุ"],["Kaizen","อัปเกรดโรงงานด้วยกิจกรรมจริง"]].map(x=>`<div class="learn-i"><b>${x[0]}</b><small>${x[1]}</small></div>`).join("")}</div>
   ${p.name?"":`<div class="notice soft"><b>ตั้งชื่อก่อนเล่น</b><span>ใส่ชื่อ รหัสพนักงาน และแผนกที่แท็บ "ฉัน" เพื่อให้คะแนนขึ้นตารางอันดับ</span><button class="btn small" id="hProf">ไปตั้งค่า →</button></div>`}`;
   drawThumbs($("homeBody"));
+  heroMount();
   $("hPlay").onclick=()=>{show("scrSims");SIMHUB.open();SIMHUB.play("career",0)};
   $("hHow").onclick=()=>SIMHUB.howto();
   $("hLive").onclick=()=>goTab("live");
   $("hClass").onclick=()=>{show("scrSims");SIMHUB.open();setTimeout(()=>{const e=document.getElementById("whoF");if(e){e.focus();e.scrollIntoView({block:"center"})}},50)};
   if($("hProf"))$("hProf").onclick=()=>goTab("profile");bindQuests($("homeBody"));
+  if(window.SKILLS)bindSkillPanel($("homeBody"),renderHome);
   if($("hLv"))$("hLv").onclick=()=>{goTab("profile");setTimeout(()=>{const e=$("cpsBox");if(e)e.scrollIntoView({block:"start",behavior:"smooth"})},80)};
   hud();
 }
+// live 3D line on the home page (GitHub Pages build only: needs the GLB assets next to index.html)
+let HERO=null;
+function heroMount(){const el=document.getElementById("hero3d");if(!el)return;
+  if(HERO&&HERO.el===el)return;if(HERO){try{HERO.h.dispose()}catch(e){}HERO=null}
+  if(!window.LQ_STANDALONE||!window.WebGLRenderingContext)return;
+  const rec={el,h:null};HERO=rec;
+  import("./scene3d/hero.mjs").then(m=>{if(HERO!==rec||!document.body.contains(el))return;const th=el.querySelector(".h-thumb");
+    rec.h=m.mountHero(el,{onSelect:()=>{}});if(th)th.remove();const b=el.querySelector(".stage3d-live");if(b)b.hidden=false})
+  .catch(e=>console.warn("3D hero unavailable",e));
+}
+setInterval(()=>{if(HERO&&HERO.h&&(!document.body.contains(HERO.el)||HERO.el.offsetParent===null)){try{HERO.h.dispose()}catch(e){}HERO=null}},1500);
 function myRankLocal(){const rows=rankRowsLocal();const p=PROF.get();const i=rows.findIndex(r=>r.me);return i<0?null:{pos:i+1,score:rows[i].score}}
 function rankRowsLocal(){// this device only until the shared scoreboard (Google Sheets) is connected
   const p=PROF.get(),c=lsGet("lq-career",null),sk=lsGet("lq-streak",{days:[]}),loc=lsGet("lq-sim-local",[]);
@@ -1721,6 +1844,7 @@ function renderProfile(){const p=PROF.get(),sk=lsGet("lq-streak",{days:[]}),c=ls
       <button type="button" class="btn go" id="pfEquip">🎽 ห้องแต่งตัว (Equipment)</button>
     </div></div>
     <div class="st-kpi"><div class="hudi"><span>XP</span><b>${totalXp().toLocaleString()}</b></div><div class="hudi"><span>วันที่เล่น</span><b>${sk.days.length}</b></div><div class="hudi"><span>ด่านโรงงาน</span><b>${c?c.stage:"-"}</b></div><div class="hudi"><span>คะแนนโรงงาน</span><b>${c?Math.round(c.total||0).toLocaleString():"-"}</b></div></div>
+    ${window.SKILLS?skillTreeHtml():""}
     ${(()=>{if(!window.CPSLV)return "";const X=CPSLV.level(c);return `<h2 class="sec-h" id="cpsBox">ระดับ CPS</h2><div class="cps-wrap"><div class="cps-card big"><span class="cps-em">${X.lv.em}</span><div><span class="label">ระดับปัจจุบัน</span><b>${X.lv.n}</b><small>${X.lv.desc}</small><div class="cps-bar"><i style="width:${Math.round(X.prog*100)}%"></i></div><small>${X.next?"ถัดไป <b>"+X.next.em+" "+X.next.n+"</b> ต้อง "+X.need.join(" และ "):"ระดับสูงสุดแล้ว 🎉"}</small></div></div>
       <div class="cps-radar">${CPSLV.radar(X.skill,240)}<p class="note2" style="text-align:center">ทักษะ CPS รวม <b>${Math.round(X.skill.total*100)}%</b></p></div></div>
       <h3 class="sec-h" style="font-size:17px">ภารกิจเลื่อนระดับ</h3>${questHtml(c)}
@@ -1896,7 +2020,7 @@ const SIMHUB=(()=>{
       overlay(wrap,html,btns){const o=document.createElement("div");o.className="ovl";o.innerHTML=`<div class="box">${html}<div class="actions">${btns.map((b,i)=>`<button class="btn ${i===0?"go":"ghost"}" data-i="${i}">${b[0]}</button>`).join("")}</div></div>`;wrap.appendChild(o);o.querySelectorAll("button[data-i]").forEach(b=>b.onclick=()=>{o.remove();btns[+b.dataset.i][1]()});o.querySelector("button").focus({preventScroll:true});return o},
       toast(wrap,msg){let t=wrap.querySelector(".toast");if(!t){t=document.createElement("div");t.className="toast";wrap.appendChild(t)}t.textContent=msg;t.style.opacity=1;clearTimeout(t._h);t._h=setTimeout(()=>t.style.opacity=0,2200)},
       end(wrap,res){
-        prog.sim=prog.sim||{};prog.sim[gid]=prog.sim[gid]||{};const p=prog.sim[gid][l]||{};prog.sim[gid][l]={stars:Math.max(p.stars||0,res.stars),best:Math.max(p.best||0,res.score)};save();hud();
+        prog.sim=prog.sim||{};prog.sim[gid]=prog.sim[gid]||{};const p=prog.sim[gid][l]||{};prog.sim[gid][l]={stars:Math.max(p.stars||0,res.stars),best:Math.max(p.best||0,res.score)};save();hud();try{if(window.SKILLS){SKILLS.fromGame(gid,l,res);setTimeout(()=>window.skillLevelUps&&skillLevelUps(),600)}}catch(e){}
         submit(gid,l,res.score);
         const nextL=l<g.levels.length-1&&res.stars>0;
         api.overlay(wrap,`<span class="label">${esc(g.name)} · ระดับ${LVN[l]}</span><div class="big-stars">${starHtml(res.stars)}</div><h3>${res.stars?"ผ่านรอบนี้!":"ยังไม่ผ่าน ลองอีกครั้ง"}</h3>
@@ -3288,6 +3412,223 @@ const EQUIP=(()=>{
   return {open,render,icon,portrait,bonus,look3d,get,item,ITEMS,newUnlocks,unlocked};
 })();
 window.EQUIP=EQUIP;
+
+// =====================================================================
+// SKILL JOURNEY — keep collecting CPS skills between classes
+// 8 skill tracks (same ids as the CPS radar) with their own XP + level,
+// fed by every game (pen factory career/classroom, Auto Plant, Live Quiz,
+// Factory Training 3D page) plus a daily 5-question Skill Drill and
+// 3 rotating daily quests. Everything is stored on this device; the
+// shared scoreboard (Google Sheets) receives the totals when connected.
+// =====================================================================
+const SKILLS=(()=>{
+  const DIM=[
+    {id:"pd",ic:"🎯",n:"Policy Deployment",sh:"Policy",tip:"ส่งมอบให้ได้ตามเป้า และตอบปัญหาหน้างานให้ถูก"},
+    {id:"tdm",ic:"⏱️",n:"Time & Data",sh:"Time&Data",tip:"จับเวลา Takt / CT และติดตาม Hourly Board"},
+    {id:"std",ic:"📋",n:"Standardized Work",sh:"Std Work",tip:"ทำงานตามมาตรฐาน จัดโต๊ะให้หยิบง่าย ไม่มีท่าเสี่ยง"},
+    {id:"vm",ic:"👀",n:"Visual Management",sh:"Visual",tip:"ทำให้ปัญหามองเห็นได้ทันที เช่น Andon ป้าย 5ส"},
+    {id:"pc",ic:"✅",n:"Process Confirmation",sh:"Confirm",tip:"เดินตรวจยืนยันกระบวนการตามรอบเวลา"},
+    {id:"ci",ic:"🔧",n:"Continuous Improvement",sh:"Kaizen",tip:"ใช้ ECRS / Kaizen ลดความสูญเปล่าทีละขั้น"},
+    {id:"lbe",ic:"⚖️",n:"Line Balance",sh:"Balance",tip:"แบ่งงานให้ทุกสถานีใกล้ Takt (LBE ≥85%)"},
+    {id:"q",ic:"💎",n:"Quality",sh:"Quality",tip:"กันของเสียด้วย Poka-yoke ทำ FPY ให้สูง"}];
+  // cumulative XP needed for Lv1..Lv10
+  const LV=[0,60,150,280,450,680,980,1350,1800,2400];
+  const today=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10);   // Bangkok day
+  const get=()=>Object.assign({xp:{},log:[],seen:{},sync:{},lvShown:{},drillDays:[],weekQ:{}},lsGet("lq-skills",{}));
+  const put=s=>lsSet("lq-skills",s);
+  function lvOf(x){let l=1;for(let i=0;i<LV.length;i++)if(x>=LV[i])l=i+1;const cur=LV[l-1],nx=LV[l]??null;return {lv:l,cur,nx,pct:nx?Math.min(1,(x-cur)/(nx-cur)):1}}
+  function tracks(){const s=get();return DIM.map(d=>({...d,xp:Math.round(s.xp[d.id]||0),...lvOf(s.xp[d.id]||0)}))}
+  function total(){const t=tracks();return {lv:t.reduce((a,x)=>a+x.lv,0),xp:t.reduce((a,x)=>a+x.xp,0),max:t.length*LV.length}}
+  function weakest(n=1){return tracks().sort((a,b)=>a.xp-b.xp).slice(0,n)}
+  // ---------------- daily state
+  function day(){const d=lsGet("lq-skill-day",null);if(d&&d.d===today())return d;const n={d:today(),c:{},claimed:[],chest:false};lsSet("lq-skill-day",n);return n}
+  function bump(k,v=1){const d=day();d.c[k]=(d.c[k]||0)+v;lsSet("lq-skill-day",d)}
+  // ---------------- awarding
+  const pending=[];
+  function award(map,why){const s=get();let sum=0;const before={};DIM.forEach(d=>before[d.id]=lvOf(s.xp[d.id]||0).lv);
+    Object.entries(map).forEach(([k,v])=>{v=Math.round(v);if(!v||!DIM.find(d=>d.id===k))return;s.xp[k]=(s.xp[k]||0)+v;sum+=v});
+    if(!sum)return 0;
+    s.log.unshift({t:Date.now(),why,map:Object.fromEntries(Object.entries(map).filter(([,v])=>Math.round(v)).map(([k,v])=>[k,Math.round(v)]))});s.log=s.log.slice(0,40);
+    DIM.forEach(d=>{const a=lvOf(s.xp[d.id]||0).lv;if(a>before[d.id])pending.push({d,lv:a})});
+    put(s);bump("xp",sum);return sum}
+  function popLevelUps(){return pending.splice(0)}
+  // ---------------- syncing from the games (read-only on their data)
+  function sync(){const s=get();let got=0;
+    // 1) pen factory career: new finished stages + skill growth on the CPS radar
+    const c=lsGet("lq-career",null);
+    if(c){const H=c.hist||[],from=s.sync.hist||0;
+      if(H.length<from)s.sync.hist=0;
+      for(const h of H.slice(from)){const m={pd:Math.min(1,(h.deliv||0)/95)*25,lbe:Math.min(1,(h.lbe||0)/85)*25,q:h.pass?Math.min(1,(h.fpy||0)/98)*20:5,tdm:6,std:6};put(s);got+=award(m,`ด่าน ${h.stage} โรงงานปากกา`);if(h.pass)bump("career");if((h.lbe||0)>=85)bump("lbe85");bump("games")}
+      const s2=get();s2.sync.hist=H.length;
+      if(window.CPSLV){const d=CPSLV.skill(c)?.d||{},last=s2.sync.cps||{};const m={};DIM.forEach(x=>{const dv=(d[x.id]||0)-(last[x.id]||0);if(dv>0.005)m[x.id]=dv*100});s2.sync.cps=d;put(s2);if(Object.keys(m).length)got+=award(m,"พัฒนาโรงงานปากกา (6 KUP / อัปเกรด)")}else put(s2)}
+    // 2) Factory Training 3D page (same origin → shares localStorage)
+    let tp=null;try{tp=JSON.parse(localStorage.getItem("leanquest-training-profile")||"null")}catch(e){}
+    if(tp&&tp.completed){const s3=get(),done=s3.sync.tr||{};const MAP={1:{pc:30,q:25},2:{vm:30,std:25},3:{lbe:35,tdm:20},4:{ci:30,pc:20},5:{tdm:30,pd:25},6:{pd:15,tdm:15,std:15,vm:15,pc:15,ci:15,lbe:15,q:15}};
+      const fresh=Object.keys(tp.completed).filter(k=>!(k in done));fresh.forEach(k=>done[k]=1);s3.sync.tr=done;put(s3);
+      fresh.forEach(k=>{const lvl=+k.split("-").pop()||1;got+=award(MAP[lvl]||MAP[1],`ผ่านด่าน ${lvl} หน้าอบรม 3D (${k.split("-")[0]})`);bump("tr3d");bump("games")})}
+    // 3) Live Quiz sessions played on this device
+    const days=lsGet("lq-day-results",[]),s4=get(),seenL=s4.sync.live||{};const newL=days.filter(g=>g&&g.id&&!seenL[g.id]);newL.forEach(g=>seenL[g.id]=1);s4.sync.live=seenL;put(s4);
+    newL.forEach(g=>{got+=award({pd:12,tdm:8,ci:8},"Live Quiz: "+(g.title||"แบบทดสอบ"));bump("live")});
+    return got}
+  // called by the game hub when any classroom/solo game ends
+  function fromGame(gid,l,res){if(!res||gid==="career")return 0;const st=res.stars||0,base=10+st*10;
+    const MAP={factory:{lbe:1,std:.8,q:.7,pd:.5},auto:{lbe:.9,ci:.8,pd:.7,vm:.6},kaizen:{ci:1,std:.6},farm:{tdm:.8,lbe:.6},kitchen:{std:.8,q:.6},rpg:{pd:.6,ci:.6}};
+    const w=MAP[gid]||{ci:.7,pd:.5},m={};Object.entries(w).forEach(([k,f])=>m[k]=base*f*(1+l*.25));
+    bump("games");if(gid==="auto")bump("auto");
+    const lbeStat=(res.stats||[]).find(x=>/LBE|สมดุล|Balance/i.test(x[0]));if(lbeStat&&parseFloat(String(lbeStat[1]))>=85)bump("lbe85");
+    return award(m,`เล่น ${gid==="auto"?"Lean Auto Plant":gid==="factory"?"โรงงานปากกา (ห้องเรียน)":gid} · ${"⭐".repeat(st)||"ไม่ผ่าน"}`)}
+  // ---------------- daily quests
+  const QPOOL=[
+    {id:"drill",t:"ทำ Skill Drill วันนี้ให้ครบ 5 ข้อ",k:"drill",n:1,go:"drill"},
+    {id:"perfect",t:"ตอบ Skill Drill ถูกครบ 5/5",k:"perfect",n:1,go:"drill"},
+    {id:"career",t:"ผ่านด่านโรงงานปากกา 1 ด่าน",k:"career",n:1,go:"career"},
+    {id:"lbe85",t:"ทำ Line Balance ≥85% ในเกมโรงงาน",k:"lbe85",n:1,go:"career"},
+    {id:"auto",t:"เล่น Lean Auto Plant 1 รอบ",k:"auto",n:1,go:"auto"},
+    {id:"tr3d",t:"ผ่านด่านในหน้าอบรม 3D 1 ด่าน",k:"tr3d",n:1,go:"tr3d"},
+    {id:"games2",t:"เล่นเกมโรงงานรวม 2 รอบ",k:"games",n:2,go:"sims"},
+    {id:"xp150",t:"เก็บ Skill XP วันนี้ให้ได้ 150",k:"xp",n:150,go:"drill"},
+    {id:"extra",t:"ฝึก Drill เพิ่มอีก 1 รอบ",k:"drillx",n:1,go:"drill"}];
+  function seeded(str){let h=2166136261;for(const ch of str){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return ()=>{h^=h<<13;h^=h>>>17;h^=h<<5;return ((h>>>0)%1e6)/1e6}}
+  function quests(){const d=day(),r=seeded(d.d),rest=QPOOL.slice(1);for(let i=rest.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}
+    return [QPOOL[0],...rest.slice(0,2)].map(q=>{const v=d.c[q.k]||0;return {...q,v:Math.min(v,q.n),done:v>=q.n,claimed:d.claimed.includes(q.id)}})}
+  function claim(id){const d=day(),q=quests().find(x=>x.id===id);if(!q||!q.done||d.claimed.includes(id))return 0;d.claimed.push(id);lsSet("lq-skill-day",d);
+    const w=weakest(2);const got=award({[w[0].id]:30,[w[1].id]:20},"รางวัลภารกิจ: "+q.t);
+    const s=get(),wk=weekKey();s.weekQ[wk]=(s.weekQ[wk]||0)+1;put(s);return got}
+  function chest(){const d=day(),Q=quests();if(d.chest||!Q.every(q=>q.claimed))return 0;d.chest=true;lsSet("lq-skill-day",d);const m={};DIM.forEach(x=>m[x.id]=12);return award(m,"🎁 กล่องรางวัลประจำวัน")}
+  function weekKey(){const t=new Date(Date.now()+7*36e5),d=(t.getUTCDay()+6)%7;t.setUTCDate(t.getUTCDate()-d);return t.toISOString().slice(0,10)}
+  function week(){const s=get();return {done:s.weekQ[weekKey()]||0,goal:15}}
+  // ---------------- Skill Drill question bank (8 skills × 6)
+  const QB=[
+    // Policy Deployment
+    {s:"pd",q:"Policy Deployment มีเป้าหมายหลักเพื่ออะไร",c:["ให้เป้าหมายของบริษัทถูกแปลงเป็นเป้าหมายของทุกระดับจนถึงหน้างาน","ให้ผู้จัดการเขียนนโยบายให้ยาวที่สุด","ให้แต่ละแผนกตั้งเป้าหมายเองโดยไม่ต้องเชื่อมกัน","ใช้แทนการประชุมทุกชนิด"],a:0,w:"Policy Deployment คือการกระจายเป้าหมายจากบนลงล่าง ให้ทุกคนรู้ว่างานตัวเองช่วยเป้าใหญ่อย่างไร"},
+    {s:"pd",q:"SQDCPME ตัว D หมายถึงอะไร",c:["Delivery · การส่งมอบ","Design · การออกแบบ","Defect · ของเสีย","Discipline · วินัย"],a:0,w:"S Safety · Q Quality · D Delivery · C Cost · P People · M Maintenance · E Environment"},
+    {s:"pd",q:"เป้าหมายแบบ SMART ข้อใดดีที่สุด",c:["ลดของเสียสถานี 3 จาก 2% เหลือ 1% ภายใน 31 ธ.ค.","ทำงานให้ดีขึ้น","ลดของเสียให้มากที่สุดเท่าที่ทำได้","คุณภาพต้องดีเสมอ"],a:0,w:"SMART = ชัดเจน วัดได้ ทำได้จริง เกี่ยวข้องกับเป้าใหญ่ และมีกำหนดเวลา"},
+    {s:"pd",q:"ถ้าส่งมอบได้ 80% ของแผน ควรทำอะไรก่อน",c:["หาสาเหตุที่ทำให้ขาดไป 20% ด้วยข้อมูลหน้างาน","เพิ่ม OT ทุกวันโดยไม่ต้องดูสาเหตุ","ลดเป้าหมายลงให้ตรงกับที่ทำได้","รอให้เดือนหน้าดีขึ้นเอง"],a:0,w:"Lean แก้ที่ต้นเหตุ: ดูข้อมูลว่าเสียเวลาไปที่ไหน แล้วค่อยเลือกมาตรการ"},
+    {s:"pd",q:"KPI ที่ดีบนบอร์ดหน้างานควรมีลักษณะใด",c:["มีเป้า ค่าจริง และแนวโน้ม อ่านเข้าใจใน 5 วินาที","ตัวเลขเยอะที่สุดเท่าที่ทำได้","อัปเดตปีละครั้ง","มีแต่หัวหน้าที่อ่านเข้าใจ"],a:0,w:"บอร์ดที่ดีบอกได้ทันทีว่าวันนี้ดีหรือไม่ดี เทียบกับเป้า"},
+    {s:"pd",q:"ใน SQDCPME เรื่องใดต้องมาก่อนเสมอ",c:["Safety · ความปลอดภัย","Cost · ต้นทุน","Delivery · ส่งมอบ","Environment · สิ่งแวดล้อม"],a:0,w:"ความปลอดภัยต้องมาก่อนทุกเป้าหมาย ไม่มีงานไหนคุ้มกับการบาดเจ็บ"},
+    // Time & Data
+    {s:"tdm",q:"Takt time คำนวณอย่างไร",c:["เวลาทำงานที่มี ÷ จำนวนที่ลูกค้าต้องการ","จำนวนคน × เวลาทำงาน","เวลาที่สถานีช้าที่สุดใช้","เวลาพัก ÷ จำนวนงาน"],a:0,w:"Takt = จังหวะที่ลูกค้าต้องการ เช่น 27,000 วินาที ÷ 450 คัน = 60 วินาที/คัน"},
+    {s:"tdm",q:"ถ้า Cycle time ของสถานีมากกว่า Takt จะเกิดอะไร",c:["สถานีนั้นเป็นคอขวด ผลิตไม่ทันความต้องการ","ไลน์จะเร็วขึ้น","ไม่มีผลอะไร","สถานีอื่นจะรอน้อยลง"],a:0,w:"CT > Takt แปลว่าทำไม่ทันจังหวะลูกค้า งานจะค้างหน้าสถานีนั้น"},
+    {s:"tdm",q:"Hourly Board (บอร์ดรายชั่วโมง) ใช้ทำอะไร",c:["เทียบยอดจริงกับแผนทุกชั่วโมง และบันทึกสาเหตุที่ขาด","บันทึกเวลาเข้างานของพนักงาน","แสดงราคาสินค้า","ใช้แทนใบสั่งผลิต"],a:0,w:"รู้ปัญหาภายในชั่วโมงเดียว แก้ได้ทันก่อนจบกะ"},
+    {s:"tdm",q:"จับเวลางานเพื่อทำมาตรฐาน ควรจับอย่างไร",c:["จับหลายรอบแล้วดูค่าที่ทำซ้ำได้ แยกงานหลักกับงานเดิน/รอ","จับครั้งเดียวจากคนที่เร็วที่สุด","ประมาณเอาจากความรู้สึก","จับเฉพาะตอนเครื่องเสีย"],a:0,w:"ข้อมูลที่ดีต้องทำซ้ำได้ และแยก VA / NVA ชัดเจน"},
+    {s:"tdm",q:"งานไหนเป็น Value Added (VA)",c:["ขันน็อตยึดล้อเข้ากับรถ","เดินไปหยิบน็อตที่ชั้นไกล ๆ","รอรถคันถัดไปมาถึง","ค้นหาเครื่องมือในกล่อง"],a:0,w:"VA คืองานที่เปลี่ยนรูปหรือเพิ่มคุณค่าที่ลูกค้ายอมจ่าย การเดิน รอ และค้นหาเป็น Waste"},
+    {s:"tdm",q:"WIP ระหว่างสถานีสูงขึ้นเรื่อย ๆ บอกอะไรเรา",c:["มีสถานีถัดไปที่ช้ากว่า (คอขวด) หรือผลิตเกินความจำเป็น","ไลน์สมดุลดีมาก","ลูกค้าต้องการน้อยลง","ไม่ต้องทำอะไร"],a:0,w:"WIP สะสมคือสัญญาณของคอขวดหรือการผลิตเกิน (Overproduction)"},
+    // Standardized Work
+    {s:"std",q:"Standardized Work ประกอบด้วย 3 อย่างหลักคืออะไร",c:["Takt time · ลำดับงาน · Standard WIP","ชื่อพนักงาน · กะ · แผนก","ราคา · ต้นทุน · กำไร","เครื่องจักร · วัตถุดิบ · เงิน"],a:0,w:"งานมาตรฐานกำหนดจังหวะ ลำดับขั้นตอน และจำนวนงานระหว่างทางที่ต้องมี"},
+    {s:"std",q:"ทำไมต้องวางชิ้นส่วนไว้ในระยะเอื้อมถึง",c:["ลดการเดินและการเอื้อม ทำงานเร็วขึ้นและปลอดภัยขึ้น","ให้โต๊ะดูเต็ม","เพื่อให้หยิบได้หลายชิ้นพร้อมกันเสมอ","เพราะชั้นวางไม่พอ"],a:0,w:"Motion เป็น 1 ใน 8 Waste การวางของใกล้มือลดเวลาและลดความล้า"},
+    {s:"std",q:"ถ้าพบว่ามีวิธีทำงานที่ดีกว่ามาตรฐานเดิม ควรทำอย่างไร",c:["ทดลอง ยืนยันผล แล้วปรับมาตรฐานให้ทุกคนใช้วิธีใหม่","ทำวิธีใหม่คนเดียวเงียบ ๆ","ห้ามเปลี่ยนมาตรฐานเด็ดขาด","ให้แต่ละคนเลือกวิธีเอง"],a:0,w:"มาตรฐานคือฐานของ Kaizen: ปรับปรุงแล้วต้องทำเป็นมาตรฐานใหม่"},
+    {s:"std",q:"OIS / ใบงานมาตรฐานควรอยู่ที่ไหน",c:["ที่สถานีงาน มองเห็นได้ขณะทำงาน","ในตู้เอกสารของสำนักงาน","ในอีเมลของหัวหน้า","ไม่ต้องมีถ้าทำงานเป็นแล้ว"],a:0,w:"มาตรฐานต้องอยู่หน้างาน ใช้สอนงานและตรวจยืนยันได้ทันที"},
+    {s:"std",q:"Job Instruction (JI) สอนงานใหม่ควรทำอย่างไร",c:["อธิบาย สาธิต ให้ลองทำ แล้วติดตามผล","ให้ดูวิดีโอแล้วทำเองทันที","ให้เรียนจากความผิดพลาด","ให้ทำงานง่ายสุดตลอดไป"],a:0,w:"4 ขั้น JI: เตรียม → สาธิต → ให้ลองทำ → ติดตามผล"},
+    {s:"std",q:"ท่าทางใดเสี่ยงที่สุดเมื่อหยิบชิ้นส่วน",c:["บิดตัวพร้อมก้มหยิบของหนักจากพื้น","ยืนตรงหยิบของระดับเอว","หยิบของเบาตรงหน้า","ใช้รถเข็นช่วยขน"],a:0,w:"ก้ม + บิด + ของหนัก คือท่าเสี่ยงต่อหลัง ควรออกแบบให้หยิบระดับเอวถึงไหล่"},
+    // Visual Management
+    {s:"vm",q:"Andon มีไว้เพื่ออะไร",c:["แจ้งความผิดปกติทันทีเพื่อให้คนมาช่วยแก้","ประดับไลน์ให้สวย","บอกเวลาพัก","นับจำนวนพนักงาน"],a:0,w:"Andon ทำให้ปัญหาถูกมองเห็นและถูกแก้ที่จุดเกิด"},
+    {s:"vm",q:"5ส ขั้นแรก 'สะสาง' คืออะไร",c:["แยกของที่ไม่จำเป็นออกจากพื้นที่","ทำความสะอาดพื้น","ติดป้ายชื่อ","ทำให้เป็นนิสัย"],a:0,w:"สะสาง → สะดวก → สะอาด → สุขลักษณะ → สร้างนิสัย"},
+    {s:"vm",q:"ป้ายบอกตำแหน่ง + เส้นขอบเขตบนพื้นช่วยอะไรมากที่สุด",c:["รู้ทันทีว่าของอยู่ที่ไหนและอะไรผิดที่","ทำให้พื้นไม่ลื่น","ลดค่าไฟ","เพิ่มจำนวนชั้นวาง"],a:0,w:"Visual ดีคือดูแวบเดียวรู้ว่าปกติหรือผิดปกติ"},
+    {s:"vm",q:"บอร์ด SQDCPME ที่หน้างานควรมีสีอะไรบอกสถานะ",c:["เขียว = ได้ตามเป้า แดง = ไม่ได้ตามเป้า","สีเดียวทั้งบอร์ด","สีตามชอบของแต่ละคน","ไม่ต้องใช้สี"],a:0,w:"สีช่วยให้ทุกคนเห็นจุดที่ต้องแก้ทันที"},
+    {s:"vm",q:"เห็นน้ำมันหกบนทางเดิน ควรทำอะไรก่อน",c:["กันพื้นที่/แจ้งเตือนให้ปลอดภัย แล้วหาต้นเหตุ","เดินอ้อมไป","รอแม่บ้านมาเช็ด","ถ่ายรูปเก็บไว้เฉย ๆ"],a:0,w:"ความปลอดภัยก่อน แล้วแก้ที่ต้นเหตุไม่ให้เกิดซ้ำ"},
+    {s:"vm",q:"Shadow board สำหรับเครื่องมือช่วยเรื่องใด",c:["รู้ทันทีว่าเครื่องมือชิ้นไหนหายหรือไม่อยู่ที่","ทำให้เครื่องมือคมขึ้น","ลดราคาเครื่องมือ","ใช้แทนการสอบเทียบ"],a:0,w:"ช่องรูปเงาบอกว่าเครื่องมือหาย ลดเวลาค้นหา"},
+    // Process Confirmation
+    {s:"pc",q:"Process Confirmation คืออะไร",c:["หัวหน้าเดินตรวจว่างานทำตามมาตรฐานจริง และแก้ทันทีเมื่อพบต่าง","ตรวจชิ้นงานสุดท้ายอย่างเดียว","ตรวจเวลาเข้างาน","ประเมินเงินเดือน"],a:0,w:"PC ยืนยันว่ากระบวนการเป็นไปตามมาตรฐาน ไม่ใช่จับผิดคน"},
+    {s:"pc",q:"เมื่อพบว่าทำงานไม่ตรงมาตรฐาน ควรถามอะไรเป็นข้อแรก",c:["มาตรฐานชัดเจนและทำได้จริงหรือไม่","ใครทำผิด","จะหักเงินเท่าไร","ทำไมไม่ทำเร็วกว่านี้"],a:0,w:"ดูที่ระบบก่อน: มาตรฐานชัดไหม ได้รับการสอนไหม อุปกรณ์พร้อมไหม"},
+    {s:"pc",q:"ความถี่ในการเดินตรวจ PC ควรเป็นอย่างไร",c:["มีรอบกำหนดชัดเจนตามแผน และบันทึกผลทุกครั้ง","ตรวจเมื่อว่าง","ตรวจปีละครั้ง","ตรวจเฉพาะเมื่อลูกค้าร้องเรียน"],a:0,w:"ตรวจตามรอบสม่ำเสมอจึงเห็นแนวโน้มและแก้ได้ก่อนเกิดของเสีย"},
+    {s:"pc",q:"TPM ช่วยเรื่องใดมากที่สุด",c:["ลดเครื่องเสียที่ไม่คาดคิด ด้วยการดูแลเชิงป้องกัน","เพิ่มจำนวนเครื่องจักร","ลดจำนวนพนักงาน","ทำให้เครื่องเงียบ"],a:0,w:"Total Productive Maintenance ให้ผู้ใช้เครื่องร่วมดูแลประจำวัน ลด Downtime"},
+    {s:"pc",q:"Gemba หมายถึงอะไร",c:["สถานที่ที่งานเกิดขึ้นจริง (หน้างาน)","ห้องประชุม","ระบบคอมพิวเตอร์","รายงานประจำเดือน"],a:0,w:"Go to Gemba: ไปดูของจริง ที่จริง ข้อมูลจริง"},
+    {s:"pc",q:"ใช้ 5 Why เพื่ออะไร",c:["ถามทำไมซ้ำ ๆ จนเจอสาเหตุราก","หาคนผิด 5 คน","ทำรายงาน 5 หน้า","ประชุม 5 ครั้ง"],a:0,w:"5 Why ช่วยไล่จากอาการไปถึงต้นเหตุที่แก้แล้วไม่เกิดซ้ำ"},
+    // Continuous Improvement
+    {s:"ci",q:"ECRS ตัว E หมายถึงอะไร",c:["Eliminate · ตัดงานที่ไม่จำเป็นออก","Easy · ทำให้ง่าย","Extra · เพิ่มงาน","Engine · เครื่องยนต์"],a:0,w:"Eliminate · Combine · Rearrange · Simplify — เริ่มจากตัดทิ้งก่อนเสมอ"},
+    {s:"ci",q:"Kaizen ที่ดีมีลักษณะใด",c:["ปรับทีละเล็กละน้อยต่อเนื่อง วัดผลก่อน-หลัง","เปลี่ยนทั้งไลน์ครั้งเดียวปีละหน","ซื้อเครื่องใหม่ทุกครั้ง","รอผู้บริหารสั่ง"],a:0,w:"Kaizen = ดีขึ้นทุกวัน ทีละขั้น โดยทุกคนมีส่วนร่วม"},
+    {s:"ci",q:"Waste ข้อใดถือว่าร้ายแรงที่สุดเพราะซ่อนปัญหาอื่น",c:["Overproduction · ผลิตเกิน","Motion · เคลื่อนไหว","Waiting · รอคอย","Talent · ไม่ใช้ศักยภาพคน"],a:0,w:"ผลิตเกินทำให้มีสต็อก ใช้พื้นที่ และซ่อนปัญหาคุณภาพ/คอขวด"},
+    {s:"ci",q:"PDCA ตัว C คือขั้นตอนใด",c:["Check · ตรวจผลเทียบเป้าหมาย","Change · เปลี่ยนทันที","Count · นับจำนวน","Close · ปิดงาน"],a:0,w:"Plan → Do → Check → Act วนต่อเนื่อง"},
+    {s:"ci",q:"Waste 8 ประการ ข้อใด 'ไม่ใช่' Waste",c:["ขันน็อตตามแรงบิดมาตรฐาน","รอชิ้นงาน","ขนย้ายไปมา","สต็อกเกินจำเป็น"],a:0,w:"การขันตามมาตรฐานคืองานที่เพิ่มคุณค่า"},
+    {s:"ci",q:"Kanban ช่วยควบคุมอะไร",c:["ผลิต/เติมของเท่าที่ถูกใช้ไป (ระบบดึง)","ราคาวัตถุดิบ","จำนวนวันลา","ความเร็วเครื่องจักร"],a:0,w:"Kanban เป็นสัญญาณดึงงาน ลด WIP และการผลิตเกิน"},
+    // Line Balance
+    {s:"lbe",q:"Line Balance Efficiency (LBE) คำนวณอย่างไร",c:["ผลรวม CT ทุกสถานี ÷ (CT สูงสุด × จำนวนสถานี)","CT สูงสุด ÷ Takt","จำนวนคน ÷ จำนวนสถานี","ยอดผลิต ÷ เป้า"],a:0,w:"LBE สูงแปลว่างานกระจายเท่ากัน มีคนว่างรอน้อย"},
+    {s:"lbe",q:"Yamazumi chart ใช้ดูอะไร",c:["กองงานของแต่ละสถานีเทียบเส้น Takt","ราคาชิ้นส่วน","กะการทำงาน","อุณหภูมิไลน์"],a:0,w:"เห็นทันทีว่าสถานีไหนงานล้น Takt สถานีไหนว่าง"},
+    {s:"lbe",q:"สถานี A ใช้ 70 วิ สถานี B ใช้ 40 วิ (Takt 60) ควรทำอย่างไร",c:["ย้ายงานบางส่วนจาก A ไป B โดยรักษาลำดับงาน","เพิ่มคนที่ B","ให้ A ทำเร็วขึ้นเองโดยไม่ช่วย","ลด Takt"],a:0,w:"กระจายงานให้ทั้งสองต่ำกว่า Takt เช่น 55 + 55"},
+    {s:"lbe",q:"ทำไมย้ายงานข้ามสถานีบางงานไม่ได้",c:["บางงานต้องใช้เครื่องมือประจำที่หรือมีลำดับก่อน-หลังบังคับ","เพราะหัวหน้าไม่ชอบ","เพราะงานนั้นยาก","ย้ายได้ทุกงานเสมอ"],a:0,w:"ต้องเคารพ Precedence และเครื่องมือประจำสถานี"},
+    {s:"lbe",q:"ความต้องการลูกค้าเพิ่มขึ้น (Takt ลดลง) ควรทำอะไรก่อน",c:["ดู Yamazumi ใหม่ ตัด Waste และจัดสมดุลงานก่อนเพิ่มคน","เพิ่ม OT ทันที","ไม่ต้องทำอะไร","ลดคุณภาพลง"],a:0,w:"เริ่มจากลด Waste และจัดสมดุล ค่อยพิจารณาเพิ่มคนหรือสถานี"},
+    {s:"lbe",q:"LBE ระดับใดถือว่าดีในเกมนี้",c:["85% ขึ้นไป","30%","50%","ไม่ต้องสนใจ LBE"],a:0,w:"เกมตั้งเป้า LBE ≥85% ให้ทุกสถานีใกล้ Takt"},
+    // Quality
+    {s:"q",q:"Poka-yoke คืออะไร",c:["อุปกรณ์/วิธีกันความผิดพลาดไม่ให้เกิดหรือไม่ให้ส่งต่อ","การตรวจด้วยตาอย่างเดียว","การลงโทษคนทำผิด","การเพิ่มคนตรวจ"],a:0,w:"Poka-yoke ทำให้ทำผิดไม่ได้ หรือรู้ทันทีเมื่อผิด"},
+    {s:"q",q:"FPY (First Pass Yield) หมายถึงอะไร",c:["สัดส่วนงานที่ผ่านครั้งแรกโดยไม่ต้องซ่อม","จำนวนงานต่อชั่วโมง","อัตราการขาดงาน","เวลาตั้งเครื่อง"],a:0,w:"FPY สูงแปลว่ากระบวนการทำถูกตั้งแต่ครั้งแรก"},
+    {s:"q",q:"พบของเสียที่สถานีตัวเอง ควรทำอะไร",c:["ไม่ส่งต่อ หยุด/แจ้ง Andon และแก้ที่ต้นเหตุ","ส่งต่อไปให้สถานีตรวจจับเอง","ซ่อนไว้","ทำต่อให้ทันยอดก่อน"],a:0,w:"Don't accept · Don't make · Don't pass defects"},
+    {s:"q",q:"ขันน็อตล้อแล้วต้องยืนยันแรงบิดเพราะอะไร",c:["แรงบิดไม่ถึงอาจทำให้ล้อหลวม เป็นอันตรายต่อผู้ขับ","เพื่อให้ได้ยินเสียง","เพื่อให้ช้าลง","ไม่จำเป็น"],a:0,w:"จุดสำคัญด้านความปลอดภัยต้องมีการยืนยัน (ตัวควบคุม/บันทึก)"},
+    {s:"q",q:"Pick-to-light ช่วยลดปัญหาใด",c:["หยิบชิ้นส่วนผิดรุ่นหรือผิดจำนวน","ไฟดับ","เครื่องเสีย","พนักงานมาสาย"],a:0,w:"ไฟบอกช่องที่ต้องหยิบเป็น Poka-yoke สำหรับการหยิบ"},
+    {s:"q",q:"ข้อใดเป็น 'คุณภาพสร้างในกระบวนการ' (built-in quality)",c:["ออกแบบงานให้ทำถูกตั้งแต่สถานีแรก และตรวจจับทันทีที่ผิด","ตรวจ 100% ที่ปลายไลน์อย่างเดียว","ซ่อมของเสียทีหลัง","เพิ่มคนตรวจทุกสถานี"],a:0,w:"คุณภาพต้องสร้างในทุกสถานี ไม่ใช่ตรวจคัดทีหลัง"}];
+  // pick 5: weakest skills first, avoid questions seen in the last 3 days
+  function pickDrill(){const s=get(),cut=Date.now()-3*864e5,order=tracks().sort((a,b)=>a.xp-b.xp).map(x=>x.id);
+    const fresh=QB.map((q,i)=>({q,i})).filter(x=>!(s.seen[x.i]>cut));const pool=fresh.length>=5?fresh:QB.map((q,i)=>({q,i}));
+    const r=seeded(today()+":"+(day().c.drillx||0)+":"+(day().c.drill||0)),out=[];
+    for(const sk of order.concat(order)){const cand=pool.filter(x=>x.q.s===sk&&!out.includes(x));if(cand.length){out.push(cand[Math.floor(r()*cand.length)])}if(out.length>=5)break}
+    // shuffle answers (keep index of correct)
+    return out.map(({q,i})=>{const idx=q.c.map((_,k)=>k);for(let k=idx.length-1;k>0;k--){const j=Math.floor(r()*(k+1));[idx[k],idx[j]]=[idx[j],idx[k]]}return {i,s:q.s,q:q.q,c:idx.map(k=>q.c[k]),a:idx.indexOf(q.a),w:q.w}})}
+  function finishDrill(qs,answers){const s=get(),first=!day().c.drill;let ok=0;const m={};
+    qs.forEach((q,k)=>{s.seen[q.i]=Date.now();if(answers[k]===q.a){ok++;m[q.s]=(m[q.s]||0)+(first?22:9)}else m[q.s]=(m[q.s]||0)+(first?4:2)});
+    if(!s.drillDays.includes(today())){s.drillDays.push(today());s.drillDays=s.drillDays.slice(-60)}put(s);
+    if(first)bump("drill");else bump("drillx");if(ok===qs.length)bump("perfect");
+    const got=award(m,`Skill Drill ${ok}/${qs.length}${first?"":" (ฝึกเพิ่ม)"}`);return {ok,n:qs.length,got,first}}
+  return {DIM,LV,tracks,total,weakest,award,sync,fromGame,quests,claim,chest,week,day,pickDrill,finishDrill,popLevelUps,get,QB};
+})();
+window.SKILLS=SKILLS;
+
+// ----------------------------------------------------------------- UI
+function skillRing(t,size=54){const r=size/2-5,C=2*Math.PI*r;return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line,#e3e8f4)" stroke-width="6"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#skg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C*t.pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/><defs><linearGradient id="skg" x1="0" x2="1"><stop offset="0" stop-color="#ffb21c"/><stop offset="1" stop-color="#3ccf5a"/></linearGradient></defs><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="${size*.36}">${t.ic}</text></svg>`}
+function skillGoTo(go){
+  if(go==="drill")return skillDrill();
+  if(go==="tr3d"){location.href="https://yureepornyk-cmyk.github.io/lean-quest/training.html";return}
+  show("scrSims");SIMHUB.open();if(go==="career")SIMHUB.play("career",0);else if(go==="auto")SIMHUB.play("auto",0);
+}
+function skillPanelHtml(){SKILLS.sync();const T=SKILLS.tracks(),tot=SKILLS.total(),Q=SKILLS.quests(),d=SKILLS.day(),wk=SKILLS.week(),allClaimed=Q.every(q=>q.claimed);
+  return `<section class="skp">
+  <div class="skp-head"><div><span class="skp-kicker">SKILL JOURNEY</span><h2>เก็บสกิล CPS วันนี้</h2><small>สกิลรวม Lv.${tot.lv} · ${tot.xp.toLocaleString()} XP · สัปดาห์นี้ทำภารกิจแล้ว ${wk.done}/${wk.goal}</small></div>
+    <button type="button" class="skp-drill" id="skDrill"><b>⚡ Skill Drill</b><small>${d.c.drill?"ทำแล้ววันนี้ · ฝึกเพิ่มได้":"5 ข้อ · 2 นาที · XP ×2"}</small></button></div>
+  <div class="skp-q">${Q.map(q=>`<div class="skq ${q.done?"done":""} ${q.claimed?"claimed":""}"><div class="skq-t"><b>${q.t}</b><div class="skq-bar"><i style="width:${Math.round(q.v/q.n*100)}%"></i></div><small>${q.v}/${q.n}</small></div>
+     ${q.claimed?`<span class="skq-ok">✓ รับแล้ว</span>`:q.done?`<button type="button" class="skq-claim" data-claim="${q.id}">รับ XP</button>`:`<button type="button" class="skq-go" data-go="${q.go}">ไปทำ →</button>`}</div>`).join("")}
+    <button type="button" class="skp-chest ${allClaimed&&!d.chest?"ready":""}" id="skChest" ${allClaimed&&!d.chest?"":"disabled"}>${d.chest?"🎉 เปิดกล่องวันนี้แล้ว · พรุ่งนี้มีภารกิจใหม่":allClaimed?"🎁 เปิดกล่องรางวัลประจำวัน":"🎁 ทำครบ 3 ภารกิจเพื่อเปิดกล่องรางวัล"}</button></div>
+  <div class="skp-grid">${T.map(t=>`<button type="button" class="skt" data-sk="${t.id}" title="${t.n}">${skillRing(t)}<b>${t.sh}</b><small>Lv.${t.lv}</small></button>`).join("")}</div>
+  </section>`}
+function bindSkillPanel(root,rerender){
+  const R=()=>{rerender&&rerender();skillLevelUps()};
+  root.querySelector("#skDrill")&&(root.querySelector("#skDrill").onclick=()=>skillDrill(R));
+  root.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>skillGoTo(b.dataset.go));
+  root.querySelectorAll("[data-claim]").forEach(b=>b.onclick=()=>{const g=SKILLS.claim(b.dataset.claim);skillToast(`+${g} XP ให้สกิลที่ยังอ่อน 💪`);R()});
+  const ch=root.querySelector("#skChest");if(ch)ch.onclick=()=>{const g=SKILLS.chest();if(g){if(typeof confetti==="function")confetti(80);skillToast(`🎁 +${g} XP ทุกสกิล!`)}R()};
+  root.querySelectorAll("[data-sk]").forEach(b=>b.onclick=()=>{goTab("profile");setTimeout(()=>{const e=document.getElementById("skTree");if(e)e.scrollIntoView({block:"start",behavior:"smooth"})},80)});
+  skillLevelUps();
+}
+function skillToast(msg){let t=document.getElementById("skToast");if(!t){t=document.createElement("div");t.id="skToast";t.setAttribute("role","status");document.body.appendChild(t)}t.textContent=msg;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2600)}
+function skillLevelUps(){const L=SKILLS.popLevelUps();if(!L.length)return;const top=L[L.length-1];if(typeof confetti==="function")confetti(60);skillToast(`${top.d.ic} ${top.d.n} เลื่อนเป็น Lv.${top.lv}!`)}
+function skillTreeHtml(){SKILLS.sync();const T=SKILLS.tracks(),s=SKILLS.get();
+  return `<section class="sktree" id="skTree"><h2 class="sec-h">สกิล CPS ของฉัน</h2>
+  ${T.map(t=>`<div class="skrow">${skillRing(t,48)}<div class="skrow-m"><div class="skrow-h"><b>${t.n}</b><span>Lv.${t.lv}${t.nx?` · ${t.xp}/${t.nx} XP`:" · MAX"}</span></div><div class="skq-bar"><i style="width:${Math.round(t.pct*100)}%"></i></div><small>วิธีเก็บ: ${t.tip}</small></div></div>`).join("")}
+  <h3 class="sk-logh">ได้ XP ล่าสุด</h3><div class="sk-log">${(s.log||[]).slice(0,8).map(l=>`<div><span>${new Date(l.t).toLocaleDateString("th-TH",{day:"numeric",month:"short"})}</span><p>${esc(l.why)}</p><b>+${Object.values(l.map).reduce((a,v)=>a+v,0)}</b></div>`).join("")||"<p class='muted'>ยังไม่มี เริ่มจาก Skill Drill ได้เลย</p>"}</div></section>`}
+// full-screen 5-question drill, one question at a time, 25 s each
+function skillDrill(onDone){const qs=SKILLS.pickDrill(),ans=[];let k=0,timer=null,left=25;
+  const o=document.createElement("div");o.className="skd";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Skill Drill");document.body.appendChild(o);document.body.style.overflow="hidden";
+  const close=()=>{clearInterval(timer);o.remove();document.body.style.overflow="";onDone&&onDone()};
+  const dimOf=id=>SKILLS.DIM.find(d=>d.id===id);
+  function q(){const Q=qs[k],D=dimOf(Q.s);left=25;
+    o.innerHTML=`<div class="skd-card"><div class="skd-top"><button type="button" class="skd-x" aria-label="ปิด">✕</button><div class="skd-dots">${qs.map((_,i)=>`<i class="${i<k?(ans[i]===qs[i].a?"ok":"no"):i===k?"cur":""}"></i>`).join("")}</div><span class="skd-time" id="skdT">25</span></div>
+      <div class="skd-timebar"><i id="skdB"></i></div>
+      <span class="skd-tag">${D.ic} ${D.n}</span><h2>${Q.q}</h2>
+      <div class="skd-opts">${Q.c.map((c,i)=>`<button type="button" class="skd-o o${i}" data-i="${i}"><span>${"ABCD"[i]}</span>${c}</button>`).join("")}</div><div class="skd-why" id="skdW" hidden></div></div>`;
+    o.querySelector(".skd-x").onclick=close;
+    o.querySelectorAll(".skd-o").forEach(b=>b.onclick=()=>pick(+b.dataset.i));
+    const bar=o.querySelector("#skdB");clearInterval(timer);timer=setInterval(()=>{left-=.1;if(bar)bar.style.width=Math.max(0,left/25*100)+"%";const t=o.querySelector("#skdT");if(t)t.textContent=Math.ceil(Math.max(0,left));if(left<=0)pick(-1)},100);
+    o.querySelector(".skd-o").focus({preventScroll:true})}
+  function pick(i){clearInterval(timer);if(ans.length>k)return;const Q=qs[k];ans.push(i);
+    o.querySelectorAll(".skd-o").forEach(b=>{const j=+b.dataset.i;b.disabled=true;if(j===Q.a)b.classList.add("right");else if(j===i)b.classList.add("wrong")});
+    const W=o.querySelector("#skdW");W.hidden=false;W.innerHTML=`<b>${i===Q.a?"ถูกต้อง! 🎉":i<0?"หมดเวลา ⏰":"ยังไม่ใช่ 🙂"}</b><p>${Q.w}</p><button type="button" class="skd-next">${k<qs.length-1?"ข้อต่อไป →":"ดูผล →"}</button>`;
+    W.querySelector(".skd-next").onclick=()=>{k++;k<qs.length?q():done()};W.querySelector(".skd-next").focus({preventScroll:true})}
+  function done(){const r=SKILLS.finishDrill(qs,ans);if(r.ok>=4&&typeof confetti==="function")confetti(r.ok===5?120:50);
+    const per={};qs.forEach((Q,i)=>{per[Q.s]=per[Q.s]||{n:0,ok:0};per[Q.s].n++;if(ans[i]===Q.a)per[Q.s].ok++});
+    o.innerHTML=`<div class="skd-card skd-res"><div class="skd-big">${r.ok===5?"🏆":r.ok>=3?"⭐":"💪"}</div><h2>${r.ok}/${r.n} ข้อ</h2><p class="skd-xp">+${r.got} Skill XP${r.first?"":" (ฝึกเพิ่ม)"}</p>
+      <div class="skd-per">${Object.entries(per).map(([s,v])=>{const D=dimOf(s);return `<div><span>${D.ic}</span><b>${D.sh}</b><small>${v.ok}/${v.n}</small></div>`}).join("")}</div>
+      <p class="skd-hint">${r.first?"พรุ่งนี้มีชุดใหม่ เน้นสกิลที่ยังอ่อนของคุณ":"ฝึกเพิ่มได้เรื่อย ๆ (XP น้อยลง) ทำครั้งแรกของวันได้ XP ×2"}</p>
+      <div class="skd-acts"><button type="button" class="skd-next" id="skdAgain">ฝึกอีกชุด</button><button type="button" class="skd-ghost" id="skdClose">เสร็จแล้ว</button></div></div>`;
+    o.querySelector("#skdClose").onclick=close;o.querySelector("#skdAgain").onclick=()=>{close();setTimeout(()=>skillDrill(onDone),50)};o.querySelector("#skdClose").focus({preventScroll:true})}
+  q();
+}
 
 
 // ---------- init ----------
