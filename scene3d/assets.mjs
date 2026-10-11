@@ -24,8 +24,8 @@ async function loaders(renderer) {
 }
 
 // Pack = { manifest, models:{name:THREE.Group}, clips:{name:[AnimationClip]}, stats, ready:{phase1,phase2,textures} }
-export function loadPack(renderer, quality = 'medium', { onProgress = () => {} } = {}) {
-  const key = quality;
+export function loadPack(renderer, quality = 'medium', { onProgress = () => {}, models = null } = {}) {
+  const key = quality + (models ? ":" + [...models].sort().join(",") : "");
   if (packs.has(key)) return packs.get(key);
   const p = (async () => {
     const t0 = performance.now();
@@ -35,7 +35,8 @@ export function loadPack(renderer, quality = 'medium', { onProgress = () => {} }
     const tier = manifest.quality[quality] || manifest.quality.medium;
     const { gltf, ktx2 } = await loaders(renderer);
     const pack = { manifest, tier, quality, models: {}, clips: {}, bytes: 0, errors: [], timings: {} };
-    const total = Object.values(manifest.models).reduce((a, m) => a + m.bytes, 0);
+    const selectedModels = Object.entries(manifest.models).filter(([name]) => !models || models.includes(name));
+    const total = selectedModels.reduce((a, [, m]) => a + m.bytes, 0);
     let loaded = 0;
     const loadModel = async (name, m) => {
       try {
@@ -49,7 +50,7 @@ export function loadPack(renderer, quality = 'medium', { onProgress = () => {} }
         pack.models[name] = root; pack.clips[name] = g.animations || [];
       } catch (e) { pack.errors.push(String(e)); }
     };
-    const byPhase = ph => Object.entries(manifest.models).filter(([, m]) => m.phase === ph);
+    const byPhase = ph => selectedModels.filter(([, m]) => m.phase === ph);
     await Promise.all(byPhase(1).map(([n, m]) => loadModel(n, m)));
     pack.timings.phase1 = performance.now() - t0;
     pack.phase2 = Promise.all(byPhase(2).map(([n, m]) => loadModel(n, m))).then(() => { pack.timings.phase2 = performance.now() - t0; });
