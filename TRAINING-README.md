@@ -30,7 +30,7 @@
 ```sh
 python -m http.server 8765
 # เปิด http://localhost:8765/training.html
-node --test training.test.mjs training-room.test.mjs
+node --test training.test.mjs training-room.test.mjs training-scene.test.mjs
 ```
 
 การทดสอบที่ต้องทำบนอุปกรณ์จริงก่อนใช้สอน: Safari iPhone และ Android, ขนาดตัวอักษร/สัมผัส, WebGL, เสียงไทย, สร้างห้องคนละอุปกรณ์, เปิด–ปิดทุก Session, หลุด/ต่อใหม่, ทีมร่วมมือ, QR และ CSV
@@ -44,3 +44,12 @@ node --test training.test.mjs training-room.test.mjs
 - จอผู้ควบคุมสร้างฉากจากสถานะเกม ไม่ใช่การแชร์หน้าจอ/วิดีโอ และไม่มีเสียงสนทนาระหว่างผู้เล่น
 - ยังไม่มีตัวแก้ไข scenario, งานตรวจข้อบกพร่องบนผิว 3D แบบละเอียด หรือมินิเกมทั้งหมดภายใต้ Session กลางเดียวกัน เกมเดิมยังเปิดแยกได้
 - ภาพโรงงานเป็นแบบสาธิต ไม่ใช่ขั้นตอนผลิตหรือ WI ที่ได้รับการรับรอง ต้องให้ผู้เชี่ยวชาญหน้างานตรวจเนื้อหาก่อนใช้ฝึกจริง
+
+## ผลตรวจรุ่นนี้ (11 ตุลาคม 2026)
+
+- Node tests ผ่าน 13 รายการ ครอบคลุม 36 factory-level scenarios, material conservation, deterministic stepping, ข้อจำกัดการย้ายงาน, งบ, รางวัลไม่ซ้ำ, host Session gates, pause/reset, reconnect identity และการสร้าง/ล้าง geometry ทั้ง 6 โรงงาน
+- ตรวจหน้าเว็บจาก commit ทดลองผ่าน browser: หน้าแรก/เลือกโรงงาน/ฝึกเดี่ยวแสดงผลได้ ตรวจมาตรฐาน เลือก Motion แก้ปัญหา หักงบ 80 และเริ่มผลิตได้ สร้างห้องและรหัสได้ เปิด Session หาปัญหาโดยคงกิจกรรมอื่นล็อกอยู่ได้
+- เบราว์เซอร์ตรวจงานปิด WebGL จึงตรวจได้เฉพาะ fallback UI และการสร้าง geometry ใน Node; **ยังไม่ได้ยืนยันภาพเรนเดอร์จริงหรือ FPS บนมือถือ**
+- การเชื่อมผู้เล่นอีกแท็บยังไม่สำเร็จในเครือข่ายตรวจงาน จึง **ยังไม่ถือว่าการเล่นข้ามอุปกรณ์ผ่าน end-to-end** การทดสอบห้องที่ผ่านเป็น transport mock เท่านั้น
+- PR ควรเป็น draft จนตรวจ WebGL, mobile touch และ WebRTC บนอุปกรณ์/เครือข่ายจริงครบ
+

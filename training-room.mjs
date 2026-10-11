@@ -33,7 +33,7 @@ export function joinRoom(code,who,onChange,onStatus,onError){
  if(!/^\d{6}$/.test(code))throw Error('รหัสห้องใหม่มี 6 หลัก');if(!window.Peer)throw Error('โหลดระบบห้องไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ต');
  let session;try{session=sessionStorage.getItem('lqt-session')||token();sessionStorage.setItem('lqt-session',session);}catch{session=token();}
  let peer=new window.Peer(),conn=null,closed=false,retryTimer=null,attempt=0,id=null,last=null;
- const retry=()=>{if(closed||retryTimer)return;onStatus('ขาดการเชื่อมต่อ กำลังลองใหม่');retryTimer=setTimeout(()=>{retryTimer=null;connect();},Math.min(15000,1500*2**Math.min(attempt++,3)));};
+ const retry=()=>{if(closed||retryTimer)return;if(attempt>=4){onStatus('เชื่อมต่อห้องไม่สำเร็จ กรุณากลับไปตรวจรหัสและเครือข่าย ผู้ควบคุมต้องเปิดห้องค้างไว้');return;}onStatus('ขาดการเชื่อมต่อ กำลังลองใหม่');retryTimer=setTimeout(()=>{retryTimer=null;connect();},Math.min(15000,1500*2**Math.min(attempt++,3)));};
  function connect(){if(closed||peer.destroyed||!peer.id)return;const c=peer.connect(PREFIX+code,{reliable:true});conn=c;onStatus('กำลังเข้าห้อง '+code);const timeout=setTimeout(()=>{if(!c.open){c.close();retry();}},10000);
  c.on('open',()=>{clearTimeout(timeout);attempt=0;c.send({type:'join',token:session,name:clean(who.name),team:clean(who.team)});onStatus('เชื่อมต่อแล้ว');});
  c.on('data',m=>{if(conn!==c||!m)return;if(m.type==='welcome')id=m.id;if(m.type==='snapshot'&&m.version===1){last=m;onChange(m,id);}if(m.type==='error')onError(m.message);});
