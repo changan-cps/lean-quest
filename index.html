@@ -747,6 +747,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600}
 @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(47,191,107,0)}}
 .dot-on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2fbf6b}
 .stage-map{background:linear-gradient(180deg,#dff1ff,#bfe3f7);border-radius:16px;padding:6px 4px;margin:4px 0 10px;box-shadow:var(--sh)}
+
+/* entry card to the Factory Training 3D page (from mobile-training.css) */
+.factory-training-entry{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:20px;margin:16px 0 24px;border-radius:14px;background:#172b3d;color:#ecf7ff;border:2px solid #aeea73;text-decoration:none;font-size:16px;line-height:1.6}.factory-training-entry strong{font-size:21px}.factory-training-entry b{margin-left:auto;background:#aeea73;color:#172715;padding:12px 18px;border-radius:10px;min-height:48px}.factory-training-entry:focus-visible{outline:3px solid #2356a3;outline-offset:4px}
+@media(max-width:600px){body{font-size:16px}button,.btn{min-height:48px;touch-action:manipulation}input,select,textarea{font-size:16px;min-height:48px}.st-tabs{gap:8px}.st-tabs button{font-size:16px;min-height:48px;padding:10px 12px}.factory-training-entry{display:grid;padding:16px}.factory-training-entry b{margin:0;text-align:center}}
 /* ===== Equipment screen — dark, candle-lit RPG menu ===== */
 #scrEquip{margin:-8px -16px 0}
 .eq{--eg:#d8c79a;--eg2:#f3e7c4;--ed:#8f8366;--ebg:#14130f;color:var(--eg2);background:radial-gradient(900px 500px at 70% 0%,rgba(120,100,60,.25),transparent 60%),radial-gradient(700px 600px at 10% 100%,rgba(70,60,40,.35),transparent 60%),linear-gradient(180deg,#22201a,#121110 70%);min-height:calc(100vh - 80px);padding:16px 16px 28px;font-family:"Cormorant Garamond","Kanit",serif;position:relative}
@@ -814,7 +818,6 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600}
 
 </style>
 
-<link rel="stylesheet" href="mobile-training.css">
 <div class="wrap app">
   <header class="top gtop">
     <button class="brand" id="homeBtn" aria-label="กลับหน้าแรก"><span class="mark">LQ</span><span><b>LEAN QUEST</b><small>Changan · CPS Game</small></span></button>
