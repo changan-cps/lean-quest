@@ -30,6 +30,6 @@ test('production rules remain byte-identical apart from view wiring',()=>{
  // View source must not import the separate training game or write economic/process fields.
  const source=readFileSync(new URL('./pen-factory-view.mjs',import.meta.url),'utf8');assert.equal(/training-core|newState|act\(st|st\.(cash|shipped|scrap)\s*[-+]?=/.test(source),false);
  const doc=readFileSync(new URL('./index.html',import.meta.url),'utf8');for(const m of doc.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))if(m[1].trim())new vm.Script(m[1]);
- const start=doc.indexOf('      function step(dtp){dtp=Math.max(0,dtp);');const end=doc.indexOf('      function liveKPI(i)',start);assert.equal(createHash('sha256').update(doc.slice(start,end)).digest('hex'),'9ddec22fec222b989260dee223b862adfc61e4135a53d9f03bca4d9650d9c4ce','pen production tick matches the reviewed version (people-management events added 12 Oct)');
+ const start=doc.indexOf('      function step(dtp){dtp=Math.max(0,dtp);');const end=doc.indexOf('      function liveKPI(i)',start);assert.equal(createHash('sha256').update(doc.slice(start,end)).digest('hex'),'410faafeae9f0cfd4a2d3529e97d0a6b189ab0dfc4b0bdde9f54103908248358','pen production tick matches the reviewed version (people-management events added 12 Oct)');
  assert.ok(doc.includes('id="pViewToggle"'));assert.ok(doc.includes('id="pViewStation"'));
 });

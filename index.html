@@ -1059,7 +1059,7 @@ body{background:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.16.0/mqtt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.LQ_BUILD="12/10 16:15";
+window.LQ_BUILD="12/10 16:20";
 
 // public site (GitHub Pages). Inside the GitHub build links stay relative; the Claude artifact links out to the site.
 const LQ_SITE=window.LQ_STANDALONE?"./":"https://changan-cps.github.io/lean-quest/";
@@ -2356,9 +2356,9 @@ const jphAt=(lv,r)=>r<NR?lv.jph[r]:Math.round(lv.jph[NR-1]*Math.pow(1.15,r-NR+1)
 const ECON={price:50,mat:14,scrap:5,hire:150,fire:100,rent:600,late:10,complaint:60,cash:4000};
 const LEVELS=[
   {jph:[60,90,120,150,180],colorsFrom:2,pcFrom:2,brkFrom:3,absent:-1,goalC:[500,1000,1600]},
-  {jph:[90,120,150,180,240],colorsFrom:1,pcFrom:1,brkFrom:2,absent:3,goalC:[800,1600,2400]},
-  {jph:[120,150,180,240,300],colorsFrom:0,pcFrom:1,brkFrom:1,absent:2,goalC:[1200,2200,3200]},
-  {jph:[150,180,240,300,360],colorsFrom:0,pcFrom:0,brkFrom:0,absent:1,absentEvery:2,goalC:[1500,2800,4000],god:true,brk:1.8,dev:1.6}
+  {jph:[90,120,150,180,240],colorsFrom:1,pcFrom:1,brkFrom:2,absent:3,leaveReq:1,goalC:[800,1600,2400]},
+  {jph:[120,150,180,240,300],colorsFrom:0,pcFrom:1,brkFrom:1,absent:2,leaveReq:1,resign:3,goalC:[1200,2200,3200]},
+  {jph:[150,180,240,300,360],colorsFrom:0,pcFrom:0,brkFrom:0,absent:1,absentEvery:2,leaveReq:0,resign:2,goalC:[1500,2800,4000],god:true,brk:1.8,dev:1.6}
 ];
 // ระดับเทพ: ปัญหาหน้างานที่ต้องตอบด้วย 6 KUP ระหว่างเดินไลน์ (ไม่หยุดเวลา)
 const KEVENTS=[
@@ -2404,10 +2404,36 @@ function returnEv(w,noshow,count){const rep=count>=2;return {people:true,kup:"Pe
   {t:noshow||rep?"เรียกคุยส่วนตัว ถามสาเหตุและความช่วยเหลือที่ต้องการ ทบทวนกติกาแจ้งลา บันทึกไว้ และดำเนินการตามระเบียบบริษัท (ตักเตือนวาจา → เป็นหนังสือ) ถ้าเกิดซ้ำ":"คุยสั้น ๆ แบบ Return-to-work ถามอาการ พร้อมทำงานไหม ทบทวนจุดที่เปลี่ยนไประหว่างลา",ok:true,why:"ถูกต้อง: คุยเป็นการส่วนตัว ฟังเหตุผลก่อน มีบันทึก และใช้ระเบียบอย่างเป็นธรรม ช่วยลดการลาซ้ำ"},
   {t:"ตำหนิต่อหน้าทีมให้เป็นตัวอย่าง",ok:false,pen:"morale",why:"ทำลายขวัญกำลังใจทั้งทีม คนไม่กล้าแจ้งปัญหา ต้องคุยเป็นการส่วนตัว"},
   {t:"ไม่ต้องพูดอะไร ให้กลับเข้าไลน์เลย",ok:false,pen:"repeat",why:"ไม่รู้สาเหตุ ปัญหาไม่ถูกแก้ มีโอกาสลาหรือขาดซ้ำ"}]}}
-function sopEv(i,sn){return {people:true,kup:"People · ไม่ทำตามขั้นตอนมาตรฐาน",st:i,q:`⚠️ พบพนักงานที่ S${i+1} ${sn} ทำข้ามขั้นตอนใน OIS (ลัดขั้นตอน) จะทำอย่างไร`,opts:[
-  {t:"หยุดคุยที่หน้างานทันที ให้ดู OIS ถามว่าทำไม (มาตรฐานไม่ชัด / ทำไม่ได้จริง / ไม่ได้รับการสอน) แล้วสอนซ้ำแบบ JI และกลับมาตรวจอีกครั้ง",ok:true,do:"fixdev",why:"ถูกต้อง: แก้ทันที หาสาเหตุราก ถ้ามาตรฐานมีปัญหาให้ปรับ OIS ถ้าไม่ได้สอนให้สอนใหม่ แล้วติดตามผล (Process Confirmation)"},
+function sopEv(i,sn){return {people:true,kup:"People · ไม่ทำตามขั้นตอนมาตรฐาน",st:i,sn,q:`⚠️ พบพนักงานที่ S${i+1} ${sn} ทำข้ามขั้นตอนใน OIS (ลัดขั้นตอน) จะทำอย่างไร`,opts:[
+  {t:"หยุดคุยที่หน้างานทันที ให้ดู OIS ด้วยกัน แล้ว “ถามก่อน” ว่าทำไมถึงทำต่างจากมาตรฐาน (สำรวจสาเหตุ ไม่ด่วนตัดสิน)",ok:true,ask:true,why:"ถูกต้อง: หยุดก่อน แล้วหาสาเหตุราก (มาตรฐานมีปัญหา? ทำไม่ได้จริง? ไม่ได้สอน? หรือไม่อยากทำ?) วิธีแก้ต่างกันตามสาเหตุ"},
   {t:"ดุแรง ๆ และหักคะแนน ไม่ต้องถามเหตุผล",ok:false,pen:"morale",do:"fixdev",why:"แก้ได้ชั่วคราว แต่ไม่รู้สาเหตุ ขวัญกำลังใจตก และอาจเกิดซ้ำ"},
   {t:"ปล่อยไว้ ของยังออกได้ตามเป้า",ok:false,pen:"defect",why:"การลัดขั้นตอนทำให้ของเสียหลุดถึงลูกค้า และคนอื่นจะทำตาม"}]}}
+const SOP_WHY={
+  better:{say:"“วิธีนี้เร็วกว่าและจับชิ้นงานถนัดกว่า ของก็ไม่เสียครับ”",opts:[
+    {t:"ให้หยุดใช้ก่อนชั่วคราว ทดลองยืนยันกับ QA/ความปลอดภัย ถ้าดีจริงปรับ OIS เป็นมาตรฐานใหม่ ประกาศให้ทุกสถานีทำเหมือนกัน และชื่นชมที่เสนอแนะ (Kaizen)",ok:true,do:"fixdev",bonus:"kaizen",why:"ถูกต้อง: มาตรฐานไม่ใช่ของตายตัว ถ้าวิธีใหม่ดีกว่า ให้พิสูจน์แล้วแก้ OIS ไม่ใช่ให้คนแอบทำต่างกัน"},
+    {t:"สั่งให้กลับไปทำตาม OIS เดิมเท่านั้น ไม่ต้องเสนออะไร",ok:false,pen:"morale",do:"fixdev",why:"ปิดกั้นการปรับปรุง พนักงานเลิกเสนอแนะ และวิธีที่ดีกว่าถูกทิ้ง"},
+    {t:"โอเค ทำวิธีใหม่ไปเลย ไม่ต้องแก้เอกสาร",ok:false,pen:"defect",why:"แต่ละคนทำไม่เหมือนกัน คุณภาพแกว่ง ตรวจสอบย้อนกลับไม่ได้ ต้องแก้ OIS ให้เป็นมาตรฐานเดียว"}]},
+  cant:{say:"“ทำตามทุกขั้นไม่ทัน Takt ครับ ท่าทางมันฝืนมือด้วย”",opts:[
+    {t:"ยอมรับว่ามาตรฐานมีปัญหา ไปดูหน้างานด้วยกัน ปรับจุดงาน/แบ่งงานใหม่ให้ทำได้ภายใน Takt แล้วแก้ OIS",ok:true,do:"fixdev",why:"ถูกต้อง: ถ้าทำตามมาตรฐานไม่ได้จริง ต้องแก้ที่งานและมาตรฐาน ไม่ใช่โทษคน"},
+    {t:"บอกให้พยายามมากขึ้น เร็วขึ้น",ok:false,pen:"defect",do:"fixdev",why:"กดดันให้ลัดขั้นตอนต่อ ของเสียและอุบัติเหตุเพิ่ม"},
+    {t:"ปล่อยให้ลัดขั้นตอนต่อไป เพราะยังไงก็ต้องทัน Takt",ok:false,pen:"defect",why:"มาตรฐานถูกละทิ้ง ของเสียหลุดถึงลูกค้า"}]},
+  untrained:{say:"“ไม่มีใครสอนขั้นนี้ให้ผมเลยครับ เห็นคนอื่นทำก็ทำตาม”",opts:[
+    {t:"สอนใหม่ด้วย Job Instruction 4 ขั้น (เตรียม สาธิต ลองทำ ติดตาม) ให้ทำซ้ำจนผ่าน แล้วอัปเดต Skill Matrix",ok:true,do:"fixdev",why:"ถูกต้อง: คนไม่ได้รับการสอนต้องสอนให้ถูกวิธี และ Skill Matrix ต้องตรงความจริงก่อนจัดคนลงสถานี"},
+    {t:"ให้เพื่อนข้าง ๆ สอนกันเองระหว่างทำงาน",ok:false,pen:"defect",do:"fixdev",why:"สอนต่อ ๆ กันแบบไม่มีมาตรฐาน ความผิดพลาดถูกส่งต่อ"},
+    {t:"ตักเตือนเป็นหนังสือฐานไม่ทำตามมาตรฐาน",ok:false,pen:"morale",do:"fixdev",why:"ไม่เป็นธรรม เพราะความผิดอยู่ที่ระบบการสอน ขวัญกำลังใจตกทั้งทีม"}]},
+  wont:{say:"“รู้ครับว่าต้องทำ แต่ขั้นนั้นมันไม่จำเป็น ขี้เกียจทำ”",opts:[
+    {t:"อธิบายเหตุผลและความเสี่ยงของขั้นตอนนั้นให้เข้าใจ ให้ทำตามทันที บันทึกการพูดคุย ติดตามใกล้ชิด ถ้ายังจงใจทำซ้ำให้ดำเนินการตามระเบียบ (ตักเตือนด้วยวาจา → หนังสือ)",ok:true,do:"fixdev",why:"ถูกต้อง: กรณีรู้แต่ไม่อยากทำ ต้องให้เข้าใจ “ทำไม” ชัดเจน มีบันทึก และใช้ระเบียบอย่างเป็นธรรมเป็นขั้น"},
+    {t:"ไม่เป็นไร ปล่อยไป ของยังออกได้",ok:false,pen:"defect",why:"ทีมเรียนรู้ว่ามาตรฐานไม่สำคัญ ทุกคนจะลัดขั้นตอนตาม"},
+    {t:"ออกหนังสือตักเตือนทันที ไม่ต้องอธิบาย",ok:false,pen:"morale",do:"fixdev",why:"ข้ามขั้นระเบียบ ไม่ได้สร้างความเข้าใจ คนทำตามเฉพาะตอนถูกจับตา"}]}};
+function sopWhyEv(i,sn,c){const C=SOP_WHY[c];return {people:true,kup:"People · สาเหตุที่ไม่ทำตาม OIS",st:i,sn,q:`🗣️ S${i+1} ${sn} ตอบว่า ${C.say} หัวหน้าควรทำอย่างไร`,opts:C.opts}}
+function leaveReqEv(w){return {people:true,kup:"People · ขอลาล่วงหน้า",w:w.id,q:`📝 ${w.n} ยื่นใบลากิจล่วงหน้า 1 กะ (กะถัดไป) ตามกำหนดแจ้งลา สถานี S${w.st+1} จะอนุมัติอย่างไร`,opts:[
+  {t:"ตรวจแผนกำลังคนกับ Skill Matrix ถ้ามีคนสำรองทำงานนี้ได้ → อนุมัติ และจัดคนแทนไว้ล่วงหน้า แจ้งทีม",ok:true,do:"approve",why:"ถูกต้อง: ลาล่วงหน้าตามกติกาเป็นสิทธิ์ของพนักงาน หัวหน้ามีหน้าที่วางแผนกำลังคนสำรองไว้ก่อนวันลา"},
+  {t:"อนุมัติไปก่อน ค่อยคิดเรื่องคนแทนวันนั้น",ok:false,pen:"none",do:"approveNoPlan",why:"ไม่มีการเตรียมคนแทน เปิดกะมาสถานีว่าง งานค้างตั้งแต่ต้นกะ"},
+  {t:"ไม่อนุมัติ เพราะงานเยอะ ให้มาทำงาน",ok:false,pen:"morale",do:"deny",why:"ปฏิเสธการลาที่ยื่นถูกต้องโดยไม่มีเหตุผล ขวัญกำลังใจตก และเสี่ยงเกิดการขาดงานไม่แจ้งแทน"}]}}
+function resignEv(w){return {people:true,kup:"People · พนักงานลาออก",w:w.id,q:`📄 ${w.n} (S${w.st+1}) ยื่นใบลาออก มีผลกะถัดไป หัวหน้าควรทำอย่างไร`,opts:[
+  {t:"คุยส่วนตัวแบบ Exit Interview ฟังเหตุผล (ถ้าเป็นเรื่องที่แก้ได้ เช่น ภาระงาน/การสื่อสาร ให้แก้) แจ้ง HR เริ่มหาคนใหม่ทันที และให้ส่งมอบงาน/สอนคนแทน (OJT) ก่อนวันสุดท้าย",ok:true,do:"handover",why:"ถูกต้อง: เคารพการตัดสินใจ เก็บบทเรียนเพื่อลดการลาออก และรักษาทักษะไว้ในไลน์ด้วยการส่งมอบงาน"},
+  {t:"ไม่รับใบลาออก กดดันให้อยู่ต่อ",ok:false,pen:"morale",why:"ผิดสิทธิ์พนักงาน ทีมเห็นแล้วเสียความไว้วางใจ สุดท้ายเขาก็ออกแบบไม่ส่งมอบงาน"},
+  {t:"รับทราบ ปล่อยให้ออกไป ไม่ต้องคุยอะไร",ok:false,pen:"none",why:"ไม่รู้สาเหตุ แก้ไม่ได้ และทักษะหายไปพร้อมคน สถานีว่างทันทีในกะถัดไป"}]}}
 
 const INKS=["#2356c9","#d23a2e","#1d2228"],INKN=["น้ำเงิน","แดง","ดำ"];
 const setH=(el,h)=>{if(el&&el._h!==h){el._h=h;el.innerHTML=h;return true}return false};
@@ -2997,11 +3023,17 @@ function createGame(api,career){
       cv.addEventListener("pointerdown",e=>{const p=toLocal(e);st.S.forEach((x,i)=>{const q=cellXY(x.cell);if(Math.abs(p.x-q.x)<80*q.s&&p.y>q.y-176*q.s&&p.y<q.y+60*q.s)resolve(i)})});
       let syncT=0,presT=0;
       function fx(t,x,y,col){st.fx.push({t,x,y,col,life:1.6})}
+      function coverFor(w0,handover){const to=w0.st0>=0?w0.st0:w0.st;const idle=st.workers.filter(w=>w.st<0&&!w.absent&&w!==w0).sort((a,b)=>b.sk-a.sk)[0];let c=null;
+        if(idle&&to>=0){idle.st=to;c=idle;api.toast(wrap,`👷 ${idle.n} ลงแทนที่ S${to+1}`)}else if(to>=0){const n=st.S.length,load=i=>st.workers.filter(w=>w.st===i&&!w.absent&&w!==w0).length;let src=-1;for(let i=0;i<n;i++)if(i!==to&&load(i)>1&&(src<0||load(i)>load(src)))src=i;
+          if(src>=0){const w=st.workers.filter(w=>w.st===src&&!w.absent&&w!==w0).sort((a,b)=>a.sk-b.sk)[0];if(w.job){st.buf[src].unshift(w.job.u);w.job=null}w.st=to;c=w;api.toast(wrap,`👷 ย้าย ${w.n} จาก S${src+1} ไป S${to+1}`)}else api.toast(wrap,"ไม่มีคนว่าง · ลองจ้างเพิ่มหรือแบ่งงานใหม่ (✂ แบ่งงาน)")}
+        if(c&&handover){c.sk=Math.max(c.sk,w0.sk);api.toast(wrap,`🤝 ${w0.n} ส่งมอบงานให้ ${c.n} แล้ว`)}return c}
       function applyEv(e,k){const o=k==null?null:e.opts[k];st.ev=null;if(!e.people)st.evDone.push(e);
         if(e.people){st.peopleTot=(st.peopleTot||0)+1;if(o&&o.ok)st.peopleOk=(st.peopleOk||0)+1}
-        if(o&&o.do==="cover"){const w0=st.workers.find(w=>w.id===e.w),to=w0?w0.st0:-1;const idle=st.workers.filter(w=>w.st<0&&!w.absent).sort((a,b)=>b.sk-a.sk)[0];
-          if(idle&&to>=0){idle.st=to;api.toast(wrap,`👷 ${idle.n} ลงแทนที่ S${to+1}`)}else if(to>=0){const n=st.S.length,load=i=>st.workers.filter(w=>w.st===i&&!w.absent).length;let src=-1;for(let i=0;i<n;i++)if(i!==to&&load(i)>1&&(src<0||load(i)>load(src)))src=i;
-            if(src>=0){const w=st.workers.filter(w=>w.st===src&&!w.absent).sort((a,b)=>a.sk-b.sk)[0];if(w.job){st.buf[src].unshift(w.job.u);w.job=null}w.st=to;api.toast(wrap,`👷 ย้าย ${w.n} จาก S${src+1} ไป S${to+1}`)}else api.toast(wrap,"ไม่มีคนว่าง · ลองจ้างเพิ่มหรือแบ่งงานใหม่ (✂ แบ่งงาน)")}}
+        if(o&&o.do==="cover"){const w0=st.workers.find(w=>w.id===e.w);if(w0)coverFor(w0)}
+        if(o&&o.ask&&e.st!=null){if((st.whyN=(st.whyN||0)+1)<=4)(st.pq=st.pq||[]).push(sopWhyEv(e.st,e.sn,pick(["better","cant","untrained","wont"])));else if(st.S[e.st]){st.S[e.st].dev=false;st.S[e.st].devAsk=false}}
+        if(o&&o.bonus==="kaizen"){st.evScore+=50;fx("💡 OIS ฉบับใหม่จากข้อเสนอพนักงาน +50",480,290,"#ffd27a")}
+        if(o&&(o.do==="approve"||o.do==="approveNoPlan"||o.do==="deny")){const w=st.workers.find(x=>x.id===e.w);if(w){if(o.do==="deny"){w.absRisk=true}else{w.plannedAbs=true;w.plannedCover=o.do==="approve"}}}
+        if(o&&o.do==="handover"){const w=st.workers.find(x=>x.id===e.w);if(w)w.handover=true}
         if(o&&o.do==="fixdev"&&e.st!=null&&st.S[e.st]){st.S[e.st].dev=false;st.S[e.st].devAsk=false}
         if(!o&&e.st!=null&&st.S[e.st])st.S[e.st].devAsk=false;
         if(o&&o.ok){st.evScore+=150;st.evRight++;st.buffUntil=st.t+ROUND;api.toast(wrap,"✅ "+o.why.slice(0,60));fx("✅ ตัดสินใจถูกต้อง +150",480,250,"#7dffa8");SFXp("ok")}
@@ -3011,6 +3043,7 @@ function createGame(api,career){
           else if(pen==="cash"){st.cash-=300}
           else if(pen==="morale"){st.workers.forEach(w=>{w.sk=Math.max(.5,w.sk*.96)});fx("😟 ขวัญกำลังใจทีมลดลง",480,250,"#ff8a7a")}
           else if(pen==="repeat"){const w=st.workers.find(x=>x.id===e.w);if(w)w.absRisk=true}
+          else if(pen==="none"){}
           else{st.S.forEach(x=>{if(!x.broken)x.repair=Math.max(x.repair,40)})}}
         st.evLast={e,o,at:st.t};sync(true)}
       function resolve(i){const x=st.S[i];if(x.broken){x.broken=false;x.repair=(30+90*(1-K.vm))*(1-(EQB.repair||0));fx("🔧 ช่างมาแล้ว",cellXY(x.cell).x,cellXY(x.cell).y-150,"#ffd27a");SFXp("ok");sync(true)}
@@ -3058,7 +3091,11 @@ function createGame(api,career){
         const rd=Math.floor(st.t/ROUND);if(rd!==st.round){st.round=rd;st.jph=jphAt(lv,rd);while(st.hourly.length<=rd)st.hourly.push({plan:jphAt(lv,st.hourly.length)*ROUND/3600,act:0});const ev=[];
           if(rd===lv.colorsFrom)ev.push("ลูกค้าสั่ง 3 สี น้ำเงิน แดง ดำ ระวังหยิบไส้ผิดสี");if(rd===lv.brkFrom)ev.push("เครื่องอัดด้ามเริ่มเสียได้");if(rd===lv.pcFrom)ev.push("ระวังการทำงานไม่ตามมาตรฐาน");
           st.workers.forEach(w=>{if(w.absent){w.absent=false;if(w.wasAbs){w.wasAbs=false;(st.pq=st.pq||[]).push(returnEv(w,w.absNo,w.absCount||1))}}else if(w.absRisk&&w.st>=0&&Math.random()<.5){w.absRisk=false;w.absent=true;w.st0=w.st;w.absNo=true;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,true));ev.push(w.n+" ขาดงานซ้ำ")}});
-          if(rd===lv.absent||(lv.absentEvery&&rd>lv.absent&&(rd-lv.absent)%lv.absentEvery===0)){const cand=st.workers.filter(w=>w.st>=0);if(cand.length>1){const w=pick(cand);w.absent=true;w.st0=w.st;w.absNo=Math.random()<.45;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,w.absNo));ev.push(w.n+(w.absNo?" ขาดงานไม่แจ้ง":" ลาป่วย")+" · ตัดสินใจที่แผงด้านล่าง")}}
+          st.workers.forEach(w=>{if(w.plannedAbs&&!w.absent){w.plannedAbs=false;w.absent=true;w.st0=w.st;w.wasAbs=false;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}if(w.plannedCover){w.plannedCover=false;coverFor(w);ev.push(w.n+" ลากิจตามที่อนุมัติ · คนแทนลงสถานีแล้ว")}else ev.push(w.n+" ลากิจตามที่อนุมัติ · สถานี S"+(w.st0+1)+" ว่าง!")}});
+          for(let i=st.workers.length-1;i>=0;i--){const w=st.workers[i];if(!w.leaving)continue;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}w.absent=true;w.st0=w.st;if(w.handover)coverFor(w,true);st.workers.splice(i,1);(st.resigned=st.resigned||[]).push(w.n);ev.push(w.n+" วันสุดท้าย ออกจากบริษัทแล้ว"+(w.handover?" · ส่งมอบงานเรียบร้อย":" · สถานี S"+(w.st0+1)+" ว่าง!"))}
+          if(lv.leaveReq!=null&&rd>=lv.leaveReq&&!st.leaveReqDone){st.leaveReqDone=true;const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);(st.pq=st.pq||[]).push(leaveReqEv(w));ev.push(w.n+" ยื่นใบลาล่วงหน้า · อนุมัติที่แผงด้านล่าง")}}
+          if(lv.resign!=null&&rd>=lv.resign&&!st.resignDone){st.resignDone=true;const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);w.leaving=true;(st.pq=st.pq||[]).push(resignEv(w));ev.push(w.n+" ยื่นใบลาออก · ตัดสินใจที่แผงด้านล่าง")}}
+          if(rd===lv.absent||(lv.absentEvery&&rd>lv.absent&&(rd-lv.absent)%lv.absentEvery===0)){const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);w.absent=true;w.st0=w.st;w.absNo=Math.random()<.45;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,w.absNo));ev.push(w.n+(w.absNo?" ขาดงานไม่แจ้ง":" ลาป่วย")+" · ตัดสินใจที่แผงด้านล่าง")}}
           if(lv.god&&!st.ev){const pool=KEVENTS.filter(e=>!st.evDone.includes(e));if(pool.length){st.ev={e:pick(pool),until:st.t+150+(EQB.evTime||0)*SPEED};ev.push("📋 มีปัญหาหน้างานรอการตัดสินใจ (แผงด้านล่าง)")}}
           st.banner={t:`รอบ ${rd+1}: ลูกค้าเพิ่มเป็น ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที${ev.length?" · "+ev.join(" · "):""}`,life:5};SFXp("level");sync(true)}
         if(st.banner)st.banner.life-=dtp;
@@ -3113,7 +3150,7 @@ function createGame(api,career){
       function finish(){ended=true;const r=result();if(room)publish(true);
         const stars=r.gok>=6?3:r.gok>=4?2:r.gok>=2?1:0;
         const L2=career?[]:[`<b>SQDCPME:</b> ทำได้ตามเป้า ${r.gok}/7 ข้อ ${r.rows.map(x=>`${x.ok?"✅":"❌"} ${x.g.k} เป้า ${x.g.dir<0?"≤":"≥"} ${x.tv.toLocaleString()}${x.g.u.trim()} ได้ ${x.v.toLocaleString()}${x.g.u.trim()}`).join(" · ")}`];
-        if(st.peopleTot)L2.push(`<b>บริหารคน:</b> ตัดสินใจเรื่องคนลา/ไม่ทำตามมาตรฐานถูก ${st.peopleOk||0}/${st.peopleTot} ครั้ง · หลักคือ จัดคนแทนตามทักษะ คุยส่วนตัวหลังกลับมา ฟังเหตุผลก่อน และแก้ที่สาเหตุ (สอนซ้ำ/ปรับ OIS)`);L2.push(`<b>ผลประกอบการ:</b> รายได้ ${baht(st.rev)} − วัตถุดิบ ${baht(st.matCost)} − ค่าแรง ${baht(st.wages)} − ค่าจ้างแรกเข้า ${baht((career?Math.max(0,st.hires-career.hired.length):st.hires)*ECON.hire)} − ค่าเช่าโรงงาน ${baht(st.rent)} − ของเสีย/ร้องเรียน ${baht(st.scrap*ECON.scrap+st.complaints*ECON.complaint)}${r.penalty?` − ค่าปรับส่งไม่ทัน ${baht(r.penalty)}`:""} = กำไร <b>${baht(r.profit)}</b>`);
+        if(st.peopleTot)L2.push(`<b>บริหารคน:</b> ตัดสินใจเรื่องคนลา/ลาล่วงหน้า/ลาออก/ไม่ทำตามมาตรฐานถูก ${st.peopleOk||0}/${st.peopleTot} ครั้ง${st.resigned&&st.resigned.length?` · ลาออก: ${st.resigned.join(", ")}`:""} · หลักคือ วางแผนคนสำรองตาม Skill Matrix คุยส่วนตัวและฟังเหตุผลก่อน แก้ที่สาเหตุ (ปรับ OIS/สอนซ้ำ/อธิบายเหตุผล) และใช้ระเบียบเป็นขั้นอย่างเป็นธรรม`);L2.push(`<b>ผลประกอบการ:</b> รายได้ ${baht(st.rev)} − วัตถุดิบ ${baht(st.matCost)} − ค่าแรง ${baht(st.wages)} − ค่าจ้างแรกเข้า ${baht((career?Math.max(0,st.hires-career.hired.length):st.hires)*ECON.hire)} − ค่าเช่าโรงงาน ${baht(st.rent)} − ของเสีย/ร้องเรียน ${baht(st.scrap*ECON.scrap+st.complaints*ECON.complaint)}${r.penalty?` − ค่าปรับส่งไม่ทัน ${baht(r.penalty)}`:""} = กำไร <b>${baht(r.profit)}</b>`);
         const miss=st.hourly.map((h,i)=>({i,gap:(i===st.round?h.plan*((st.t%ROUND)/ROUND):h.plan)-h.act})).filter(h=>h.gap>1&&h.i<=st.round);if(miss.length)L2.push(`<b>Time & Data:</b> รอบที่ทำไม่ทันแผน ${miss.map(h=>`R${h.i+1} (${jphAt(lv,h.i)} JPH ขาด ${Math.round(h.gap)})`).join(", ")} เมื่อ JPH เพิ่มต้องจ้างคนและแบ่งงานใหม่ให้ทุกสถานีต่ำกว่า Takt`);
         L2.push(`<b>Standardized Work:</b> โต๊ะของคุณ ${R.ct.toFixed(1)} วินาที/ด้าม (ดีที่สุด ${IDEAL_CT}) ท่าทางเสี่ยง ${R.risky} ครั้ง/ด้าม โอกาสหยิบไส้ผิดสี ${(R.riskRefill*100).toFixed(1)}%`);
         L2.push(`<b>Layout:</b> ระยะเดินส่งงาน ${lineWalk(line.cells).toFixed(1)} เมตร/ด้าม ${lineWalk(line.cells)>12?"วางสถานีให้ติดกันตามลำดับงาน หรือเป็นรูปตัว U จะลดการเดิน":"วางได้กระชับ"}`);
