@@ -943,6 +943,41 @@ body{background:
 .gcard .g3d>canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y}
 .gcard .g3d .fs-pins,.gcard .g3d .fs-status,.gcard .g3d .pf-ovl{display:none}
 .gcard .g3d .stage3d-live{left:10px;top:10px}
+/* ---- Visual Hunt (spot the problem) ---- */
+.gcard.spot .spot-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.spot-badge{background:#8b6cff!important;box-shadow:0 3px 0 #5b3fd1!important}
+.spot-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:10px 0 12px}
+.spot-grid button{border:0;border-radius:12px;background:var(--sunk);color:var(--ink);padding:6px 2px;min-height:58px;display:grid;gap:0;font-family:var(--f-display);cursor:pointer}
+.spot-grid button b{font-size:15px}.spot-grid button small{font-size:9.5px;color:var(--muted);line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px}.spot-grid button i{font-style:normal;color:#f2a900;font-size:11px}
+.spot-grid button.done{background:color-mix(in srgb,var(--go-soft) 80%,var(--surface))}
+.spot-go{width:100%}
+.spot{position:fixed;inset:0;z-index:200;background:#15213a;color:#fff;overflow:auto;padding:12px 12px calc(16px + env(safe-area-inset-bottom))}
+.spot-top{display:flex;align-items:center;gap:10px;max-width:1100px;margin:0 auto}
+.spot-ttl{flex:1;min-width:0}.spot-ttl b{display:block;font:700 18px var(--f-display)}.spot-ttl small{color:#b9c6e6}
+.spot-time{font:800 24px var(--f-display);color:#ffd45c;min-width:40px;text-align:right}
+.spot .skd-timebar{max-width:1100px;margin:8px auto}
+.spot-hud{display:flex;gap:8px;align-items:center;max-width:1100px;margin:0 auto 8px}
+.spot-hud span{flex:1;font:700 16px var(--f-display)}
+.spot-hud button{border:0;border-radius:12px;min-height:44px;padding:8px 12px;background:#2a3a63;color:#fff;font:600 14px var(--f-display);cursor:pointer}.spot-hud button:disabled{opacity:.4}
+.spot-stage{max-width:1100px;margin:0 auto;overflow:auto;border-radius:16px;background:#000;-webkit-overflow-scrolling:touch}
+.spot-pic{position:relative;width:100%;cursor:crosshair;touch-action:manipulation}
+.spot-pic.z{width:200%}
+.spot-pic img{display:block;width:100%;user-select:none;-webkit-user-select:none;pointer-events:none}
+.spot-m{position:absolute;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none}
+.spot-m.ok{border:4px solid #ff3b47;box-shadow:0 0 0 3px rgba(255,255,255,.7);animation:spPop .35s ease-out}
+.spot-m.hint{border:4px dashed #ffd45c;background:rgba(255,212,92,.18);animation:spPop .35s ease-out}
+.spot-m.miss{width:auto;height:auto;color:#ff5d73;font:900 30px var(--f-display);text-shadow:0 2px 0 #000}
+.spot-pic.shake{animation:spShake .3s}
+@keyframes spPop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}}
+@keyframes spShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.spot-list{max-width:1100px;margin:10px auto 0;padding:0;list-style:none;display:grid;gap:6px}
+.spot-list li{background:#22305a;border-radius:12px;padding:10px 12px;font-size:15px}.spot-list li.ok{background:#1d5a3a}
+.spot-res{max-width:900px;margin:0 auto;background:var(--surface);color:var(--ink);border-radius:24px;padding:16px}
+.spot-res-h{display:flex;gap:12px;align-items:center}.spot-res-h h2{margin:0}.spot-res-h p{margin:2px 0 0;color:var(--grape);font-weight:700}
+.spot-ans{width:100%;border-radius:14px;margin:8px 0}
+.spot-why{padding:0;list-style:none;display:grid;gap:8px}.spot-why li{background:var(--sunk);border-radius:14px;padding:10px 12px}.spot-why li.no{border-left:5px solid #ff5d73}.spot-why li.ok{border-left:5px solid #3ccf5a}.spot-why p{margin:4px 0 0;color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion: reduce){.spot-m,.spot-pic.shake{animation:none}}
+@media (max-width:480px){.spot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 </style>
 
@@ -1997,13 +2032,14 @@ const SIMHUB=(()=>{
         <span class="genre">${esc(g.genre)}</span><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p>
         <div class="chips">${g.chips.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
         <div class="lvls">${g.lvlsHtml?g.lvlsHtml():g.id==="factory"&&CTL&&CTL.L!=null?`<button type="button" class="trainer" data-g="${g.id}" data-l="${CTL.L}" ${CTL.stop?"disabled":""}>${CTL.stop?"วิทยากรหยุดเกมแล้ว รอเปิดรอบใหม่":"▶ เข้าร่วม · ระดับ"+LVN[CTL.L]+" (วิทยากรเลือก)"}<small>${starHtml(myStars(g.id,CTL.L).stars||0)}</small></button>`:g.id==="factory"?`<p class="note2" style="grid-column:1/-1">${window.LQ_STANDALONE?"ใส่รหัสห้องด้านบน แล้วปุ่มเข้าร่วมจะปรากฏเมื่อวิทยากรเปิดห้อง · หรือฝึกเองด้านล่าง":"รอวิทยากรเปิดห้อง · หรือฝึกเองด้านล่าง"}</p>`+g.levels.map((_,l)=>`<button type="button" data-g="${g.id}" data-l="${l}" class="${l===3?"god":""}">${LVN[l]}<small>${starHtml(myStars(g.id,l).stars||0)}</small></button>`).join(""):g.levels.map((_,l)=>`<button type="button" data-g="${g.id}" data-l="${l}" class="${l===3?"god":""}">${LVN[l]}<small>${starHtml(myStars(g.id,l).stars||0)}</small></button>`).join("")}</div>
-      ${g.id==="career"?classroom:""}</div></article>`).join("")}</div>`;
+      ${g.id==="career"?classroom:""}</div></article>`).join("")}${window.SPOT?SPOT.cardHtml():""}</div>`;
     $("centerBtn").onclick=center;
     $("howtoBtn").onclick=howto;
     if($("whoF"))$("whoF").oninput=e=>{const q=Object.assign({},lsGet("lq-sim-who",{}),{fcode:e.target.value.replace(/\D/g,"").slice(0,4)});WHO.fcode=q.fcode;lsSet("lq-sim-who",q);if(WHO.fcode.length===4&&!ROOMP)joinRoom().then(()=>renderHub()).catch(()=>{})};
     $("simHub").querySelectorAll(".lvls button").forEach(b=>b.onclick=()=>{if(b.dataset.reset){if(!confirm("เริ่มโรงงานใหม่? ความคืบหน้าเดิมจะหายไป"))return;try{localStorage.removeItem(b.dataset.reset)}catch(e){}}play(b.dataset.g,+b.dataset.l)});
     $("simHub").querySelectorAll("canvas[data-thumb]").forEach(cv=>{const g=SIMS.find(x=>x.id===cv.dataset.thumb);const c=cv.getContext("2d");try{g.thumb(c,640,360,null)}catch(e){}});
     cardPreviews();
+    if(window.SPOT)SPOT.bind($("simHub"),renderHub);
 
   }
   function scoreOf(r,k){const b=r.best||{};if(k==="all")return Object.values(b).reduce((a,v)=>a+(+v||0),0);return +b[k]||0}
@@ -3514,6 +3550,7 @@ const SKILLS=(()=>{
     {id:"lbe85",t:"ทำ Line Balance ≥85% ในเกมโรงงาน",k:"lbe85",n:1,go:"career"},
     {id:"auto",t:"เล่น Lean Auto Plant 1 รอบ",k:"auto",n:1,go:"auto"},
     {id:"tr3d",t:"ผ่านด่านในหน้าอบรม 3D 1 ด่าน",k:"tr3d",n:1,go:"tr3d"},
+    {id:"spot",t:"เล่นจับผิดภาพ 1 ด่าน",k:"spot",n:1,go:"spot"},
     {id:"games2",t:"เล่นเกมโรงงานรวม 2 รอบ",k:"games",n:2,go:"sims"},
     {id:"xp150",t:"เก็บ Skill XP วันนี้ให้ได้ 150",k:"xp",n:150,go:"drill"},
     {id:"extra",t:"ฝึก Drill เพิ่มอีก 1 รอบ",k:"drillx",n:1,go:"drill"}];
@@ -3604,6 +3641,7 @@ window.SKILLS=SKILLS;
 function skillRing(t,size=54){const r=size/2-5,C=2*Math.PI*r;return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line,#e3e8f4)" stroke-width="6"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#skg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C*t.pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/><defs><linearGradient id="skg" x1="0" x2="1"><stop offset="0" stop-color="#ffb21c"/><stop offset="1" stop-color="#3ccf5a"/></linearGradient></defs><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="${size*.36}">${t.ic}</text></svg>`}
 function skillGoTo(go){
   if(go==="drill")return skillDrill();
+  if(go==="spot"&&window.SPOT){const s=SPOT.SETS;const p=lsGet("lq-spot",{});const n=(s.find(x=>!(p[x.n]&&p[x.n].stars))||s[0]).n;return SPOT.play(n)}
   if(go==="tr3d"){location.href=LQ_SITE+"training.html";return}
   show("scrSims");SIMHUB.open();if(go==="career")SIMHUB.play("career",0);else if(go==="auto")SIMHUB.play("auto",0);
 }
@@ -3658,6 +3696,149 @@ function skillDrill(onDone){const qs=SKILLS.pickDrill(),ans=[];let k=0,timer=nul
     o.querySelector("#skdClose").onclick=close;o.querySelector("#skdAgain").onclick=()=>{close();setTimeout(()=>skillDrill(onDone),50)};o.querySelector("#skdClose").focus({preventScroll:true})}
   q();
 }
+
+// =====================================================================
+// VISUAL HUNT — spot-the-problem pictures (Visual Management)
+// Images: assets/spot/NN-q.jpg (question) and NN-a.jpg (answer, before/after).
+// Zones are ellipses in image fractions (x, y = centre; rx, ry = radii).
+// Add a set: drop the two images in assets/spot/ and append an entry below.
+// =====================================================================
+const SPOT_SETS=[
+ {n:1,t:"Walkway",th:"ทางเดิน",sk:{vm:1,pd:.4},p:[
+  {t:"กล่องวางขวางทางเดิน",fix:"ทางเดินต้องโล่งเสมอ ย้ายกล่องไปวางในพื้นที่ที่กำหนดและมีป้ายระบุ",z:[[.525,.565,.065,.1]]},
+  {t:"รถเข็น/ชั้นวางล้ำเส้นทางเดิน",fix:"ตีกรอบจุดจอดรถเข็น และจอดให้อยู่ในกรอบ ไม่ล้ำเส้นทางเดิน",z:[[.66,.66,.06,.12]]},
+  {t:"เส้นทางเดินลอก ซีดจาง",fix:"ซ่อมสีเส้นให้ชัดเจน เส้นที่จางทำให้คนไม่รู้ขอบเขตทางเดิน",z:[[.72,.84,.06,.12]]}]},
+ {n:2,t:"Part Labels",th:"ป้ายชิ้นส่วน",sk:{vm:1,q:.6},p:[
+  {t:"ป้าย P-01 ซ้ำกัน 2 กล่อง",fix:"รหัสหนึ่งรหัสต้องมีตำแหน่งเดียว ตรวจรหัสให้ตรงกับชิ้นส่วนในกล่อง",z:[[.349,.568,.055,.065]]},
+  {t:"เฟืองติดป้าย P-01 ผิดรหัส",fix:"ติดป้ายรหัสที่ถูกต้องของเฟือง เพื่อกันหยิบผิด",z:[[.5,.58,.055,.065]]},
+  {t:"ป้ายว่าง ไม่ระบุรหัส",fix:"ทุกกล่องต้องมีป้ายรหัส/ชื่อชิ้นส่วน ห้ามปล่อยป้ายว่าง",z:[[.86,.61,.07,.065]]}]},
+ {n:3,t:"Shadow Board",th:"บอร์ดเงาเครื่องมือ",sk:{vm:1,std:.6},p:[
+  {t:"เครื่องมือหายจากบอร์ด (เงาว่าง)",fix:"เงาว่างบอกว่าเครื่องมือหาย ตามหาและแขวนคืนทุกครั้งหลังใช้",z:[[.505,.35,.04,.15]]},
+  {t:"ประแจเลื่อนแขวนนอกตำแหน่ง ไม่มีเงา",fix:"ทุกเครื่องมือต้องมีตำแหน่งและเงาของตัวเอง",z:[[.912,.3,.045,.15]]},
+  {t:"ประแจวางทิ้งบนโต๊ะ",fix:"ใช้เสร็จแล้วคืนบอร์ดทันที ไม่วางทิ้งบนโต๊ะงาน",z:[[.7,.835,.09,.07]]}]},
+ {n:4,t:"NG Parts",th:"ชิ้นงานเสีย NG",sk:{q:1,vm:.6},p:[
+  {t:"ชิ้นงานร้าวปนอยู่ในกล่อง OK",fix:"แยกชิ้นงาน NG ทันทีที่พบ ห้ามปนกับงาน OK",z:[[.41,.585,.05,.08]]},
+  {t:"ชิ้นงานวางบนโต๊ะ ไม่รู้ว่า OK หรือ NG",fix:"ชิ้นงานทุกชิ้นต้องอยู่ในกล่องที่ระบุสถานะ ไม่วางกองบนโต๊ะ",z:[[.54,.69,.085,.11]]},
+  {t:"กล่องแดงไม่มีป้าย NG",fix:"ติดป้าย NG ที่กล่องแดงให้ชัด เหมือนกล่อง OK",z:[[.78,.69,.13,.08]]}]},
+ {n:5,t:"Daily KPI",th:"บอร์ด KPI รายวัน",sk:{pd:1,vm:.6,tdm:.5},p:[
+  {t:"82% ต่ำกว่าเป้า แต่ใช้สีเขียว",fix:"สีต้องตรงกับผล: ต่ำกว่าเป้าใช้สีแดง/เหลือง เพื่อให้เห็นปัญหาทันที",z:[[.528,.416,.05,.04]]},
+  {t:"ไม่ได้บันทึกผล 10–12 ต.ค.",fix:"อัปเดตบอร์ดทุกวัน ข้อมูลที่ขาดทำให้ติดตามแนวโน้มไม่ได้",z:[[.48,.505,.2,.07]]},
+  {t:"หัวหน้ายังไม่ลงชื่อยืนยัน",fix:"หัวหน้าต้องตรวจและลงชื่อทุกวัน แสดงว่ามีการติดตาม",z:[[.77,.73,.08,.07]]}]},
+ {n:6,t:"Pallet Area",th:"พื้นที่วางพาเลท",sk:{vm:1,pd:.4},p:[
+  {t:"พาเลทวางล้ำกรอบเหลือง",fix:"วางพาเลทให้อยู่ในกรอบที่ตีไว้ทั้งหมด",z:[[.23,.58,.1,.13]]},
+  {t:"ลังผิดประเภทวางในช่องพาเลท",fix:"แต่ละช่องต้องวางของตามป้ายที่กำหนด ไม่ใช้ปนกัน",z:[[.643,.425,.08,.09]]},
+  {t:"พาเลทบังถังดับเพลิงและประตู",fix:"ห้ามวางของหน้าอุปกรณ์ดับเพลิงและทางออก ต้องเข้าถึงได้ทันที",z:[[.816,.43,.08,.16]]}]},
+ {n:7,t:"Document Control",th:"ควบคุมเอกสาร",sk:{std:1,pc:.6},p:[
+  {t:"เอกสารเก่า REV 01 ยังติดอยู่",fix:"ดึงเอกสารฉบับเก่าออกทันทีเมื่อมีฉบับใหม่ หน้างานต้องมีเฉพาะฉบับปัจจุบัน",z:[[.447,.28,.045,.05]]},
+  {t:"เอกสารขาด อ่านไม่ครบ",fix:"เปลี่ยนเอกสารที่ชำรุด ใส่ซองพลาสติกป้องกัน",z:[[.6,.6,.06,.12]]},
+  {t:"แรงบิดขัดกัน 10 Nm กับ 8 Nm",fix:"ข้อมูลมาตรฐานต้องตรงกันทุกจุด ตรวจกับวิศวกรแล้วเหลือค่าเดียว",z:[[.8,.32,.09,.12],[.8,.6,.09,.12]]}]},
+ {n:8,t:"C-Part Storage",th:"ชั้นเก็บน็อต สกรู",sk:{vm:1,q:.5},p:[
+  {t:"น็อตกับโบลต์ปนในกล่องแหวน",fix:"แยกชิ้นส่วนให้ตรงกับรูปบนป้าย กันหยิบผิด",z:[[.577,.26,.07,.1]]},
+  {t:"กล่องว่าง ป้ายว่าง",fix:"ระบุชิ้นส่วนบนป้าย และเติมของ/แจ้งสั่งเมื่อหมด",z:[[.577,.54,.07,.1]]},
+  {t:"ของล้นเกินเส้น MAX",fix:"เติมไม่เกินระดับ MAX เพื่อกันของหกและสต็อกเกิน",z:[[.577,.74,.07,.12]]}]},
+ {n:9,t:"Cleaning Station",th:"จุดเก็บอุปกรณ์ทำความสะอาด",sk:{vm:1,std:.5},p:[
+  {t:"แปรงแขวนผิดสี/ผิดโซน",fix:"ใช้รหัสสีแยกอุปกรณ์ตามพื้นที่ และแขวนให้ตรงตำแหน่ง",z:[[.427,.3,.04,.13]]},
+  {t:"ขวดสเปรย์ไม่มีฉลาก",fix:"สารเคมีทุกขวดต้องมีฉลากชื่อสาร เพื่อความปลอดภัย",z:[[.71,.245,.04,.08]]},
+  {t:"ไม้กวาดวางทิ้งบนพื้น",fix:"แขวนไม้กวาดคืนตำแหน่ง ไม่วางขวางพื้นที่",z:[[.42,.78,.14,.06]]}]},
+ {n:10,t:"Emergency Exit",th:"ทางออกฉุกเฉิน",sk:{vm:1,pd:.5},p:[
+  {t:"กล่องบังป้ายทางออก",fix:"ป้ายทางออกต้องมองเห็นได้ตลอด ห้ามวางของบัง",z:[[.59,.1,.08,.07]]},
+  {t:"รถเข็นขวางประตูหนีไฟ",fix:"ห้ามจอดหรือวางของหน้าประตูทางออกฉุกเฉินเด็ดขาด",z:[[.57,.57,.1,.17]]},
+  {t:"วางลังในเขตห้ามวาง (ลายทแยง)",fix:"พื้นที่ลายทแยงเหลืองคือเขตห้ามวางของ",z:[[.38,.69,.07,.1]]}]},
+ {n:11,t:"Temporary Storage",th:"พื้นที่พักของชั่วคราว",sk:{vm:1,pd:.5},p:[
+  {t:"ป้ายไม่ระบุผู้รับผิดชอบและวันที่",fix:"ของชั่วคราวต้องมีชื่อเจ้าของและวันที่ เพื่อติดตามได้",z:[[.39,.535,.07,.07]]},
+  {t:"เลยกำหนด (09 OCT) ยังไม่ย้ายออก",fix:"ของที่เกินกำหนดต้องย้ายออกตามป้าย REMOVE",z:[[.935,.46,.07,.12]]},
+  {t:"วางนอกพื้นที่ ไม่มีป้าย",fix:"ของทุกชิ้นต้องอยู่ในกรอบพื้นที่และมีป้ายระบุ",z:[[.77,.73,.14,.12]]}]},
+ {n:12,t:"FIFO",th:"เข้าก่อนออกก่อน",sk:{vm:1,q:.5,tdm:.4},p:[
+  {t:"กล่องใหม่ (12 OCT) ถูกนำออกก่อน",fix:"ต้องนำของเก่าที่สุดออกก่อน (First In First Out)",z:[[.73,.365,.07,.08]]},
+  {t:"กล่องไม่มีป้ายวันที่",fix:"ทุกกล่องต้องมีวันที่ เพื่อรู้ลำดับการใช้",z:[[.533,.72,.06,.07]]},
+  {t:"รถเข็นขวางฝั่ง OUT",fix:"จุดหยิบของฝั่ง OUT ต้องโล่ง จอดรถเข็นในตำแหน่งที่กำหนด",z:[[.84,.64,.08,.2]]}]},
+ {n:13,t:"T-Card",th:"บอร์ด T-Card",sk:{pc:1,vm:.6},p:[
+  {t:"การ์ดงานเป็นสีเขียวทั้งหมด ไม่สะท้อนสถานะจริง",fix:"พลิกการ์ดตามผลตรวจจริง (เขียว=ทำแล้ว แดง=ยังไม่ทำ/ผิดปกติ) และเขียนชื่องานให้ครบ",z:[[.505,.39,.065,.24]]},
+  {t:"ช่องตรวจช่วงบ่ายว่างทั้งหมด",fix:"ตรวจยืนยันกระบวนการให้ครบตามรอบเวลา",z:[[.785,.4,.075,.24]]},
+  {t:"น้ำหกบนพื้น",fix:"เช็ดทันทีและหาต้นเหตุ ป้องกันการลื่นล้ม",z:[[.53,.845,.1,.06]]}]},
+ {n:14,t:"Standard Workstation",th:"โต๊ะงานมาตรฐาน",sk:{std:1,vm:.6},p:[
+  {t:"จำนวนกล่องไม่ตรงรูปมาตรฐาน (5 แทน 3)",fix:"จัดโต๊ะให้ตรงรูปมาตรฐาน ถ้าจำเป็นต้องเปลี่ยนให้แก้มาตรฐานก่อน",z:[[.505,.33,.2,.06],[.505,.1,.1,.06]]},
+  {t:"สว่านวางผิดตำแหน่ง",fix:"วางเครื่องมือตามตำแหน่งในรูปมาตรฐาน",z:[[.65,.495,.045,.06]]},
+  {t:"ชั้นชิ้นส่วนเกิน ไม่อยู่ในมาตรฐาน",fix:"นำของที่ไม่อยู่ในมาตรฐานออกจากพื้นที่งาน",z:[[.91,.5,.08,.28]]}]},
+ {n:15,t:"Waste Sorting",th:"คัดแยกขยะ",sk:{vm:1,pd:.4},p:[
+  {t:"ขวดพลาสติกอยู่ในถังกระดาษ",fix:"ทิ้งให้ตรงประเภทตามป้ายและสีถัง",z:[[.32,.53,.05,.08]]},
+  {t:"น็อตโลหะอยู่ในถังพลาสติก",fix:"เศษโลหะต้องแยกไปถังโลหะ",z:[[.54,.55,.05,.06]]},
+  {t:"ป้ายถังที่ 3 ว่าง ไม่บอกประเภท",fix:"ติดป้ายและสัญลักษณ์ประเภทขยะให้ครบทุกถัง",z:[[.68,.26,.08,.13]]}]},
+ {n:16,t:"Safety Signs",th:"ป้ายความปลอดภัย",sk:{vm:1,pd:.5},p:[
+  {t:"ป้าย CAUTION ฉีกขาด",fix:"เปลี่ยนป้ายเตือนที่ชำรุดทันที ต้องอ่านได้ชัดเจน",z:[[.1,.32,.09,.17]]},
+  {t:"กล่องกระดาษบังป้าย PPE",fix:"ห้ามวางหรือติดของบังป้ายบังคับสวม PPE",z:[[.66,.33,.07,.15]]},
+  {t:"ลูกศรทางเดินชี้ไปประตูที่ล็อกไว้",fix:"เครื่องหมายบนพื้นต้องตรงกับเส้นทางจริง",z:[[.84,.81,.07,.1]]}]},
+ {n:17,t:"Chemical Storage",th:"จัดเก็บสารเคมี",sk:{vm:1,q:.5,pd:.4},p:[
+  {t:"ขวดสารเคมีไม่มีฉลาก",fix:"สารเคมีทุกภาชนะต้องมีฉลากชื่อและสัญลักษณ์อันตราย",z:[[.505,.24,.04,.09]]},
+  {t:"แกลลอนวางบนพื้นนอกตู้",fix:"เก็บสารเคมีในตู้และถาดรองหกเท่านั้น",z:[[.356,.69,.045,.11]]},
+  {t:"ลังวัตถุไวไฟวางกองข้างตู้",fix:"ของไวไฟต้องเก็บในตู้นิรภัย ไม่วางขวางหน้าตู้",z:[[.73,.6,.075,.22]]}]},
+ {n:18,t:"Status Board",th:"บอร์ดสถานะไลน์",sk:{vm:1,tdm:.7,pd:.4},p:[
+  {t:"ไฟเขียว ทั้งที่ผลิตได้แค่ครึ่งเป้า",fix:"สถานะต้องสะท้อนความจริง ต่ำกว่าเป้าต้องเป็นสีแดง/เหลือง",z:[[.133,.183,.06,.08]]},
+  {t:"ไม่ระบุสาเหตุ Downtime",fix:"บันทึกสาเหตุทุกครั้งที่ไลน์หยุด เพื่อแก้ที่ต้นเหตุ",z:[[.16,.34,.11,.05]]},
+  {t:"อัปเดตล่าสุด 08:00 แต่ตอนนี้บ่าย 2",fix:"อัปเดตบอร์ดทุกชั่วโมง ข้อมูลเก่าใช้ตัดสินใจไม่ได้",z:[[.323,.342,.05,.05],[.89,.13,.06,.1]]}]},
+ {n:19,t:"Rack Parking",th:"จุดจอดรถเข็น",sk:{vm:1,std:.4},p:[
+  {t:"T-102 จอดคร่อมช่อง 02–03",fix:"จอดให้ตรงช่องที่ระบุ ช่องละหนึ่งคัน",z:[[.335,.37,.08,.17]]},
+  {t:"รถเข็นจอดบนทางเดิน",fix:"ห้ามจอดบนทางเดินคน ย้ายไปช่องจอด",z:[[.84,.52,.07,.18]]},
+  {t:"รถเข็นไม่มีป้ายหมายเลข",fix:"ทุกคันต้องมีป้ายหมายเลข เพื่อรู้ช่องจอดและเจ้าของ",z:[[.83,.32,.05,.05]]}]},
+ {n:20,t:"Visual Control Overview",th:"ภาพรวม Visual Control",sk:{vm:1,q:.5,pd:.4},p:[
+  {t:"กล่องชิ้นส่วนบนโต๊ะไม่มีป้าย",fix:"ทุกกล่องต้องมีป้ายระบุชิ้นส่วน",z:[[.73,.58,.08,.08]]},
+  {t:"ชิ้นงาน OK อยู่ในกล่อง REJECT",fix:"แยกงาน OK/NG ให้ตรงกล่อง ห้ามปน",z:[[.93,.67,.07,.1]]},
+  {t:"สัญลักษณ์ทางเดินบนพื้นลอก",fix:"ซ่อมเครื่องหมายบนพื้นให้ชัดเจน",z:[[.33,.8,.08,.12]]}]}
+];
+const SPOT=(()=>{
+  const KEY="lq-spot";
+  const prog=()=>lsGet(KEY,{});
+  const img=(n,k)=>LQ_SITE+"assets/spot/"+String(n).padStart(2,"0")+"-"+k+".jpg";
+  function stats(){const p=prog();const done=SPOT_SETS.filter(s=>p[s.n]&&p[s.n].stars>0).length;const stars=SPOT_SETS.reduce((a,s)=>a+((p[s.n]||{}).stars||0),0);return {done,stars,total:SPOT_SETS.length}}
+  function nextSet(){const p=prog();return (SPOT_SETS.find(s=>!(p[s.n]&&p[s.n].stars>=3))||SPOT_SETS[0]).n}
+  function cardHtml(){const p=prog(),st=stats();
+    return `<article class="gcard spot"><div class="g3d spot-cover"><img src="${img(nextSet(),"q")}" alt="" loading="lazy"><span class="stage3d-live spot-badge">🔍 จับผิดภาพ</span></div><div class="gb">
+      <span class="genre">Visual Management · ${st.total} ด่าน</span><h3>จับผิดภาพ · Visual Hunt</h3>
+      <p>ภาพหน้างานจริง หา 3 จุดที่ผิดมาตรฐานให้ได้ก่อนหมดเวลา แตะที่ภาพตรงจุดที่ผิด แล้วดูเฉลยพร้อมวิธีแก้</p>
+      <div class="chips"><span>5ส</span><span>Visual</span><span>Safety</span><span>FIFO</span><span>ผ่านแล้ว ${st.done}/${st.total}</span><span>⭐ ${st.stars}/${st.total*3}</span></div>
+      <div class="spot-grid">${SPOT_SETS.map(s=>{const r=p[s.n]||{};return `<button type="button" data-spot="${s.n}" class="${r.stars?"done":""}"><b>${String(s.n).padStart(2,"0")}</b><small>${s.th}</small><i>${"★".repeat(r.stars||0)}${"☆".repeat(3-(r.stars||0))}</i></button>`}).join("")}</div>
+      <button type="button" class="btn go big spot-go" data-spot="${nextSet()}">▶ เล่นด่าน ${String(nextSet()).padStart(2,"0")}</button></div></article>`}
+  function bind(root,after){root.querySelectorAll("[data-spot]").forEach(b=>b.onclick=()=>play(+b.dataset.spot,after))}
+  // ------------------------------------------------------------- play
+  function play(n,after){const S=SPOT_SETS.find(s=>s.n===n);if(!S)return;
+    const T=90;let left=T,found=new Set(),miss=0,hints=0,timer=null,over=false,zoom=false;
+    const o=document.createElement("div");o.className="spot";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","จับผิดภาพ "+S.t);document.body.appendChild(o);document.body.style.overflow="hidden";
+    o.innerHTML=`<div class="spot-top"><button type="button" class="skd-x" id="spX" aria-label="ปิด">✕</button><div class="spot-ttl"><b>${String(S.n).padStart(2,"0")} · ${S.t}</b><small>${S.th} · หา ${S.p.length} จุดที่ผิด</small></div><span class="spot-time" id="spT">${T}</span></div>
+      <div class="skd-timebar"><i id="spB"></i></div>
+      <div class="spot-hud"><span id="spF">พบ 0/${S.p.length}</span><button type="button" id="spZ">🔍 ขยาย</button><button type="button" id="spH">💡 ใบ้ (−50)</button></div>
+      <div class="spot-stage" id="spS"><div class="spot-pic" id="spP"><img src="${img(S.n,"q")}" alt="ภาพหน้างาน ${S.t}" draggable="false"></div></div>
+      <ol class="spot-list" id="spL">${S.p.map((_,i)=>`<li data-i="${i}">❓ จุดที่ ${i+1}</li>`).join("")}</ol>`;
+    const pic=o.querySelector("#spP"),stage=o.querySelector("#spS");
+    const close=()=>{clearInterval(timer);o.remove();document.body.style.overflow="";after&&after()};
+    o.querySelector("#spX").onclick=close;
+    o.querySelector("#spZ").onclick=()=>{zoom=!zoom;pic.classList.toggle("z",zoom);o.querySelector("#spZ").textContent=zoom?"🔍 ย่อ":"🔍 ขยาย";if(zoom){stage.scrollLeft=(pic.scrollWidth-stage.clientWidth)/2}};
+    o.querySelector("#spH").onclick=()=>{const i=S.p.findIndex((_,k)=>!found.has(k));if(i<0||over)return;hints++;const z=S.p[i].z[0];mark("hint",z);o.querySelector("#spH").disabled=hints>=2};
+    function mark(kind,z,label){const m=document.createElement("span");m.className="spot-m "+kind;m.style.left=(z[0]*100)+"%";m.style.top=(z[1]*100)+"%";if(kind!=="miss"){m.style.width=(z[2]*200)+"%";m.style.height=(z[3]*200)+"%"}if(label)m.textContent=label;pic.appendChild(m);if(kind!=="ok")setTimeout(()=>m.remove(),kind==="hint"?1600:700)}
+    pic.addEventListener("click",e=>{if(over)return;const r=pic.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+      const tolX=Math.max(0,22/r.width),tolY=Math.max(0,22/r.height);
+      let hit=-1;S.p.forEach((p,i)=>{if(found.has(i)||hit>=0)return;if(p.z.some(z=>{const dx=(x-z[0])/(z[2]+tolX),dy=(y-z[1])/(z[3]+tolY);return dx*dx+dy*dy<=1}))hit=i});
+      if(hit>=0){found.add(hit);S.p[hit].z.forEach(z=>mark("ok",z));const li=o.querySelector(`#spL li[data-i="${hit}"]`);li.className="ok";li.innerHTML=`✅ ${S.p[hit].t}`;o.querySelector("#spF").textContent=`พบ ${found.size}/${S.p.length}`;skillToast("เจอแล้ว! "+S.p[hit].t);if(found.size===S.p.length)end()}
+      else{miss++;left=Math.max(0,left-5);mark("miss",[x,y],"✕");o.querySelector(".spot-pic").classList.remove("shake");void pic.offsetWidth;pic.classList.add("shake")}});
+    const bar=o.querySelector("#spB");timer=setInterval(()=>{if(document.hidden)return;left-=.1;bar.style.width=Math.max(0,left/T*100)+"%";o.querySelector("#spT").textContent=Math.ceil(Math.max(0,left));if(left<=0)end()},100);
+    function end(){if(over)return;over=true;clearInterval(timer);
+      const nF=found.size,all=nF===S.p.length,score=Math.max(0,nF*100+(all?Math.round(left)*3:0)-miss*20-hints*50);
+      const stars=all?(miss<=1&&!hints?3:2):nF>=2?1:0;
+      const p=prog(),r=p[S.n]||{};p[S.n]={stars:Math.max(r.stars||0,stars),best:Math.max(r.best||0,score),plays:(r.plays||0)+1};lsSet(KEY,p);
+      let got=0;if(window.SKILLS){const m={};Object.entries(S.sk).forEach(([k,f])=>m[k]=(10+nF*8+stars*6)*f);got=SKILLS.award(m,`จับผิดภาพ ${String(S.n).padStart(2,"0")} ${S.t} · ${"⭐".repeat(stars)||"ยังไม่ผ่าน"}`);try{const d=SKILLS.day();d.c.spot=(d.c.spot||0)+1;lsSet("lq-skill-day",d)}catch(e){}}
+      if(stars>=2&&typeof confetti==="function")confetti(stars===3?100:50);
+      const nx=SPOT_SETS.find(s=>s.n>S.n);
+      o.innerHTML=`<div class="spot-res"><div class="spot-res-h"><span class="skd-big">${stars===3?"🏆":stars?"⭐":"💪"}</span><div><h2>${all?"เจอครบทุกจุด!":`เจอ ${nF}/${S.p.length} จุด`}</h2><p>${"★".repeat(stars)}${"☆".repeat(3-stars)} · ${score} คะแนน${got?` · +${got} Skill XP`:""}</p></div></div>
+        <span class="skd-tag">เฉลย · ${S.th}</span><img class="spot-ans" src="${img(S.n,"a")}" alt="เฉลย ${S.t}">
+        <ol class="spot-why">${S.p.map((q,i)=>`<li class="${found.has(i)?"ok":"no"}"><b>${found.has(i)?"✅":"❌"} ${q.t}</b><p>ควรแก้: ${q.fix}</p></li>`).join("")}</ol>
+        <div class="skd-acts">${nx?`<button type="button" class="skd-next" id="spN">ด่านถัดไป ${String(nx.n).padStart(2,"0")} →</button>`:""}<button type="button" class="skd-ghost" id="spA">เล่นอีกครั้ง</button><button type="button" class="skd-ghost" id="spC">เสร็จแล้ว</button></div></div>`;
+      o.scrollTop=0;
+      o.querySelector("#spC").onclick=close;o.querySelector("#spA").onclick=()=>{close();setTimeout(()=>play(S.n,after),30)};
+      if(nx)o.querySelector("#spN").onclick=()=>{close();setTimeout(()=>play(nx.n,after),30)};
+      setTimeout(()=>window.skillLevelUps&&skillLevelUps(),400)}
+  }
+  return {cardHtml,bind,play,stats,SETS:SPOT_SETS};
+})();
+window.SPOT=SPOT;
 
 
 // ---------- init ----------
