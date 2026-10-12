@@ -2028,7 +2028,7 @@ const SIMHUB=(()=>{
     cfgUnsub=CAP.db.doc("simcfg/main").onSnapshot(s=>{CFG=s.exists?s.data():{bg:{}};CFG.bg=CFG.bg||{};if(!cur)renderHub()},()=>{});
   }
   function myStars(gid,l){return ((prog.sim||{})[gid]||{})[l]||{}}
-  function open(){subscribe();if(!ROOMP&&(CAP.room||(window.LQ_SIMROOM&&(WHO.fcode||"").length===4)))joinRoom().catch(()=>{});if(cur){return}renderHub()}
+  function open(){subscribe();{const w=lsGet("lq-sim-who",{});if(!WHO.fcode&&w.fcode)WHO.fcode=w.fcode;if(!WHO.name&&w.name)WHO.name=w.name}if(!ROOMP&&(CAP.room||(window.LQ_SIMROOM&&(WHO.fcode||"").length===4)))joinRoom().catch(()=>{});if(cur){return}renderHub()}
   // live 3D previews on the game cards (GitHub Pages build only); thumbnails stay as the fallback
   let PREV=[];
   function cardPreviews(){PREV.forEach(p=>{try{p.h&&p.h.dispose()}catch(e){}});PREV=[];
@@ -2120,7 +2120,7 @@ const SIMHUB=(()=>{
   let ROOMP=null,CTL=null,ctlSubs=[];
   function onCtl(cb){ctlSubs.push(cb);if(CTL)cb(CTL)}
   function applyCtl(c){const prev=CTL;CTL=c;ctlSubs.forEach(f=>{try{f(c)}catch(e){}});if(!cur&&(!prev||prev.L!==c.L||prev.stop!==c.stop))renderHub()}
-  function joinRoom(){if(ROOMP)return ROOMP;ROOMP=joinRoom0().then(r=>{if(r.onCtl)r.onCtl(applyCtl);return r}).catch(e=>{ROOMP=null;throw e});return ROOMP}
+  function joinRoom(){if(ROOMP)return ROOMP;ROOMP=joinRoom0().then(r=>{if(r.onCtl)r.onCtl(applyCtl);try{r.presence({g:"lobby",n:(WHO.name||lsGet("lq-sim-who",{}).name||"ผู้เล่น").slice(0,16)})}catch(e){}return r}).catch(e=>{ROOMP=null;throw e});return ROOMP}
   function joinRoom0(){
     if(window.LQ_STANDALONE){const code=String(WHO.fcode||"").replace(/\D/g,"");if(code.length!==4||!window.LQ_SIMROOM)return Promise.reject("nocode");
       return LQ_SIMROOM.join(code).then(r=>({presence:d=>r.presence(d),onRank:cb=>r.onRank(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onCtl:cb=>r.onCtl(cb),onPlant:cb=>r.onPlant(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onLink:cb=>r.onLink(cb),code,leave:()=>r.leave()}))}
@@ -2162,7 +2162,7 @@ const SIMHUB=(()=>{
     const stop=()=>{alive=false;clearInterval(tick);if(room){try{room.leave()}catch(e){}}};
     $("cBack").onclick=()=>{stop();cur=null;renderHub()};$("cHow").onclick=howto;$("cFull").onclick=()=>{try{document.documentElement.requestFullscreen()}catch(e){}};
     cur={stop};
-    const AUTO={};const onCh=ch=>{(ch.peers||[]).forEach(p=>{const pr=p.presence||{};if(pr.g==="factory"&&!p.sameTab)seen[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()});if(pr.g==="auto"&&!p.sameTab)AUTO[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()})});(ch.left||[]).forEach(p=>{if(seen[p.peer])seen[p.peer].on=false;if(AUTO[p.peer])AUTO[p.peer].on=false})};
+    const AUTO={},LOBBY={};const onCh=ch=>{(ch.peers||[]).forEach(p=>{const pr=p.presence||{};if(pr.g==="lobby"&&!p.sameTab)LOBBY[p.peer]={n:pr.n,on:true};if(pr.g!=="lobby")delete LOBBY[p.peer];if(pr.g==="factory"&&!p.sameTab)seen[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()});if(pr.g==="auto"&&!p.sameTab)AUTO[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()})});(ch.left||[]).forEach(p=>{delete LOBBY[p.peer];if(seen[p.peer])seen[p.peer].on=false;if(AUTO[p.peer])AUTO[p.peer].on=false})};
     if(window.LQ_STANDALONE&&window.LQ_SIMROOM){const startHost=(want)=>{if(room){try{room.leave()}catch(e){}room=null}$("cJoin").innerHTML=`<p class="label">กำลังเปิดห้อง${want?" "+esc(want):""}…</p>`;window.LQ_HOSTKILLED=(c)=>{if(!alive)return;alive=false;clearInterval(tick);room=null;$("cJoin").innerHTML=`<div class="notice"><b>จอกลางห้อง ${esc(c)} ถูกปิดแล้ว</b><span>มีวิทยากรเปิดจอกลางห้องนี้จากเครื่อง/แท็บอื่น หน้านี้จึงหยุดทำงาน</span></div>`};window.LQ_HOSTWAIT=(c,sec)=>{const el=$("cJoin");if(el&&alive)el.innerHTML=`<div class="notice"><b>กำลังปิดจอกลางเดิมของห้อง ${esc(c)} แล้วเปิดใหม่… (${Math.round(sec)} วิ)</b><span>ระบบสั่งปิดจอกลางที่เปิดค้างอยู่ที่อื่นให้อัตโนมัติ ปกติไม่เกิน 1 นาที</span></div>`};
       LQ_SIMROOM.host(onCh,want).then(h=>{if(!alive){h.leave();return}room=h;lsSet("lq-center-code",h.code);const url=location.origin+location.pathname+"#f"+h.code;
         pushCtl();$("cJoin").innerHTML=`<div class="net-bar"><div><span class="label">รหัสจอกลาง</span><b class="net-code">${h.code}</b><small>ผู้เล่นสแกน QR หรือเปิด <span class="net-url">${esc(url)}</span> ใส่ชื่อ แล้วเล่น "เปิดโรงงานประกอบปากกา" เปิดหน้านี้ค้างไว้ตลอดเกม</small></div><div id="cQR" class="net-qr"></div></div>`;
@@ -2180,7 +2180,7 @@ const SIMHUB=(()=>{
         <div class="board" style="margin-top:8px">${ap.slice().sort((a,b)=>(b.sc||0)-(a.sc||0)).map((p,i)=>`<div class="brow"><span class="pos">${i+1}</span><span class="nm">${esc(p.n)} <small class="note2">${SHN[p.shop]?SHN[p.shop][0]:""}</small></span><span class="gain zero">LBE ${p.lbe||0}% · ช่วย ${p.helps||0}</span><span class="sc">${(p.sc||0).toLocaleString()}</span></div>`).join("")}</div></section>`}
     function draw(){if(!alive)return;const ps=rankRows(Object.values(seen));const ap=autoPanel();
       if(!ps.length&&ap){$("cBody").innerHTML=`<div class="kb-wrap" style="grid-template-columns:1fr">${ap}</div>`;built=false;return}
-      if(!ps.length){built=false;$("cBody").innerHTML=`<div class="notice"><b>รอผู้เล่นเริ่มกะ…</b><span>ผู้เล่นเปิดแท็บเกมจำลอง ใส่ชื่อ${window.LQ_STANDALONE?" และรหัสจอกลาง":""} แล้วเล่น "เปิดโรงงานประกอบปากกา" เมื่อกดเริ่มกะ ชื่อจะขึ้นที่นี่ทันที</span></div>`;return}
+      if(!ps.length){built=false;const lb=Object.values(LOBBY);$("cBody").innerHTML=`${lb.length?`<div class="notice" style="border-color:var(--go)"><b>🟢 เข้าห้องแล้ว ${lb.length} คน</b><span>${lb.map(x=>esc(x.n||"ผู้เล่น")).join(" · ")} · รอกดเริ่มกะ</span></div>`:""}<div class="notice"><b>รอผู้เล่นเริ่มกะ…</b><span>ผู้เล่นเปิดแท็บเกมจำลอง ใส่ชื่อ${window.LQ_STANDALONE?" และรหัสจอกลาง":""} แล้วเล่น "เปิดโรงงานประกอบปากกา" เมื่อกดเริ่มกะ ชื่อจะขึ้นที่นี่ทันที</span></div>`;return}
       if(!built){built=true;$("cBody").innerHTML=`<div class="kb-wrap"><section class="kb main"><h3>🏆 อันดับรวม <small>กำไร ÷ 2 + LBE × 1,000 + เป้า SQDCPME</small></h3><div class="kb-list" id="kbS"></div></section>
         <section class="kb"><h3>💰 กำไรสูงสุด</h3><div class="kb-list" id="kbP"></div></section><section class="kb"><h3>⚖️ Line Balance สูงสุด <small>LBE เฉลี่ยถึงตอนนี้</small></h3><div class="kb-list" id="kbL"></div></section></div>
         <div class="kb-foot" id="kbFoot"></div><div id="kbAuto"></div><div class="cards" id="kbCards"></div>`}
@@ -3967,16 +3967,19 @@ boot();
   window.LQ_openHost=()=>{if(!peer)openHost()};
   // ---- center screen room for the sim games (center screen = host) ----
   const FPX="leanquest-fac-";
+  // STUN + public TURN relay so phones on mobile data / company Wi-Fi can reach the center screen
+  const PCFG={config:{iceServers:[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302","stun:stun.cloudflare.com:3478"]},
+    {urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]}};
   window.LQ_SIMROOM={
     host(onChange,want){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("โหลดระบบเชื่อมต่อไม่สำเร็จ");const conns=new Map();let pr;want=/^\d{4}$/.test(String(want||""))?String(want):null;
-      const open=()=>{const code=want||String(Math.floor(1000+Math.random()*9000));pr=new Peer(FPX+code);window.addEventListener("pagehide",()=>{try{pr.destroy()}catch(e){}},{once:true});
+      const open=()=>{const code=want||String(Math.floor(1000+Math.random()*9000));pr=new Peer(FPX+code,PCFG);window.addEventListener("pagehide",()=>{try{pr.destroy()}catch(e){}},{once:true});
         pr.on("open",()=>res({code,leave(){try{pr.destroy()}catch(e){}},broadcast(m){conns.forEach(c=>{try{if(c.open)c.send(m)}catch(e){}})}}));
-        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();if(want&&(open.n=(open.n||0)+1)<=24){if(window.LQ_HOSTWAIT)LQ_HOSTWAIT(want,open.n*2.5);if(open.n<=3){try{const kp=new Peer();kp.on("open",()=>{const c=kp.connect(FPX+want,{reliable:true});c.on("open",()=>c.send({t:"kill",k:"94b2"}));setTimeout(()=>{try{kp.destroy()}catch(e){}},2500)});kp.on("error",()=>{try{kp.destroy()}catch(e){}})}catch(e){}}return setTimeout(open,2500)}if(want)return rej("ห้อง "+want+" ยังมีจอกลางเปิดอยู่ที่อื่น (แท็บ/เครื่องอื่นที่เปิดจอกลางค้างไว้) ปิดหน้านั้นก่อนแล้วกด เปิดห้อง อีกครั้ง หรือเลือกรหัสอื่น");open()}else if(!conns.size)rej(e.type)});
+        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();if(want&&(open.n=(open.n||0)+1)<=24){if(window.LQ_HOSTWAIT)LQ_HOSTWAIT(want,open.n*2.5);if(open.n<=3){try{const kp=new Peer(PCFG);kp.on("open",()=>{const c=kp.connect(FPX+want,{reliable:true});c.on("open",()=>c.send({t:"kill",k:"94b2"}));setTimeout(()=>{try{kp.destroy()}catch(e){}},2500)});kp.on("error",()=>{try{kp.destroy()}catch(e){}})}catch(e){}}return setTimeout(open,2500)}if(want)return rej("ห้อง "+want+" ยังมีจอกลางเปิดอยู่ที่อื่น (แท็บ/เครื่องอื่นที่เปิดจอกลางค้างไว้) ปิดหน้านั้นก่อนแล้วกด เปิดห้อง อีกครั้ง หรือเลือกรหัสอื่น");open()}else if(!conns.size)rej(e.type)});
         pr.on("connection",cn=>{conns.set(cn.peer,cn);cn.on("data",m=>{if(m&&m.t==="kill"&&m.k==="94b2"){try{cn.send({t:"killed"})}catch(e){}setTimeout(()=>{try{pr.destroy()}catch(e){}if(window.LQ_HOSTKILLED)LQ_HOSTKILLED(code)},300);return}if(m&&m.t==="pres"&&m.d&&typeof m.d==="object")onChange({peers:[{peer:cn.peer,presence:m.d}],left:[]})});
           const gone=()=>{conns.delete(cn.peer);onChange({peers:[],left:[{peer:cn.peer}]})};cn.on("close",gone);cn.on("error",gone)});
         pr.on("disconnected",()=>{try{pr.reconnect()}catch(e){}})};open()})},
-    join(code){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("nopeer");const pr=new Peer();let cn=null,last=null,rankCb=null,ctlCb=null,plantCb=null,linkCb=null,linked=null,dead=false,myId="";const setLink=v=>{if(linked===v)return;linked=v;if(linkCb)linkCb(v)};
-      const connect=()=>{if(dead)return;cn=pr.connect(FPX+code,{reliable:true});cn.on("open",()=>{setLink(true);if(last)cn.send({t:"pres",d:last})});cn.on("data",m=>{if(!m)return;if(m.t==="rank"){if(rankCb)rankCb(m.l||[]);if(m.c&&ctlCb)ctlCb(m.c);if(plantCb)plantCb(m.plant||[])}if(m.t==="ctl"&&ctlCb)ctlCb(m.c)});cn.on("close",()=>{setLink(false);setTimeout(connect,3000)})};
+    join(code){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("nopeer");const pr=new Peer(PCFG);let cn=null,last=null,rankCb=null,ctlCb=null,plantCb=null,linkCb=null,linked=null,dead=false,myId="";const setLink=v=>{if(linked===v)return;linked=v;if(linkCb)linkCb(v)};
+      const connect=()=>{if(dead)return;const me=cn=pr.connect(FPX+code,{reliable:true});setTimeout(()=>{if(dead||me!==cn||me.open)return;setLink(false);cn=null;try{me.close()}catch(e){}setTimeout(connect,2000)},12000);cn.on("open",()=>{setLink(true);if(last)cn.send({t:"pres",d:last})});cn.on("data",m=>{if(!m)return;if(m.t==="rank"){if(rankCb)rankCb(m.l||[]);if(m.c&&ctlCb)ctlCb(m.c);if(plantCb)plantCb(m.plant||[])}if(m.t==="ctl"&&ctlCb)ctlCb(m.c)});cn.on("close",()=>{if(me!==cn)return;setLink(false);setTimeout(connect,3000)})};
       pr.on("open",id=>{myId=id;connect();res({id:()=>myId,presence:d=>{last=d;try{if(cn&&cn.open)cn.send({t:"pres",d})}catch(e){}return Promise.resolve()},onRank(cb){rankCb=cb},onCtl(cb){ctlCb=cb},onPlant(cb){plantCb=cb},onLink(cb){linkCb=cb;if(linked!=null)cb(linked)},leave(){dead=true;try{pr.destroy()}catch(e){}}})});
       pr.on("error",e=>{if(e.type==="peer-unavailable"){setLink(false);setTimeout(connect,5000)}else if(!myId)rej(e.type)})})}
   };
