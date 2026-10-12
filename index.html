@@ -982,6 +982,9 @@ body{background:
 .lvls button.trainer small{color:#3b2a00;opacity:.85;font-size:13.5px;font-weight:500;letter-spacing:0;margin-top:2px}
 .lvls button.trainer small .off{color:#9a7a2a}
 .link-ok{color:var(--go);font-weight:600;margin:0}.link-bad{color:var(--stop);font-weight:600;margin:0}
+.code-set{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:10px 0 4px;background:var(--sunk);border-radius:14px;padding:10px 12px}
+.code-set label{display:grid;gap:4px;font-size:13px;color:var(--muted)}.code-set input{width:120px;font:700 22px var(--f-display);letter-spacing:.2em;text-align:center;border-radius:10px;border:2px solid var(--line);padding:6px}
+.code-set small{flex-basis:100%;color:var(--muted)}
 
 </style>
 
@@ -2136,9 +2139,14 @@ const SIMHUB=(()=>{
     $("cBack").onclick=()=>{stop();cur=null;renderHub()};$("cHow").onclick=howto;$("cFull").onclick=()=>{try{document.documentElement.requestFullscreen()}catch(e){}};
     cur={stop};
     const AUTO={};const onCh=ch=>{(ch.peers||[]).forEach(p=>{const pr=p.presence||{};if(pr.g==="factory"&&!p.sameTab)seen[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()});if(pr.g==="auto"&&!p.sameTab)AUTO[p.peer]=Object.assign({},pr,{id:p.peer,on:true,at:Date.now()})});(ch.left||[]).forEach(p=>{if(seen[p.peer])seen[p.peer].on=false;if(AUTO[p.peer])AUTO[p.peer].on=false})};
-    if(window.LQ_STANDALONE&&window.LQ_SIMROOM){LQ_SIMROOM.host(onCh).then(h=>{if(!alive){h.leave();return}room=h;const url=location.origin+location.pathname+"#f"+h.code;
+    if(window.LQ_STANDALONE&&window.LQ_SIMROOM){const startHost=(want)=>{if(room){try{room.leave()}catch(e){}room=null}$("cJoin").innerHTML=`<p class="label">กำลังเปิดห้อง${want?" "+esc(want):""}…</p>`;
+      LQ_SIMROOM.host(onCh,want).then(h=>{if(!alive){h.leave();return}room=h;lsSet("lq-center-code",h.code);const url=location.origin+location.pathname+"#f"+h.code;
         pushCtl();$("cJoin").innerHTML=`<div class="net-bar"><div><span class="label">รหัสจอกลาง</span><b class="net-code">${h.code}</b><small>ผู้เล่นสแกน QR หรือเปิด <span class="net-url">${esc(url)}</span> ใส่ชื่อ แล้วเล่น "เปิดโรงงานประกอบปากกา" เปิดหน้านี้ค้างไว้ตลอดเกม</small></div><div id="cQR" class="net-qr"></div></div>`;
-        try{new QRCode($("cQR"),{text:url,width:132,height:132})}catch(e){}draw()}).catch(e=>{$("cBody").innerHTML=`<div class="notice"><b>เปิดจอกลางไม่สำเร็จ</b><span>ตรวจสอบอินเทอร์เน็ต หรือ Wi-Fi ที่บล็อกการเชื่อมต่อ (${esc(String(e))})</span></div>`})}
+        $("cJoin").insertAdjacentHTML("beforeend",`<form class="code-set" id="cCodeF"><label>ตั้งรหัสห้องเอง (4 หลัก)<input id="cCode" inputmode="numeric" maxlength="4" value="${esc(h.code)}"></label><button class="btn ghost small" type="submit">ใช้รหัสนี้</button><button class="btn ghost small" type="button" id="cRand">สุ่มรหัสใหม่</button><small>ใช้รหัสเดิมทุกครั้งได้ เช่น 1234 ผู้เล่นใส่รหัสนี้ครั้งเดียวแล้วใช้ได้ตลอด (ต้องเปิดหน้านี้ไว้)</small></form>`);
+        $("cCodeF").onsubmit=e=>{e.preventDefault();const v=$("cCode").value.replace(/\D/g,"");if(v.length!==4){alert("ใส่ตัวเลข 4 หลัก");return}if(v!==h.code)startHost(v)};$("cRand").onclick=()=>{lsSet("lq-center-code","");startHost(null)};
+        try{new QRCode($("cQR"),{text:url,width:132,height:132})}catch(e){}draw()}).catch(e=>{$("cJoin").innerHTML=`<div class="notice"><b>เปิดห้องไม่สำเร็จ</b><span>${esc(String(e))}</span></div><form class="code-set" id="cCodeF"><label>ลองรหัสอื่น (4 หลัก)<input id="cCode" inputmode="numeric" maxlength="4" value="${esc(want||"")}"></label><button class="btn go small" type="submit">เปิดห้อง</button><button class="btn ghost small" type="button" id="cRand">สุ่มรหัส</button></form>`;
+          $("cCodeF").onsubmit=ev=>{ev.preventDefault();const v=$("cCode").value.replace(/\D/g,"");if(v.length===4)startHost(v)};$("cRand").onclick=()=>startHost(null)})};
+      startHost(String(lsGet("lq-center-code","")||"")||null)}
     else if(CAP.room&&CAP.room.join){CAP.room.join("lean-factory").then(r=>{if(!alive){r.leave();return}room=r;pushCtl();r.onPeers(ch=>{onCh(ch);draw()},()=>{})}).catch(()=>{$("cBody").innerHTML=`<div class="notice"><b>เชื่อมต่อห้องไม่ได้</b></div>`})}
     else{$("cBody").innerHTML=`<div class="notice"><b>จอกลางต้องเปิดผ่าน claude.ai โดยล็อกอิน หรือผ่านลิงก์ GitHub</b></div>`;return}
     tick=setInterval(()=>{draw();if(room&&room.broadcast)room.broadcast({t:"rank",l:rankRows(Object.values(seen)),c:ctl(),plant:Object.values(AUTO).filter(p=>p.on)})},1200);
@@ -3934,10 +3942,10 @@ boot();
   // ---- center screen room for the sim games (center screen = host) ----
   const FPX="leanquest-fac-";
   window.LQ_SIMROOM={
-    host(onChange){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("โหลดระบบเชื่อมต่อไม่สำเร็จ");const conns=new Map();let pr;
-      const open=()=>{const code=String(Math.floor(1000+Math.random()*9000));pr=new Peer(FPX+code);
+    host(onChange,want){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("โหลดระบบเชื่อมต่อไม่สำเร็จ");const conns=new Map();let pr;want=/^\d{4}$/.test(String(want||""))?String(want):null;
+      const open=()=>{const code=want||String(Math.floor(1000+Math.random()*9000));pr=new Peer(FPX+code);
         pr.on("open",()=>res({code,leave(){try{pr.destroy()}catch(e){}},broadcast(m){conns.forEach(c=>{try{if(c.open)c.send(m)}catch(e){}})}}));
-        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();open()}else if(!conns.size)rej(e.type)});
+        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();if(want&&(open.n=(open.n||0)+1)<=4)return setTimeout(open,2500);if(want)return rej("ห้อง "+want+" มีคนเปิดเป็นจอกลางอยู่แล้ว (อาจเป็นแท็บเก่าที่ยังเปิดค้าง) ปิดแท็บนั้น หรือเลือกรหัสอื่น");open()}else if(!conns.size)rej(e.type)});
         pr.on("connection",cn=>{conns.set(cn.peer,cn);cn.on("data",m=>{if(m&&m.t==="pres"&&m.d&&typeof m.d==="object")onChange({peers:[{peer:cn.peer,presence:m.d}],left:[]})});
           const gone=()=>{conns.delete(cn.peer);onChange({peers:[],left:[{peer:cn.peer}]})};cn.on("close",gone);cn.on("error",gone)});
         pr.on("disconnected",()=>{try{pr.reconnect()}catch(e){}})};open()})},
