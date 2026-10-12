@@ -988,6 +988,9 @@ body{background:
 .rk-room{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:14px}
 .rk-room input{width:96px;text-align:center;font:600 16px var(--f-display);letter-spacing:.12em;border:2px solid var(--line);border-radius:10px;padding:6px;min-height:40px}
 .rk-room .btn{min-height:40px}
+.pin-box{display:grid;gap:10px;max-width:360px;margin:16px auto;background:var(--surface);border-radius:22px;padding:20px;box-shadow:var(--pop);text-align:center}
+.pin-box b{font:600 18px var(--f-display)}.pin-box input{font:700 28px var(--f-display);letter-spacing:.4em;text-align:center;border:2px solid var(--line);border-radius:14px;padding:10px;min-height:56px}
+.pin-box small{color:var(--stop);min-height:1.2em}
 
 </style>
 
@@ -1925,6 +1928,11 @@ function renderProfile(){const p=PROF.get(),sk=lsGet("lq-streak",{days:[]}),c=ls
 
 // ---------- admin back office (trainer) ----------
 async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin="";try{pin=sessionStorage.getItem("lq-admin-pin")||""}catch(e){}
+  {let ok=false;try{ok=sessionStorage.getItem("lq-center-ok")==="94b2"}catch(e){}
+   if(!ok){const H=v=>{let h=7;for(const c of String(v))h=(h*131+c.charCodeAt(0))%65521;return h.toString(16)};
+    root.innerHTML=`<div class="live-head"><div><span class="label">Admin · เฉพาะวิทยากร</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form class="pin-box" id="adLF"><b>ใส่รหัสวิทยากร</b><input id="adLIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="รหัสวิทยากร"><button class="btn go" type="submit">เข้าหลังบ้าน →</button><small id="adLMsg"></small></form>`;
+    $("adBack").onclick=renderProfile;$("adLIn").focus();
+    $("adLF").onsubmit=e=>{e.preventDefault();const v=$("adLIn").value.trim();if(H(v)==="94b2"){try{sessionStorage.setItem("lq-center-ok","94b2");sessionStorage.setItem("lq-admin-pin",v)}catch(e){}renderAdmin()}else{$("adLMsg").textContent="รหัสไม่ถูกต้อง";$("adLIn").value=""}};return}}
   if(!(window.CLOUD&&CLOUD.enabled())){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><div class="notice"><b>ยังไม่ได้เชื่อมต่อกระดานคะแนนกลาง</b><span>ตั้งค่า Google Sheets ที่แท็บ ฉัน ก่อน (ดูไฟล์ SHEETS-SETUP.md) · ระหว่างนี้ดูผล Live Quiz ที่เล่นบนเครื่องนี้ได้ที่แท็บ อันดับ</span></div>`;$("adBack").onclick=renderProfile;return}
   if(!pin){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form id="adF" class="kz-board" style="max-width:420px"><label class="field">รหัส PIN (ตั้งไว้ในสคริปต์ ADMIN_PIN)<input id="adPin" inputmode="numeric" maxlength="8" autocomplete="off"></label><div class="actions"><button class="btn go" type="submit">เข้าหลังบ้าน →</button></div><p class="note2" id="adMsg"></p></form>`;$("adBack").onclick=renderProfile;
     $("adF").onsubmit=async e=>{e.preventDefault();const v=$("adPin").value.trim();$("adMsg").textContent="กำลังตรวจสอบ…";const j=await CLOUD.admin(v,"list=scores&n=5");if(j&&j.ok){try{sessionStorage.setItem("lq-admin-pin",v)}catch(e){}renderAdmin()}else $("adMsg").textContent=j&&j.err==="pin"?"PIN ไม่ถูกต้อง":"เชื่อมต่อไม่ได้"};return}
@@ -2127,7 +2135,18 @@ const SIMHUB=(()=>{
       const v=val(r),bar=row.querySelector(".kb-bar i");bar.style.width=Math.max(2,Math.abs(v)/mx*100)+"%";bar.className=cls+(v<0?" neg":"");row.querySelector(".kb-v").textContent=fmt(v);
       const m=row.querySelector(".kb-mv");if(mv>0){m.textContent="↑"+mv;m.className="kb-mv up";clearTimeout(m._t);m._t=setTimeout(()=>m.textContent="",2500)}else if(mv<0){m.textContent="↓"+(-mv);m.className="kb-mv dn";clearTimeout(m._t);m._t=setTimeout(()=>m.textContent="",2500)}});
     Object.keys(el._rows).forEach(id=>{if(!seen.has(id)){el._rows[id].remove();delete el._rows[id]}})}
+  // trainer-only: the center screen asks for a PIN once per browser session (client-side gate, not strong security)
+  const CPIN_H="94b2";// hash of the trainer PIN
+  function pinHash(s){let h=7;for(const c of String(s))h=(h*131+c.charCodeAt(0))%65521;return h.toString(16)}
   function center(){
+    let ok=false;try{ok=sessionStorage.getItem("lq-center-ok")===CPIN_H}catch(e){}
+    if(!ok){leave();$("simHub").hidden=true;const P=$("simPlay");P.hidden=false;window.scrollTo(0,0);
+      P.innerHTML=`<div class="sim-top"><div><span class="label">Center Screen · เฉพาะวิทยากร</span><h2>📺 จอกลาง</h2></div><div class="actions"><button class="btn ghost small" id="cpBack">← ออก</button></div></div>
+        <form class="pin-box" id="cpF"><b>ใส่รหัสวิทยากรเพื่อเปิดจอกลาง</b><input id="cpIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="รหัสวิทยากร"><button class="btn go" type="submit">เปิดจอกลาง →</button><small id="cpMsg"></small></form>`;
+      $("cpBack").onclick=()=>renderHub();$("cpIn").focus();
+      $("cpF").onsubmit=e=>{e.preventDefault();if(pinHash($("cpIn").value.trim())===CPIN_H){try{sessionStorage.setItem("lq-center-ok",CPIN_H);sessionStorage.setItem("lq-admin-pin",$("cpIn").value.trim())}catch(e){}center()}else{$("cpMsg").textContent="รหัสไม่ถูกต้อง";$("cpIn").value="";$("cpIn").focus()}};return}
+    center0()}
+  function center0(){
     leave();$("simHub").hidden=true;const P=$("simPlay");P.hidden=false;window.scrollTo(0,0);
     const seen={};let room=null,alive=true,tick,built=false;
     let cL=+(lsGet("lq-center-L",1)),cStop=false;
@@ -3950,7 +3969,7 @@ boot();
     host(onChange,want){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("โหลดระบบเชื่อมต่อไม่สำเร็จ");const conns=new Map();let pr;want=/^\d{4}$/.test(String(want||""))?String(want):null;
       const open=()=>{const code=want||String(Math.floor(1000+Math.random()*9000));pr=new Peer(FPX+code);window.addEventListener("pagehide",()=>{try{pr.destroy()}catch(e){}},{once:true});
         pr.on("open",()=>res({code,leave(){try{pr.destroy()}catch(e){}},broadcast(m){conns.forEach(c=>{try{if(c.open)c.send(m)}catch(e){}})}}));
-        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();if(want&&(open.n=(open.n||0)+1)<=24){if(window.LQ_HOSTWAIT)LQ_HOSTWAIT(want,open.n*2.5);return setTimeout(open,2500)}if(want)return rej("ห้อง "+want+" ยังมีจอกลางเปิดอยู่ที่อื่น (แท็บ/เครื่องอื่นที่เปิดจอกลางค้างไว้) ปิดหน้านั้นก่อนแล้วกด "เปิดห้อง" อีกครั้ง หรือเลือกรหัสอื่น");open()}else if(!conns.size)rej(e.type)});
+        pr.on("error",e=>{if(e.type==="unavailable-id"){pr.destroy();if(want&&(open.n=(open.n||0)+1)<=24){if(window.LQ_HOSTWAIT)LQ_HOSTWAIT(want,open.n*2.5);return setTimeout(open,2500)}if(want)return rej("ห้อง "+want+" ยังมีจอกลางเปิดอยู่ที่อื่น (แท็บ/เครื่องอื่นที่เปิดจอกลางค้างไว้) ปิดหน้านั้นก่อนแล้วกด เปิดห้อง อีกครั้ง หรือเลือกรหัสอื่น");open()}else if(!conns.size)rej(e.type)});
         pr.on("connection",cn=>{conns.set(cn.peer,cn);cn.on("data",m=>{if(m&&m.t==="pres"&&m.d&&typeof m.d==="object")onChange({peers:[{peer:cn.peer,presence:m.d}],left:[]})});
           const gone=()=>{conns.delete(cn.peer);onChange({peers:[],left:[{peer:cn.peer}]})};cn.on("close",gone);cn.on("error",gone)});
         pr.on("disconnected",()=>{try{pr.reconnect()}catch(e){}})};open()})},

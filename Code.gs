@@ -7,7 +7,7 @@ var SEASON_EPOCH = new Date(2026, 9, 12);   // วันเริ่มซีซ
 var SEASON_DAYS  = 14;                      // ความยาวซีซัน (วัน)
 var STREAK_PTS   = 50, STREAK_MAX_DAYS = 10;
 var LV_NAMES     = ['👶 ทารก CPS', '🎒 นักเรียน CPS', '🎓 มหาลัย CPS', '🥋 เซียน CPS', '⚡ เทพ CPS', '👑 ตำนาน CPS'];
-var ADMIN_PIN    = '2468';                  // รหัสเข้าหลังบ้านในเกม (แท็บ ฉัน → หลังบ้านวิทยากร) — เปลี่ยนได้
+var ADMIN_PIN    = '0361';                  // รหัสเข้าหลังบ้านในเกม (แท็บ ฉัน → หลังบ้านวิทยากร) — เปลี่ยนได้
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
