@@ -951,11 +951,11 @@ body{background:
 .spot-grid button b{font-size:15px}.spot-grid button small{font-size:9.5px;color:var(--muted);line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px}.spot-grid button i{font-style:normal;color:#f2a900;font-size:11px}
 .spot-grid button.done{background:color-mix(in srgb,var(--go-soft) 80%,var(--surface))}
 .spot-go{width:100%}
-.spot{position:fixed;inset:0;z-index:200;background:#15213a;color:#fff;overflow:auto;padding:12px 12px calc(16px + env(safe-area-inset-bottom))}
+.spot-ov{position:fixed;inset:0;z-index:200;background:#15213a;color:#fff;overflow:auto;padding:12px 12px calc(16px + env(safe-area-inset-bottom))}
 .spot-top{display:flex;align-items:center;gap:10px;max-width:1100px;margin:0 auto}
 .spot-ttl{flex:1;min-width:0}.spot-ttl b{display:block;font:700 18px var(--f-display)}.spot-ttl small{color:#b9c6e6}
 .spot-time{font:800 24px var(--f-display);color:#ffd45c;min-width:40px;text-align:right}
-.spot .skd-timebar{max-width:1100px;margin:8px auto}
+.spot-ov .skd-timebar{max-width:1100px;margin:8px auto}
 .spot-hud{display:flex;gap:8px;align-items:center;max-width:1100px;margin:0 auto 8px}
 .spot-hud span{flex:1;font:700 16px var(--f-display)}
 .spot-hud button{border:0;border-radius:12px;min-height:44px;padding:8px 12px;background:#2a3a63;color:#fff;font:600 14px var(--f-display);cursor:pointer}.spot-hud button:disabled{opacity:.4}
@@ -3802,7 +3802,7 @@ const SPOT=(()=>{
   // ------------------------------------------------------------- play
   function play(n,after){const S=SPOT_SETS.find(s=>s.n===n);if(!S)return;
     const T=90;let left=T,found=new Set(),miss=0,hints=0,timer=null,over=false,zoom=false;
-    const o=document.createElement("div");o.className="spot";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","จับผิดภาพ "+S.t);document.body.appendChild(o);document.body.style.overflow="hidden";
+    const o=document.createElement("div");o.className="spot-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","จับผิดภาพ "+S.t);document.body.appendChild(o);document.body.style.overflow="hidden";
     o.innerHTML=`<div class="spot-top"><button type="button" class="skd-x" id="spX" aria-label="ปิด">✕</button><div class="spot-ttl"><b>${String(S.n).padStart(2,"0")} · ${S.t}</b><small>${S.th} · หา ${S.p.length} จุดที่ผิด</small></div><span class="spot-time" id="spT">${T}</span></div>
       <div class="skd-timebar"><i id="spB"></i></div>
       <div class="spot-hud"><span id="spF">พบ 0/${S.p.length}</span><button type="button" id="spZ">🔍 ขยาย</button><button type="button" id="spH">💡 ใบ้ (−50)</button></div>
