@@ -2802,7 +2802,7 @@ SIMS.push({id:"career",name:"โรงงานของฉัน · เล่�
 });
 function createGame(api,career){
     const WHO0=lsGet("lq-sim-who",{}),lv=career?careerLV(career.stage):api.lv,L=api.level,B=career&&career.B?Object.assign(newBench(),career.B):newBench(),line=career&&career.line?{cuts:new Set(career.line.cuts),cells:career.line.cells.slice()}:{cuts:new Set(),cells:[]},K=career&&career.K?career.K:{},used=new Set();
-    let goals=Array(GOALS.length).fill(career?1:null),pool=candidates(8,used),hired=career?career.hired.slice():[],R=career&&career.B?evalBench(B):null,stdEff=career&&R?Math.min(1,IDEAL_CT/R.ct):0,acts=kupActs(lv),jiScore=career?(K.ji||0):0,step=0,st=null,loop={stop(){},pause(){}},room=null,ended=false;
+    let goals=Array(GOALS.length).fill(career?1:null),pool=candidates(8,used),hired=career?career.hired.slice():[],R=career&&career.B&&B.seq&&B.seq.length&&evalBench(B).ok?evalBench(B):null,stdEff=career&&R?Math.min(1,IDEAL_CT/R.ct):0,acts=kupActs(lv),jiScore=career?(K.ji||0):0,step=0,st=null,loop={stop(){},pause(){}},room=null,ended=false;
     const UP=career?Object.assign({},career.up):{};const EQB=career&&window.EQUIP?EQUIP.bonus():{};if(EQB.handle)UP.eqh=EQB.handle;hired.forEach(x=>used.add(x.n));
     function cSave(extra){if(!career)return;Object.assign(career,{hired:hired.map(x=>({id:x.id,n:x.n,exp:x.exp,sk:x.sk,cap:x.cap,wage:x.wage,look:x.look})),B:{clutter:B.clutter,pos:B.pos,labels:B.labels,seq:B.seq},line:{cuts:[...line.cuts],cells:line.cells},K,up:Object.fromEntries(Object.entries(UP).filter(([k])=>k!=="eqh")),fresh:false},extra||{});lsSet(CKEY,career)}
     function ckSave(){if(!career||!st||ended||!st.started)return;const o={};Object.keys(st).forEach(k=>{if(["S","rank","_v3","flow","fx","banner","ev","evLast","goalRows","lv"].includes(k))return;o[k]=st[k]});o.workers=st.workers.map(w=>Object.assign({},w,{job:w.job?{u:w.job.u,rem:w.job.rem}:null}));career.runCk=o;career.cash=Math.round(st.cash);lsSet(CKEY,career)}
@@ -2867,6 +2867,9 @@ function createGame(api,career){
 
     // ----- 4 line: split work, layout, assign people -----
     function lineEditor(el,opt){let selSt=0;
+      if(!B.seq||!B.seq.length||!evalBench(B).ok){// no valid task order yet (e.g. old save): send the player back to design the bench first
+        el.innerHTML=`<div class="kz-board"><div class="kz-head"><div><span class="label">${opt.eyebrow||""}</span><h3>ยังไม่มีลำดับงานให้แบ่งสถานี</h3><p>ต้องออกแบบโต๊ะประกอบและลำดับงาน (KUP 3 · Standardized Work) ให้เสร็จก่อน จึงจะมีงานให้แบ่งเป็นสถานีและจัดไลน์ได้</p></div></div><div class="actions"><button class="btn go" id="lnBench">ไปออกแบบโต๊ะประกอบ →</button></div></div>`;
+        $("lnBench").onclick=()=>openBench(el,B,0,(res,eff)=>{R=res;stdEff=eff;K.std=eff;line.cuts=new Set();line.cells=[];if(career)cSave();lineEditor(el,opt)});return}
       const draw=()=>{const S=stationList(B,R,line,K.ci,UP),tk0=3600/(opt.jph||lv.jph[0]),tkN=3600/lv.jph[NR-1],mx=Math.max(tk0*1.2,...S.map(x=>x.wc));const workers=opt.workers;
         const cutsOK=R.cuts;
         el.innerHTML=`<div class="kz-board"><div class="kz-head"><div><span class="label">${opt.eyebrow}</span><h3>${opt.title}</h3><p>แตะ ✂ ระหว่างขั้นตอนเพื่อแบ่งเป็นสถานี (ตัดได้เฉพาะจุดที่มือว่าง) จากนั้นวางโต๊ะแต่ละสถานีบนผังโรงงาน และจัดคนลงสถานี เส้นแดงคือ Takt</p></div><div class="kz-total"><span class="label">สถานี</span><b>${S.length}</b></div></div>
