@@ -1058,7 +1058,7 @@ body{background:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.LQ_BUILD="12/10 15:54";
+window.LQ_BUILD="12/10 15:58";
 
 // public site (GitHub Pages). Inside the GitHub build links stay relative; the Claude artifact links out to the site.
 const LQ_SITE=window.LQ_STANDALONE?"./":"https://changan-cps.github.io/lean-quest/";
@@ -2125,7 +2125,7 @@ const SIMHUB=(()=>{
   function joinRoom(){if(ROOMP)return ROOMP;ROOMP=joinRoom0().then(r=>{if(r.onCtl)r.onCtl(applyCtl);try{r.presence({g:"lobby",n:(WHO.name||lsGet("lq-sim-who",{}).name||"ผู้เล่น").slice(0,16)})}catch(e){}return r}).catch(e=>{ROOMP=null;throw e});return ROOMP}
   function joinRoom0(){
     if(window.LQ_STANDALONE){const code=String(WHO.fcode||"").replace(/\D/g,"");if(code.length!==4||!window.LQ_SIMROOM)return Promise.reject("nocode");
-      return LQ_SIMROOM.join(code).then(r=>({presence:d=>r.presence(d),onRank:cb=>r.onRank(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onCtl:cb=>r.onCtl(cb),onPlant:cb=>r.onPlant(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onLink:cb=>r.onLink(cb),code,leave:()=>r.leave()}))}
+      return LQ_SIMROOM.join(code).then(r=>({presence:d=>r.presence(d),onRank:cb=>r.onRank(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onCtl:cb=>r.onCtl(cb),onPlant:cb=>r.onPlant(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onLink:cb=>r.onLink(cb),code,leave:()=>{try{r.presence({g:"lobby",n:(WHO.name||"ผู้เล่น").slice(0,16)})}catch(e){}},close:()=>r.leave()}))}
     if(CAP.room&&CAP.room.join)return CAP.room.join("lean-factory").then(r=>({presence:d=>r.presence(d),
       onRank:cb=>r.onPeers(ch=>cb(rankRows(ch.peers.filter(p=>(p.presence||{}).g==="factory").map(p=>Object.assign({},p.presence,{id:p.peer,me:!!(p.sameTab||p.isMe)})))),()=>{}),
       onCtl:cb=>r.onPeers(ch=>{const c=ch.peers.find(p=>(p.presence||{}).g==="center"&&!p.sameTab);if(c)cb({L:c.presence.L,stop:!!c.presence.stop})},()=>{}),
@@ -2202,7 +2202,7 @@ const SIMHUB=(()=>{
     o.innerHTML=`<div class="howto-box"><div class="sim-top"><div><span class="label">วิดีโอแนะนำ · 3 นาที 40 วินาที</span><h2>วิธีเล่น เปิดโรงงานประกอบปากกา</h2></div><div class="actions" style="margin:0"><a class="btn small" href="${HOWTO}" download="lean-quest-howto.mp4" target="_blank" rel="noopener">⬇ ดาวน์โหลดคลิป (5 MB)</a><button class="btn ghost small" id="howtoX">✕ ปิด</button></div></div><video controls playsinline preload="metadata" src="${HOWTO}"></video><p class="label" style="text-transform:none;letter-spacing:0">วิทยากรเปิดจอกลางและเลือกระดับ → ผู้เล่นสแกน QR → ตั้งเป้า SQDCPME → จ้างและสอนงาน → 6 KUP → จัดไลน์ → เดินไลน์จนวิทยากรกดหยุด</p></div>`;
     document.body.appendChild(o);$("howtoX").onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()};o.querySelector("video").play().catch(()=>{})}
   function leave(){if(cur){try{cur.stop()}catch(e){}cur=null}}
-  return {open,leave,play,renderHub,center,howto,joinRoom,onCtl,rankRows,setCode(c){if(ROOMP){const old=ROOMP;ROOMP=null;old.then(r=>{try{r.leave()}catch(e){}}).catch(()=>{})}WHO.fcode=c;const q=Object.assign({},lsGet("lq-sim-who",{}),{fcode:c});lsSet("lq-sim-who",q)}};
+  return {open,leave,play,renderHub,center,howto,joinRoom,onCtl,rankRows,setCode(c){if(ROOMP){const old=ROOMP;ROOMP=null;old.then(r=>{try{(r.close||r.leave)()}catch(e){}}).catch(()=>{})}WHO.fcode=c;const q=Object.assign({},lsGet("lq-sim-who",{}),{fcode:c});lsSet("lq-sim-who",q)}};
 })();
 window.SIMHUB=SIMHUB;
 
