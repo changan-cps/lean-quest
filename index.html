@@ -1058,7 +1058,7 @@ body{background:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.LQ_BUILD="12/10 15:58";
+window.LQ_BUILD="12/10 16:01";
 
 // public site (GitHub Pages). Inside the GitHub build links stay relative; the Claude artifact links out to the site.
 const LQ_SITE=window.LQ_STANDALONE?"./":"https://changan-cps.github.io/lean-quest/";
@@ -2394,6 +2394,20 @@ const KEVENTS=[
     {t:"สลับสีตามสัดส่วน เช่น น-น-แ-น-น-ด ให้สม่ำเสมอ",ok:true,why:"ถูกต้อง: Heijunka กระจายชนิดและปริมาณให้เรียบ ทุกสีส่งได้ต่อเนื่อง"},
     {t:"ให้แต่ละสถานีเลือกสีเอง",ok:false,why:"ไม่มีลำดับ ไส้ผิดสีปนกันง่าย",pen:"defect"}]}
 ];
+// ---- people management events (all levels): absence + not following standard work ----
+function absenceEv(w,noshow){return {people:true,kup:"People · การจัดการคนลา",w:w.id,q:noshow?`🚨 ${w.n} ไม่มาทำงาน และไม่ได้แจ้งลา สถานี S${w.st0+1} ขาดคน จะทำอย่างไร`:`📞 ${w.n} โทรแจ้งลาป่วยเช้านี้ สถานี S${w.st0+1} ขาดคน จะทำอย่างไร`,opts:[
+  {t:"ดู Skill Matrix แล้วย้ายคนว่าง/คนที่ทำงานนี้เป็นลงแทน ปรับงานให้สมดุลใหม่ แจ้งทีมสั้น ๆ",ok:true,do:"cover",why:"ถูกต้อง: หัวหน้าต้องมีแผนคนสำรอง (Multi-skill) จัดคนตามทักษะ และรักษาไลน์ให้เดินตาม Takt"},
+  {t:"ปล่อยสถานีว่างไว้ก่อน รอให้เขากลับมาพรุ่งนี้",ok:false,pen:"order",why:"ไลน์เกิดคอขวด งานค้าง ส่งลูกค้าไม่ทัน ต้องจัดคนทดแทนทันที"},
+  {t:"สั่งคนที่เหลือทำงานแทนเพิ่มเองโดยไม่ดูทักษะและไม่ทบทวน OIS",ok:false,pen:"defect",why:"คนที่ไม่เคยทำงานนั้นทำผิดได้ง่าย ของเสียเพิ่ม ต้องเลือกคนตามทักษะและยืนยันมาตรฐาน"}]}}
+function returnEv(w,noshow,count){const rep=count>=2;return {people:true,kup:"People · คุยหลังกลับมาทำงาน",w:w.id,q:`${w.n} กลับมาทำงานแล้ว${noshow?" (ครั้งก่อนขาดงานไม่แจ้ง)":" (ลาป่วย)"}${rep?` · เป็นครั้งที่ ${count} ในกะนี้`:""} หัวหน้าควรทำอย่างไร`,opts:[
+  {t:noshow||rep?"เรียกคุยส่วนตัว ถามสาเหตุและความช่วยเหลือที่ต้องการ ทบทวนกติกาแจ้งลา บันทึกไว้ และดำเนินการตามระเบียบบริษัท (ตักเตือนวาจา → เป็นหนังสือ) ถ้าเกิดซ้ำ":"คุยสั้น ๆ แบบ Return-to-work ถามอาการ พร้อมทำงานไหม ทบทวนจุดที่เปลี่ยนไประหว่างลา",ok:true,why:"ถูกต้อง: คุยเป็นการส่วนตัว ฟังเหตุผลก่อน มีบันทึก และใช้ระเบียบอย่างเป็นธรรม ช่วยลดการลาซ้ำ"},
+  {t:"ตำหนิต่อหน้าทีมให้เป็นตัวอย่าง",ok:false,pen:"morale",why:"ทำลายขวัญกำลังใจทั้งทีม คนไม่กล้าแจ้งปัญหา ต้องคุยเป็นการส่วนตัว"},
+  {t:"ไม่ต้องพูดอะไร ให้กลับเข้าไลน์เลย",ok:false,pen:"repeat",why:"ไม่รู้สาเหตุ ปัญหาไม่ถูกแก้ มีโอกาสลาหรือขาดซ้ำ"}]}}
+function sopEv(i,sn){return {people:true,kup:"People · ไม่ทำตามขั้นตอนมาตรฐาน",st:i,q:`⚠️ พบพนักงานที่ S${i+1} ${sn} ทำข้ามขั้นตอนใน OIS (ลัดขั้นตอน) จะทำอย่างไร`,opts:[
+  {t:"หยุดคุยที่หน้างานทันที ให้ดู OIS ถามว่าทำไม (มาตรฐานไม่ชัด / ทำไม่ได้จริง / ไม่ได้รับการสอน) แล้วสอนซ้ำแบบ JI และกลับมาตรวจอีกครั้ง",ok:true,do:"fixdev",why:"ถูกต้อง: แก้ทันที หาสาเหตุราก ถ้ามาตรฐานมีปัญหาให้ปรับ OIS ถ้าไม่ได้สอนให้สอนใหม่ แล้วติดตามผล (Process Confirmation)"},
+  {t:"ดุแรง ๆ และหักคะแนน ไม่ต้องถามเหตุผล",ok:false,pen:"morale",do:"fixdev",why:"แก้ได้ชั่วคราว แต่ไม่รู้สาเหตุ ขวัญกำลังใจตก และอาจเกิดซ้ำ"},
+  {t:"ปล่อยไว้ ของยังออกได้ตามเป้า",ok:false,pen:"defect",why:"การลัดขั้นตอนทำให้ของเสียหลุดถึงลูกค้า และคนอื่นจะทำตาม"}]}}
+
 const INKS=["#2356c9","#d23a2e","#1d2228"],INKN=["น้ำเงิน","แดง","ดำ"];
 const setH=(el,h)=>{if(el&&el._h!==h){el._h=h;el.innerHTML=h;return true}return false};
 const rand=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -2982,12 +2996,20 @@ function createGame(api,career){
       cv.addEventListener("pointerdown",e=>{const p=toLocal(e);st.S.forEach((x,i)=>{const q=cellXY(x.cell);if(Math.abs(p.x-q.x)<80*q.s&&p.y>q.y-176*q.s&&p.y<q.y+60*q.s)resolve(i)})});
       let syncT=0,presT=0;
       function fx(t,x,y,col){st.fx.push({t,x,y,col,life:1.6})}
-      function applyEv(e,k){const o=k==null?null:e.opts[k];st.ev=null;st.evDone.push(e);
+      function applyEv(e,k){const o=k==null?null:e.opts[k];st.ev=null;if(!e.people)st.evDone.push(e);
+        if(e.people){st.peopleTot=(st.peopleTot||0)+1;if(o&&o.ok)st.peopleOk=(st.peopleOk||0)+1}
+        if(o&&o.do==="cover"){const w0=st.workers.find(w=>w.id===e.w),to=w0?w0.st0:-1;const idle=st.workers.filter(w=>w.st<0&&!w.absent).sort((a,b)=>b.sk-a.sk)[0];
+          if(idle&&to>=0){idle.st=to;api.toast(wrap,`👷 ${idle.n} ลงแทนที่ S${to+1}`)}else if(to>=0){const n=st.S.length,load=i=>st.workers.filter(w=>w.st===i&&!w.absent).length;let src=-1;for(let i=0;i<n;i++)if(i!==to&&load(i)>1&&(src<0||load(i)>load(src)))src=i;
+            if(src>=0){const w=st.workers.filter(w=>w.st===src&&!w.absent).sort((a,b)=>a.sk-b.sk)[0];if(w.job){st.buf[src].unshift(w.job.u);w.job=null}w.st=to;api.toast(wrap,`👷 ย้าย ${w.n} จาก S${src+1} ไป S${to+1}`)}else api.toast(wrap,"ไม่มีคนว่าง · ลองจ้างเพิ่มหรือแบ่งงานใหม่ (✂ แบ่งงาน)")}}
+        if(o&&o.do==="fixdev"&&e.st!=null&&st.S[e.st]){st.S[e.st].dev=false;st.S[e.st].devAsk=false}
+        if(!o&&e.st!=null&&st.S[e.st])st.S[e.st].devAsk=false;
         if(o&&o.ok){st.evScore+=150;st.evRight++;st.buffUntil=st.t+ROUND;api.toast(wrap,"✅ "+o.why.slice(0,60));fx("✅ ตัดสินใจถูกต้อง +150",480,250,"#7dffa8");SFXp("ok")}
         else{const pen=o?o.pen:"stop";st.evScore-=50;const msg=o?"❌ "+o.why:"⏰ ไม่ตัดสินใจในเวลา ปัญหาลุกลาม";api.toast(wrap,msg.slice(0,70));SFXp("bad");
           if(pen==="defect"){st.workers.forEach(w=>{if(w.job)w.job.u.defect=true});st.scrap+=3;st.cash-=ECON.scrap*3}
           else if(pen==="order"){st.backlog+=Math.ceil(st.jph/20);st.orders+=Math.ceil(st.jph/20)}
           else if(pen==="cash"){st.cash-=300}
+          else if(pen==="morale"){st.workers.forEach(w=>{w.sk=Math.max(.5,w.sk*.96)});fx("😟 ขวัญกำลังใจทีมลดลง",480,250,"#ff8a7a")}
+          else if(pen==="repeat"){const w=st.workers.find(x=>x.id===e.w);if(w)w.absRisk=true}
           else{st.S.forEach(x=>{if(!x.broken)x.repair=Math.max(x.repair,40)})}}
         st.evLast={e,o,at:st.t};sync(true)}
       function resolve(i){const x=st.S[i];if(x.broken){x.broken=false;x.repair=(30+90*(1-K.vm))*(1-(EQB.repair||0));fx("🔧 ช่างมาแล้ว",cellXY(x.cell).x,cellXY(x.cell).y-150,"#ffd27a");SFXp("ok");sync(true)}
@@ -3034,12 +3056,14 @@ function createGame(api,career){
         // demand rises every 2 minutes
         const rd=Math.floor(st.t/ROUND);if(rd!==st.round){st.round=rd;st.jph=jphAt(lv,rd);while(st.hourly.length<=rd)st.hourly.push({plan:jphAt(lv,st.hourly.length)*ROUND/3600,act:0});const ev=[];
           if(rd===lv.colorsFrom)ev.push("ลูกค้าสั่ง 3 สี น้ำเงิน แดง ดำ ระวังหยิบไส้ผิดสี");if(rd===lv.brkFrom)ev.push("เครื่องอัดด้ามเริ่มเสียได้");if(rd===lv.pcFrom)ev.push("ระวังการทำงานไม่ตามมาตรฐาน");
-          st.workers.forEach(w=>{if(w.absent){w.absent=false}});
-          if(rd===lv.absent||(lv.absentEvery&&rd>lv.absent&&(rd-lv.absent)%lv.absentEvery===0)){const cand=st.workers.filter(w=>w.st>=0);if(cand.length>1){const w=pick(cand);w.absent=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}ev.push(w.n+" ลางานกะนี้ ต้องจัดคนใหม่")}}
+          st.workers.forEach(w=>{if(w.absent){w.absent=false;if(w.wasAbs){w.wasAbs=false;(st.pq=st.pq||[]).push(returnEv(w,w.absNo,w.absCount||1))}}else if(w.absRisk&&w.st>=0&&Math.random()<.5){w.absRisk=false;w.absent=true;w.st0=w.st;w.absNo=true;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,true));ev.push(w.n+" ขาดงานซ้ำ")}});
+          if(rd===lv.absent||(lv.absentEvery&&rd>lv.absent&&(rd-lv.absent)%lv.absentEvery===0)){const cand=st.workers.filter(w=>w.st>=0);if(cand.length>1){const w=pick(cand);w.absent=true;w.st0=w.st;w.absNo=Math.random()<.45;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,w.absNo));ev.push(w.n+(w.absNo?" ขาดงานไม่แจ้ง":" ลาป่วย")+" · ตัดสินใจที่แผงด้านล่าง")}}
           if(lv.god&&!st.ev){const pool=KEVENTS.filter(e=>!st.evDone.includes(e));if(pool.length){st.ev={e:pick(pool),until:st.t+150+(EQB.evTime||0)*SPEED};ev.push("📋 มีปัญหาหน้างานรอการตัดสินใจ (แผงด้านล่าง)")}}
           st.banner={t:`รอบ ${rd+1}: ลูกค้าเพิ่มเป็น ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที${ev.length?" · "+ev.join(" · "):""}`,life:5};SFXp("level");sync(true)}
         if(st.banner)st.banner.life-=dtp;
         if(st.ev&&st.t>=st.ev.until){applyEv(st.ev.e,null)}
+        if(!st.ev){st.S.forEach((x,i)=>{if(x.dev&&!x.devAsk&&st.t>=x.devSeen){x.devAsk=true;(st.pq=st.pq||[]).push(sopEv(i,x.name))}});
+          if(st.pq&&st.pq.length){const e=st.pq.shift();st.ev={e,until:st.t+180+(EQB.evTime||0)*SPEED};SFXp("bad");sync(true)}}
         const colorsOn=st.round>=lv.colorsFrom;
         // orders
         st.nextOrd-=dt;while(st.nextOrd<=0){st.nextOrd+=3600/st.jph;st.orders++;st.backlog++}
@@ -3088,7 +3112,7 @@ function createGame(api,career){
       function finish(){ended=true;const r=result();if(room)publish(true);
         const stars=r.gok>=6?3:r.gok>=4?2:r.gok>=2?1:0;
         const L2=career?[]:[`<b>SQDCPME:</b> ทำได้ตามเป้า ${r.gok}/7 ข้อ ${r.rows.map(x=>`${x.ok?"✅":"❌"} ${x.g.k} เป้า ${x.g.dir<0?"≤":"≥"} ${x.tv.toLocaleString()}${x.g.u.trim()} ได้ ${x.v.toLocaleString()}${x.g.u.trim()}`).join(" · ")}`];
-        L2.push(`<b>ผลประกอบการ:</b> รายได้ ${baht(st.rev)} − วัตถุดิบ ${baht(st.matCost)} − ค่าแรง ${baht(st.wages)} − ค่าจ้างแรกเข้า ${baht((career?Math.max(0,st.hires-career.hired.length):st.hires)*ECON.hire)} − ค่าเช่าโรงงาน ${baht(st.rent)} − ของเสีย/ร้องเรียน ${baht(st.scrap*ECON.scrap+st.complaints*ECON.complaint)}${r.penalty?` − ค่าปรับส่งไม่ทัน ${baht(r.penalty)}`:""} = กำไร <b>${baht(r.profit)}</b>`);
+        if(st.peopleTot)L2.push(`<b>บริหารคน:</b> ตัดสินใจเรื่องคนลา/ไม่ทำตามมาตรฐานถูก ${st.peopleOk||0}/${st.peopleTot} ครั้ง · หลักคือ จัดคนแทนตามทักษะ คุยส่วนตัวหลังกลับมา ฟังเหตุผลก่อน และแก้ที่สาเหตุ (สอนซ้ำ/ปรับ OIS)`);L2.push(`<b>ผลประกอบการ:</b> รายได้ ${baht(st.rev)} − วัตถุดิบ ${baht(st.matCost)} − ค่าแรง ${baht(st.wages)} − ค่าจ้างแรกเข้า ${baht((career?Math.max(0,st.hires-career.hired.length):st.hires)*ECON.hire)} − ค่าเช่าโรงงาน ${baht(st.rent)} − ของเสีย/ร้องเรียน ${baht(st.scrap*ECON.scrap+st.complaints*ECON.complaint)}${r.penalty?` − ค่าปรับส่งไม่ทัน ${baht(r.penalty)}`:""} = กำไร <b>${baht(r.profit)}</b>`);
         const miss=st.hourly.map((h,i)=>({i,gap:(i===st.round?h.plan*((st.t%ROUND)/ROUND):h.plan)-h.act})).filter(h=>h.gap>1&&h.i<=st.round);if(miss.length)L2.push(`<b>Time & Data:</b> รอบที่ทำไม่ทันแผน ${miss.map(h=>`R${h.i+1} (${jphAt(lv,h.i)} JPH ขาด ${Math.round(h.gap)})`).join(", ")} เมื่อ JPH เพิ่มต้องจ้างคนและแบ่งงานใหม่ให้ทุกสถานีต่ำกว่า Takt`);
         L2.push(`<b>Standardized Work:</b> โต๊ะของคุณ ${R.ct.toFixed(1)} วินาที/ด้าม (ดีที่สุด ${IDEAL_CT}) ท่าทางเสี่ยง ${R.risky} ครั้ง/ด้าม โอกาสหยิบไส้ผิดสี ${(R.riskRefill*100).toFixed(1)}%`);
         L2.push(`<b>Layout:</b> ระยะเดินส่งงาน ${lineWalk(line.cells).toFixed(1)} เมตร/ด้าม ${lineWalk(line.cells)>12?"วางสถานีให้ติดกันตามลำดับงาน หรือเป็นรูปตัว U จะลดการเดิน":"วางได้กระชับ"}`);
@@ -3097,7 +3121,7 @@ function createGame(api,career){
         if(lv.god)L2.push(`<b>ระดับเทพ · ปัญหาหน้างาน 6 KUP:</b> ตัดสินใจถูก ${st.evRight}/${st.evDone.length} ครั้ง (${st.evScore>=0?"+":""}${st.evScore} คะแนน)`);
         const newbies=st.workers.filter(w=>w.done>0);if(newbies.length)L2.push(`<b>People:</b> ${newbies.map(w=>`${esc(w.n)} ${Math.round(w.sk*100)}%`).join(", ")} หลังทำงาน (สอนงาน JI ${KZ.pct(K.ji)}%)`);
         if(career){const deliv=st.orders?st.shipped/st.orders:1,pass=deliv>=.85&&r.profit>-500;career.runCk=null;career.cash=Math.round(st.cash-r.penalty);if(career.cash<800){career.cash=1500;L2.push("<b>เงินสดต่ำ:</b> ธนาคารให้กู้ฉุกเฉิน เริ่มด่านถัดไปด้วย 1,500 ฿")}
-          hired.length=0;st.workers.forEach(w=>hired.push({id:w.id,n:w.n,exp:w.exp,sk:w.sk,cap:w.cap,wage:w.wage,look:w.look}));const lvBefore=cpsLevel(career).lv;career.hist.push({stage:career.stage,profit:Math.round(r.profit),lbe:Math.round(r.lbe*100),score:r.score,pass,deliv:Math.round(deliv*100),fpy:Math.round((st.tested?1-st.firstFail/st.tested:1)*1000)/10});career.hist=career.hist.slice(-40);career.evTot=(career.evTot||0)+st.evDone.length;career.evOk=(career.evOk||0)+st.evRight;career.pcMiss=Math.max(0,(career.pcMiss||0)+(st.escaped>0?1:-1));career.total=(career.total||0)+r.score;if(pass){career.stage++;if(EQB.cash){career.cash+=EQB.cash;L2.push(`<b>🎽 โบนัสชุดที่สวม:</b> +${EQB.cash} ฿`)}}career.step=0;cSave();const LVx=cpsLevel(career);if(LVx.lv.k>lvBefore.k){L2.unshift(`<b>🎉 เลื่อนระดับ!</b> คุณเป็น <b>${LVx.lv.em} ${LVx.lv.n}</b> แล้ว · ${LVx.lv.desc}`);try{if(window.PARTY){PARTY.confetti(160);PARTY.SFX.fanfare()}}catch(e){}}if(window.EQUIP){const NU=EQUIP.newUnlocks();if(NU.fresh.length){L2.unshift(`<b>🎁 ปลดล็อกชุดใหม่:</b> ${NU.fresh.map(i=>i.n).join(", ")} · ไปแต่งตัวที่แท็บ ฉัน → ห้องแต่งตัว`);NU.mark()}}
+          hired.length=0;st.workers.forEach(w=>hired.push({id:w.id,n:w.n,exp:w.exp,sk:w.sk,cap:w.cap,wage:w.wage,look:w.look}));const lvBefore=cpsLevel(career).lv;career.hist.push({stage:career.stage,profit:Math.round(r.profit),lbe:Math.round(r.lbe*100),score:r.score,pass,deliv:Math.round(deliv*100),fpy:Math.round((st.tested?1-st.firstFail/st.tested:1)*1000)/10});career.hist=career.hist.slice(-40);career.evTot=(career.evTot||0)+st.evDone.length+(st.peopleTot||0);career.evOk=(career.evOk||0)+st.evRight;career.pcMiss=Math.max(0,(career.pcMiss||0)+(st.escaped>0?1:-1));career.total=(career.total||0)+r.score;if(pass){career.stage++;if(EQB.cash){career.cash+=EQB.cash;L2.push(`<b>🎽 โบนัสชุดที่สวม:</b> +${EQB.cash} ฿`)}}career.step=0;cSave();const LVx=cpsLevel(career);if(LVx.lv.k>lvBefore.k){L2.unshift(`<b>🎉 เลื่อนระดับ!</b> คุณเป็น <b>${LVx.lv.em} ${LVx.lv.n}</b> แล้ว · ${LVx.lv.desc}`);try{if(window.PARTY){PARTY.confetti(160);PARTY.SFX.fanfare()}}catch(e){}}if(window.EQUIP){const NU=EQUIP.newUnlocks();if(NU.fresh.length){L2.unshift(`<b>🎁 ปลดล็อกชุดใหม่:</b> ${NU.fresh.map(i=>i.n).join(", ")} · ไปแต่งตัวที่แท็บ ฉัน → ห้องแต่งตัว`);NU.mark()}}
           if(LVx.lv.k>lvBefore.k){}else if(LVx.next)L2.push(`<b>ระดับ CPS:</b> ${LVx.lv.em} ${LVx.lv.n} · เลื่อนเป็น ${LVx.next.em} ${LVx.next.n} ต้อง ${LVx.need.join(" และ ")} · จุดที่ควรฝึก: ${LVx.weak.map(w=>w.x.n).join(", ")}`);
           L2.unshift(`<b>ด่าน ${pass?career.stage-1:career.stage}:</b> ${pass?"ผ่าน! ส่งมอบ "+Math.round(deliv*100)+"% ไปด่าน "+career.stage+" ลูกค้าจะสั่ง "+careerLV(career.stage).jph[0]+" ด้าม/ชม.":"ยังไม่ผ่าน (ต้องส่งมอบ ≥85% และไม่ขาดทุนเกิน 500 ฿) ลองอัปเกรดโรงงานแล้วเล่นด่านนี้อีกครั้ง"}`);
           if(window.CLOUD){const LVc=cpsLevel(career);CLOUD.post({game:"career",stage:career.stage-(pass?1:0),score:r.score,total:Math.round(career.total),pass,profit:Math.round(r.profit),lbe:Math.round(r.lbe*100),deliv:Math.round(deliv*100),lvl:LVc.lv.k,skill:Math.round(LVc.skill.total*100)})}
