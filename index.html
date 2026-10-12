@@ -981,6 +981,7 @@ body{background:
 /* readable sub-line on yellow "play/continue" buttons */
 .lvls button.trainer small{color:#3b2a00;opacity:.85;font-size:13.5px;font-weight:500;letter-spacing:0;margin-top:2px}
 .lvls button.trainer small .off{color:#9a7a2a}
+.link-ok{color:var(--go);font-weight:600;margin:0}.link-bad{color:var(--stop);font-weight:600;margin:0}
 
 </style>
 
@@ -2106,7 +2107,7 @@ const SIMHUB=(()=>{
   function joinRoom(){if(ROOMP)return ROOMP;ROOMP=joinRoom0().then(r=>{if(r.onCtl)r.onCtl(applyCtl);return r}).catch(e=>{ROOMP=null;throw e});return ROOMP}
   function joinRoom0(){
     if(window.LQ_STANDALONE){const code=String(WHO.fcode||"").replace(/\D/g,"");if(code.length!==4||!window.LQ_SIMROOM)return Promise.reject("nocode");
-      return LQ_SIMROOM.join(code).then(r=>({presence:d=>r.presence(d),onRank:cb=>r.onRank(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onCtl:cb=>r.onCtl(cb),onPlant:cb=>r.onPlant(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),leave:()=>r.leave()}))}
+      return LQ_SIMROOM.join(code).then(r=>({presence:d=>r.presence(d),onRank:cb=>r.onRank(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onCtl:cb=>r.onCtl(cb),onPlant:cb=>r.onPlant(l=>cb(l.map(x=>Object.assign({},x,{me:x.id===r.id()})))),onLink:cb=>r.onLink(cb),code,leave:()=>r.leave()}))}
     if(CAP.room&&CAP.room.join)return CAP.room.join("lean-factory").then(r=>({presence:d=>r.presence(d),
       onRank:cb=>r.onPeers(ch=>cb(rankRows(ch.peers.filter(p=>(p.presence||{}).g==="factory").map(p=>Object.assign({},p.presence,{id:p.peer,me:!!(p.sameTab||p.isMe)})))),()=>{}),
       onCtl:cb=>r.onPeers(ch=>{const c=ch.peers.find(p=>(p.presence||{}).g==="center"&&!p.sameTab);if(c)cb({L:c.presence.L,stop:!!c.presence.stop})},()=>{}),
@@ -2939,7 +2940,7 @@ function createGame(api,career){
       $("pViewIn").onclick=()=>v3?.zoom(-.15);$("pViewOut").onclick=()=>v3?.zoom(.15);
       if(window.PEN3D&&!window.LQ_NO3D){v3busy=true;PEN3D.mount(wrap,st,{onStation:i=>resolve(i)}).then(v=>{if(!wrap.isConnected){v.dispose();return;}v3=v;st._v3=v;v3busy=false;$("pViewToggle").disabled=false;$("pViewStatus").textContent="โรงงานปากกา 3D · เลือกสถานีเพื่อดูโต๊ะประกอบใกล้ ๆ";let want=true;try{want=localStorage.getItem("lq-pen-3d")!=="0"}catch(e){}set3D(want);wrap.querySelector(".toast")&&wrap.appendChild(wrap.querySelector(".toast"))}).catch(e=>{v3busy=false;if(wrap.isConnected){$("pViewToggle").textContent="ใช้ภาพ 2D";$("pViewStatus").textContent="เปิดภาพ 3D ไม่สำเร็จ ยังเล่นเกมเดิมต่อได้ในภาพ 2D";}console.warn("3D unavailable",e)})}
       function ovRank(){const list=st.rank||[],me=list.findIndex(r=>r.me),el=$("ovRank");if(!el)return;const rows=list.slice(0,3);if(me>=3)rows.push(list[me]);
-        el.innerHTML=list.length?`<b>🏆 ${me>=0?"คุณที่ "+(me+1)+"/"+list.length:"อันดับสด"}</b>${rows.map(r=>`<span class="${r.me?"me":""}"><i>${list.indexOf(r)+1}</i>${esc(r.n)}<em style="color:${r.profit<0?"#ff8a7a":"#7dffa8"}">${(r.profit<0?"-":"")+Math.abs(Math.round(r.profit)).toLocaleString()}฿</em><em style="color:#5ec8ff">${Math.round(r.lbe)}%</em></span>`).join("")}`:`<b>🏆 คุณ</b><span class="me"><i>·</i>กำไร<em style="color:${st.cash-ECON.cash<0?"#ff8a7a":"#7dffa8"}">${baht(st.cash-ECON.cash)}</em><em style="color:#5ec8ff">${Math.round(lbeOf(st)*100)}%</em></span>`}
+        el.innerHTML=list.length?`<b>🏆 ${me>=0?"คุณที่ "+(me+1)+"/"+list.length:"อันดับสด"}</b>${rows.map(r=>`<span class="${r.me?"me":""}"><i>${list.indexOf(r)+1}</i>${esc(r.n)}<em style="color:${r.profit<0?"#ff8a7a":"#7dffa8"}">${(r.profit<0?"-":"")+Math.abs(Math.round(r.profit)).toLocaleString()}฿</em><em style="color:#5ec8ff">${Math.round(r.lbe)}%</em></span>`).join("")}`:`<b>🏆 คุณ</b><span class="me"><i>·</i>กำไร<em style="color:${st.cash-(st.cash0!=null?st.cash0:ECON.cash)<0?"#ff8a7a":"#7dffa8"}">${baht(st.cash-(st.cash0!=null?st.cash0:ECON.cash))}</em><em style="color:#5ec8ff">${Math.round(lbeOf(st)*100)}%</em></span>`}
       function ovTick(){const b=$("ovBanner");if(b){if(st.banner&&st.banner.life>0){b.hidden=false;b.innerHTML=`<b>${esc(st.banner.t)}</b><span>${esc(st.banner.s)}</span>`;b.style.opacity=Math.min(1,st.banner.life)}else b.hidden=true}
         const e=$("ovEv");if(e){if(st.ev){e.hidden=false;e.textContent=`📋 ปัญหาหน้างาน (${st.ev.e.kup.split(" ·")[0]}) · ตอบที่แผงด้านล่าง ${Math.ceil((st.ev.until-st.t)/SPEED)} วิ`}else e.hidden=true}}
       $("pMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{st.mode=b.dataset.m;sync(true)});
@@ -2964,7 +2965,7 @@ function createGame(api,career){
         o.querySelectorAll("[data-hc]").forEach(b=>b.onclick=()=>{const cd=cands.find(x=>x.id===+b.dataset.hc);st.cash-=ECON.hire;st.hires++;st.workers.push(mkWorker(cd));o.remove();loop.pause(false);api.toast(wrap,`จ้าง ${cd.n} แล้ว จัดลงสถานีได้ที่ Yamazumi`);sync(true)})}
       function editLine(){if(ended||$("pEditor").innerHTML)return;loop.pause(true);api.toast(wrap,"⏸ หยุดไลน์ชั่วคราว ปรับไลน์ด้านล่าง");
         lineEditor($("pEditor"),{run:true,jph:st.jph,eyebrow:"⏸ หยุดไลน์ชั่วคราว",title:"ปรับไลน์",workers:st.workers,ok:"กลับไปเดินไลน์ →",onOk:()=>{$("pEditor").innerHTML="";rebuild();loop.pause(false);sync(true);wrap.scrollIntoView({block:"start",behavior:"smooth"})}});$("pEditor").scrollIntoView({block:"start",behavior:"smooth"})}
-      function connectRank(){SIMHUB.joinRoom().then(r=>{room=r;r.onRank(drawRank);publish(ended);sync(true);$("pRank").innerHTML=`<p class="label" style="text-transform:none;letter-spacing:0">เชื่อมต่อจอกลางแล้ว รออันดับ…</p>`}).catch(()=>{
+      function connectRank(){SIMHUB.joinRoom().then(r=>{room=r;r.onRank(drawRank);publish(ended);sync(true);const msg=ok=>{const el=$("pRank");if(!el||(st.rank&&st.rank.length))return;el.innerHTML=ok==null?`<p class="label" style="text-transform:none;letter-spacing:0">กำลังค้นหาห้อง ${esc(r.code||"")}…</p>`:ok?`<p class="link-ok">🟢 เชื่อมกับจอกลางห้อง ${esc(r.code||"")} แล้ว · รออันดับ…</p>`:`<p class="link-bad">🔴 ยังไม่พบห้อง ${esc(r.code||"")} · ให้วิทยากรเปิด 📺 จอกลาง แล้วตรวจรหัส 4 หลักให้ตรงกับบนจอ (ระบบจะลองเชื่อมใหม่ทุก 5 วินาที)</p>`};msg(null);if(r.onLink)r.onLink(msg);else msg(true)}).catch(()=>{
           if(!window.LQ_STANDALONE){$("pRank").innerHTML=`<p class="label" style="text-transform:none;letter-spacing:0">อันดับสดต้องเปิดผ่าน claude.ai โดยล็อกอิน</p>`;return}
           $("pRank").innerHTML=`<form id="rkF" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap"><label class="field">รหัสจอกลาง (ดูบนจอโปรเจกเตอร์)<input id="rkC" inputmode="numeric" maxlength="4" placeholder="4 หลัก" style="width:120px"></label><button class="btn small" type="submit">ดูอันดับ →</button></form>`;
           $("rkF").onsubmit=e=>{e.preventDefault();const v=$("rkC").value.replace(/\D/g,"");if(v.length!==4)return;SIMHUB.setCode(v);$("pRank").innerHTML=`<p class="label" style="text-transform:none;letter-spacing:0">กำลังเชื่อมต่อ…</p>`;connectRank()}})}
@@ -3940,10 +3941,10 @@ boot();
         pr.on("connection",cn=>{conns.set(cn.peer,cn);cn.on("data",m=>{if(m&&m.t==="pres"&&m.d&&typeof m.d==="object")onChange({peers:[{peer:cn.peer,presence:m.d}],left:[]})});
           const gone=()=>{conns.delete(cn.peer);onChange({peers:[],left:[{peer:cn.peer}]})};cn.on("close",gone);cn.on("error",gone)});
         pr.on("disconnected",()=>{try{pr.reconnect()}catch(e){}})};open()})},
-    join(code){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("nopeer");const pr=new Peer();let cn=null,last=null,rankCb=null,ctlCb=null,plantCb=null,dead=false,myId="";
-      const connect=()=>{if(dead)return;cn=pr.connect(FPX+code,{reliable:true});cn.on("open",()=>{if(last)cn.send({t:"pres",d:last})});cn.on("data",m=>{if(!m)return;if(m.t==="rank"){if(rankCb)rankCb(m.l||[]);if(m.c&&ctlCb)ctlCb(m.c);if(plantCb)plantCb(m.plant||[])}if(m.t==="ctl"&&ctlCb)ctlCb(m.c)});cn.on("close",()=>setTimeout(connect,3000))};
-      pr.on("open",id=>{myId=id;connect();res({id:()=>myId,presence:d=>{last=d;try{if(cn&&cn.open)cn.send({t:"pres",d})}catch(e){}return Promise.resolve()},onRank(cb){rankCb=cb},onCtl(cb){ctlCb=cb},onPlant(cb){plantCb=cb},leave(){dead=true;try{pr.destroy()}catch(e){}}})});
-      pr.on("error",e=>{if(e.type==="peer-unavailable"){setTimeout(connect,5000)}else if(!myId)rej(e.type)})})}
+    join(code){return new Promise((res,rej)=>{if(typeof Peer==="undefined")return rej("nopeer");const pr=new Peer();let cn=null,last=null,rankCb=null,ctlCb=null,plantCb=null,linkCb=null,linked=null,dead=false,myId="";const setLink=v=>{if(linked===v)return;linked=v;if(linkCb)linkCb(v)};
+      const connect=()=>{if(dead)return;cn=pr.connect(FPX+code,{reliable:true});cn.on("open",()=>{setLink(true);if(last)cn.send({t:"pres",d:last})});cn.on("data",m=>{if(!m)return;if(m.t==="rank"){if(rankCb)rankCb(m.l||[]);if(m.c&&ctlCb)ctlCb(m.c);if(plantCb)plantCb(m.plant||[])}if(m.t==="ctl"&&ctlCb)ctlCb(m.c)});cn.on("close",()=>{setLink(false);setTimeout(connect,3000)})};
+      pr.on("open",id=>{myId=id;connect();res({id:()=>myId,presence:d=>{last=d;try{if(cn&&cn.open)cn.send({t:"pres",d})}catch(e){}return Promise.resolve()},onRank(cb){rankCb=cb},onCtl(cb){ctlCb=cb},onPlant(cb){plantCb=cb},onLink(cb){linkCb=cb;if(linked!=null)cb(linked)},leave(){dead=true;try{pr.destroy()}catch(e){}}})});
+      pr.on("error",e=>{if(e.type==="peer-unavailable"){setLink(false);setTimeout(connect,5000)}else if(!myId)rej(e.type)})})}
   };
   if(window.SIMHUB)setTimeout(()=>SIMHUB.open(),0);// hub may have opened before this script: join the center-screen room now
   setInterval(setCount,2000);
