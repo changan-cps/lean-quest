@@ -961,7 +961,7 @@ body{background:
 
   <main>
   <!-- HOME -->
-  <section id="scrHome"><a class="factory-training-entry" href="https://yureepornyk-cmyk.github.io/lean-quest/training.html" target="_top"><strong>ใหม่ · Factory Training 3D</strong><span>6 โรงงาน · ผู้เล่น / ผู้ควบคุม · เปิด–ปิด Session · คะแนนสด</span><b>เข้าโหมดอบรม →</b></a><div id="homeBody"></div></section>
+  <section id="scrHome"><a class="factory-training-entry" id="trainEntry" href="training.html" target="_top"><strong>ใหม่ · Factory Training 3D</strong><span>6 โรงงาน · ผู้เล่น / ผู้ควบคุม · เปิด–ปิด Session · คะแนนสด</span><b>เข้าโหมดอบรม →</b></a><div id="homeBody"></div></section>
   <!-- LIVE -->
   <section id="scrLive" hidden>
     <div class="live-head">
@@ -1010,6 +1010,10 @@ body{background:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+// public site (GitHub Pages). Inside the GitHub build links stay relative; the Claude artifact links out to the site.
+const LQ_SITE=window.LQ_STANDALONE?"./":"https://changan-cps.github.io/lean-quest/";
+document.addEventListener("DOMContentLoaded",()=>{const a=document.getElementById("trainEntry");if(a&&!window.LQ_STANDALONE)a.href=LQ_SITE+"training.html"});
+
 const LEVELS={
   easy:{name:"ง่าย",en:"EASY",time:30,base:100,bars:1,d:"คำศัพท์และหลักการพื้นฐาน เหมาะกับพนักงานใหม่"},
   medium:{name:"ปานกลาง",en:"MEDIUM",time:20,base:150,bars:2,d:"ประยุกต์กับสถานการณ์หน้างาน และคำนวณเบื้องต้น"},
@@ -2119,7 +2123,7 @@ const SIMHUB=(()=>{
           <div class="cc-yama">${(p.ct||[]).map((t,i)=>`<div><i style="height:${Math.min(100,t/mx*100)}%;background:${t&&t<=p.tk?"var(--go)":"var(--stop)"}"></i><em style="bottom:${p.tk/mx*100}%"></em><small>${(p.a||[])[i]||0}</small></div>`).join("")}</div></div>`}).join("")}
     function baht0(v){return (v<0?"-":"")+Math.abs(Math.round(v||0)).toLocaleString()+" ฿"}
   }
-  const HOWTO="https://yureepornyk-cmyk.github.io/lean-quest/howto.mp4";
+  const HOWTO=LQ_SITE+"howto.mp4";
   function howto(){let o=document.getElementById("howtoOvl");if(o)o.remove();o=document.createElement("div");o.id="howtoOvl";o.className="howto-ovl";
     o.innerHTML=`<div class="howto-box"><div class="sim-top"><div><span class="label">วิดีโอแนะนำ · 3 นาที 40 วินาที</span><h2>วิธีเล่น เปิดโรงงานประกอบปากกา</h2></div><div class="actions" style="margin:0"><a class="btn small" href="${HOWTO}" download="lean-quest-howto.mp4" target="_blank" rel="noopener">⬇ ดาวน์โหลดคลิป (5 MB)</a><button class="btn ghost small" id="howtoX">✕ ปิด</button></div></div><video controls playsinline preload="metadata" src="${HOWTO}"></video><p class="label" style="text-transform:none;letter-spacing:0">วิทยากรเปิดจอกลางและเลือกระดับ → ผู้เล่นสแกน QR → ตั้งเป้า SQDCPME → จ้างและสอนงาน → 6 KUP → จัดไลน์ → เดินไลน์จนวิทยากรกดหยุด</p></div>`;
     document.body.appendChild(o);$("howtoX").onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()};o.querySelector("video").play().catch(()=>{})}
@@ -3600,7 +3604,7 @@ window.SKILLS=SKILLS;
 function skillRing(t,size=54){const r=size/2-5,C=2*Math.PI*r;return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line,#e3e8f4)" stroke-width="6"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#skg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C*t.pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/><defs><linearGradient id="skg" x1="0" x2="1"><stop offset="0" stop-color="#ffb21c"/><stop offset="1" stop-color="#3ccf5a"/></linearGradient></defs><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="${size*.36}">${t.ic}</text></svg>`}
 function skillGoTo(go){
   if(go==="drill")return skillDrill();
-  if(go==="tr3d"){location.href="https://yureepornyk-cmyk.github.io/lean-quest/training.html";return}
+  if(go==="tr3d"){location.href=LQ_SITE+"training.html";return}
   show("scrSims");SIMHUB.open();if(go==="career")SIMHUB.play("career",0);else if(go==="auto")SIMHUB.play("auto",0);
 }
 function skillPanelHtml(){SKILLS.sync();const T=SKILLS.tracks(),tot=SKILLS.total(),Q=SKILLS.quests(),d=SKILLS.day(),wk=SKILLS.week(),allClaimed=Q.every(q=>q.claimed);
