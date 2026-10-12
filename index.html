@@ -1815,6 +1815,8 @@ const CLOUD=(()=>{
 })();
 window.CLOUD=CLOUD;
 
+// trainer PIN is kept in memory only: it is asked again after every refresh
+window.LQ_MEM={};function LQ_MEMSET(k,v){window.LQ_MEM[k]=v}
 // =====================================================================
 // APP SHELL — home, season ranking, profile (mobile-first)
 // =====================================================================
@@ -1927,17 +1929,17 @@ function renderProfile(){const p=PROF.get(),sk=lsGet("lq-streak",{days:[]}),c=ls
   $("pfEditor").onclick=()=>goTab("editor");$("pfHow").onclick=()=>SIMHUB.howto()}
 
 // ---------- admin back office (trainer) ----------
-async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin="";try{pin=sessionStorage.getItem("lq-admin-pin")||""}catch(e){}
-  {let ok=false;try{ok=sessionStorage.getItem("lq-center-ok")==="94b2"}catch(e){}
+async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin="";try{pin=(window.LQ_MEM||{})["lq-admin-pin"]||""}catch(e){}
+  {let ok=false;try{ok=(window.LQ_MEM||{})["lq-center-ok"]==="94b2"}catch(e){}
    if(!ok){const H=v=>{let h=7;for(const c of String(v))h=(h*131+c.charCodeAt(0))%65521;return h.toString(16)};
     root.innerHTML=`<div class="live-head"><div><span class="label">Admin · เฉพาะวิทยากร</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form class="pin-box" id="adLF"><b>ใส่รหัสวิทยากร</b><input id="adLIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="รหัสวิทยากร"><button class="btn go" type="submit">เข้าหลังบ้าน →</button><small id="adLMsg"></small></form>`;
     $("adBack").onclick=renderProfile;$("adLIn").focus();
-    $("adLF").onsubmit=e=>{e.preventDefault();const v=$("adLIn").value.trim();if(H(v)==="94b2"){try{sessionStorage.setItem("lq-center-ok","94b2");sessionStorage.setItem("lq-admin-pin",v)}catch(e){}renderAdmin()}else{$("adLMsg").textContent="รหัสไม่ถูกต้อง";$("adLIn").value=""}};return}}
+    $("adLF").onsubmit=e=>{e.preventDefault();const v=$("adLIn").value.trim();if(H(v)==="94b2"){try{LQ_MEMSET("lq-center-ok","94b2");LQ_MEMSET("lq-admin-pin",v)}catch(e){}renderAdmin()}else{$("adLMsg").textContent="รหัสไม่ถูกต้อง";$("adLIn").value=""}};return}}
   if(!(window.CLOUD&&CLOUD.enabled())){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><div class="notice"><b>ยังไม่ได้เชื่อมต่อกระดานคะแนนกลาง</b><span>ตั้งค่า Google Sheets ที่แท็บ ฉัน ก่อน (ดูไฟล์ SHEETS-SETUP.md) · ระหว่างนี้ดูผล Live Quiz ที่เล่นบนเครื่องนี้ได้ที่แท็บ อันดับ</span></div>`;$("adBack").onclick=renderProfile;return}
   if(!pin){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form id="adF" class="kz-board" style="max-width:420px"><label class="field">รหัส PIN (ตั้งไว้ในสคริปต์ ADMIN_PIN)<input id="adPin" inputmode="numeric" maxlength="8" autocomplete="off"></label><div class="actions"><button class="btn go" type="submit">เข้าหลังบ้าน →</button></div><p class="note2" id="adMsg"></p></form>`;$("adBack").onclick=renderProfile;
-    $("adF").onsubmit=async e=>{e.preventDefault();const v=$("adPin").value.trim();$("adMsg").textContent="กำลังตรวจสอบ…";const j=await CLOUD.admin(v,"list=scores&n=5");if(j&&j.ok){try{sessionStorage.setItem("lq-admin-pin",v)}catch(e){}renderAdmin()}else $("adMsg").textContent=j&&j.err==="pin"?"PIN ไม่ถูกต้อง":"เชื่อมต่อไม่ได้"};return}
+    $("adF").onsubmit=async e=>{e.preventDefault();const v=$("adPin").value.trim();$("adMsg").textContent="กำลังตรวจสอบ…";const j=await CLOUD.admin(v,"list=scores&n=5");if(j&&j.ok){try{LQ_MEMSET("lq-admin-pin",v)}catch(e){}renderAdmin()}else $("adMsg").textContent=j&&j.err==="pin"?"PIN ไม่ถูกต้อง":"เชื่อมต่อไม่ได้"};return}
   root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><div class="tools"><div class="seg" id="adTabs"><button type="button" data-t="players" aria-pressed="true">👥 ผู้เล่น / ออนไลน์</button><button type="button" data-t="rank" aria-pressed="false">🏆 อันดับ + ประวัติ</button></div><button class="btn ghost small" id="adRefresh">↻ โหลดใหม่</button><a class="btn ghost small" href="${esc(CLOUD.url().replace(/\/exec.*$/,"").replace("/macros/s/","/macros/s/"))}" target="_blank" rel="noopener" hidden>Sheets</a><button class="btn ghost small" id="adOut">ออก</button></div></div><div id="adBody"><div id="adMain"><div class="notice"><b>กำลังโหลด…</b></div></div></div>`;
-  $("adOut").onclick=()=>{try{sessionStorage.removeItem("lq-admin-pin")}catch(e){}renderProfile()};$("adRefresh").onclick=renderAdmin;
+  $("adOut").onclick=()=>{try{delete (window.LQ_MEM||{})["lq-admin-pin"]}catch(e){}renderProfile()};$("adRefresh").onclick=renderAdmin;
   const j=await CLOUD.admin(pin,"list=scores&n=2000");if(!j||!j.ok){$("adMain").innerHTML=`<div class="notice"><b>โหลดไม่สำเร็จ</b></div>`;return}
   const seasons=j.seasons||[j.current],cur=j.current;let sel=cur,game="all",tab="players",pt=null;
   const GN={career:"โรงงานของฉัน",factory:"ห้องเรียน",live:"Live Quiz"};
@@ -2139,12 +2141,12 @@ const SIMHUB=(()=>{
   const CPIN_H="94b2";// hash of the trainer PIN
   function pinHash(s){let h=7;for(const c of String(s))h=(h*131+c.charCodeAt(0))%65521;return h.toString(16)}
   function center(){
-    let ok=false;try{ok=sessionStorage.getItem("lq-center-ok")===CPIN_H}catch(e){}
+    let ok=false;try{ok=(window.LQ_MEM||{})["lq-center-ok"]===CPIN_H}catch(e){}
     if(!ok){leave();$("simHub").hidden=true;const P=$("simPlay");P.hidden=false;window.scrollTo(0,0);
       P.innerHTML=`<div class="sim-top"><div><span class="label">Center Screen · เฉพาะวิทยากร</span><h2>📺 จอกลาง</h2></div><div class="actions"><button class="btn ghost small" id="cpBack">← ออก</button></div></div>
         <form class="pin-box" id="cpF"><b>ใส่รหัสวิทยากรเพื่อเปิดจอกลาง</b><input id="cpIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="รหัสวิทยากร"><button class="btn go" type="submit">เปิดจอกลาง →</button><small id="cpMsg"></small></form>`;
       $("cpBack").onclick=()=>renderHub();$("cpIn").focus();
-      $("cpF").onsubmit=e=>{e.preventDefault();if(pinHash($("cpIn").value.trim())===CPIN_H){try{sessionStorage.setItem("lq-center-ok",CPIN_H);sessionStorage.setItem("lq-admin-pin",$("cpIn").value.trim())}catch(e){}center()}else{$("cpMsg").textContent="รหัสไม่ถูกต้อง";$("cpIn").value="";$("cpIn").focus()}};return}
+      $("cpF").onsubmit=e=>{e.preventDefault();if(pinHash($("cpIn").value.trim())===CPIN_H){try{LQ_MEMSET("lq-center-ok",CPIN_H);LQ_MEMSET("lq-admin-pin",$("cpIn").value.trim())}catch(e){}center()}else{$("cpMsg").textContent="รหัสไม่ถูกต้อง";$("cpIn").value="";$("cpIn").focus()}};return}
     center0()}
   function center0(){
     leave();$("simHub").hidden=true;const P=$("simPlay");P.hidden=false;window.scrollTo(0,0);
