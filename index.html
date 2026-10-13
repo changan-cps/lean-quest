@@ -1,4 +1,4 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Lean Quest</title><style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>แบบจำลองการใช้ Lean · Changan CPS</title><style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
@@ -647,6 +647,8 @@ body{background:radial-gradient(1200px 500px at 50% -200px,#dfe8ff 0,var(--bg) 6
 .wrap.app{padding-bottom:96px}
 .gtop{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(10px);margin:-16px -16px 8px;padding:10px 16px;border-bottom:1px solid var(--line)}
 .mark{border-radius:12px;background:linear-gradient(135deg,#ffc233,#ff8a3d);box-shadow:0 4px 12px rgba(255,138,61,.35)}
+.mark{font-size:14px;letter-spacing:.02em}
+.brand b{white-space:nowrap}
 .brand b{font-family:var(--f-display);letter-spacing:.02em}
 .tape{display:none}
 .tabs{background:transparent;padding:0;gap:2px}
@@ -996,7 +998,7 @@ body{background:
 
 <div class="wrap app">
   <header class="top gtop">
-    <button class="brand" id="homeBtn" aria-label="กลับหน้าแรก"><span class="mark">LQ</span><span><b>LEAN QUEST</b><small>Changan · CPS Game</small></span></button>
+    <button class="brand" id="homeBtn" aria-label="กลับหน้าแรก"><span class="mark">CPS</span><span><b>แบบจำลองการใช้ Lean</b><small>Changan Rayong · Lean Simulation</small></span></button>
     <nav class="tabs" id="tabs" aria-label="เมนูหลัก">
       <button type="button" data-tab="home" aria-current="page"><i>🏠</i>หน้าแรก</button>
       <button type="button" data-tab="sims"><i>🏭</i>โรงงาน</button>
@@ -1059,7 +1061,7 @@ body{background:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.16.0/mqtt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.LQ_BUILD="12/10 16:20";
+window.LQ_BUILD="13/10 12:41";
 
 // public site (GitHub Pages). Inside the GitHub build links stay relative; the Claude artifact links out to the site.
 const LQ_SITE=window.LQ_STANDALONE?"./":"https://changan-cps.github.io/lean-quest/";
@@ -1263,7 +1265,7 @@ async function exportDay(btn){const day=lsGet("lq-day-results",[]);if(!day.lengt
     const wb=X.utils.book_new(),add=(r,name,w)=>{const ws=X.utils.aoa_to_sheet(r);ws["!cols"]=w.map(x=>({wch:x}));X.utils.book_append_sheet(wb,ws,name.slice(0,31))};
     add([["อันดับ"].concat(head)].concat(rows.map((r,i)=>[i+1].concat(r))),"คะแนนรวมทั้งวัน",[8,24].concat(day.map(()=>18)).concat([12,12,14,8]));
     day.forEach((g,k)=>add([["อันดับ","ชื่อผู้เล่น","คะแนน","ตอบถูก (ข้อ)","จำนวนข้อ","% ถูก"]].concat(g.players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>[i+1,p.name,p.score,p.right,g.n,Math.round(p.right/g.n*100)])),`${k+1}. ${g.title}`.replace(/[\\/?*:\[\]]/g,""),[8,24,12,12,10,8]));
-    const buf=X.write(wb,{bookType:"xlsx",type:"array"}),fname=`คะแนนรวม_LeanQuest_${new Date().toISOString().slice(0,10)}.xlsx`,blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const buf=X.write(wb,{bookType:"xlsx",type:"array"}),fname=`คะแนนรวม_LeanSimulation_${new Date().toISOString().slice(0,10)}.xlsx`,blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
     let saved=false;if(window.claude&&window.claude.use&&!window.LQ_STANDALONE){try{const d=await window.claude.use("downloads");if(d){await d.save({filename:fname,data:blob});saved=true}}catch(e){}}
     if(!saved){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
     if(btn){btn.textContent="ดาวน์โหลดแล้ว ✓";setTimeout(()=>btn.textContent=old,2500)}}catch(e){if(btn)btn.textContent="สร้างไฟล์ไม่สำเร็จ ลองอีกครั้ง"}}
@@ -1847,7 +1849,7 @@ function renderHome(){
   <section class="stage3d">
     <div class="stage3d-view" id="hero3d">${thumbCanvas("career")}<span class="stage3d-live" hidden>● LIVE 3D</span></div>
     <div class="lobby">
-      <span class="eyebrow">${p.name?"สวัสดี "+esc(p.name)+" 👋":"ยินดีต้อนรับสู่ Lean Quest"}</span>
+      <span class="eyebrow">${p.name?"สวัสดี "+esc(p.name)+" 👋":"ยินดีต้อนรับสู่ แบบจำลองการใช้ Lean"}</span>
       <h1>${c?`โรงงานของคุณ · ด่าน ${c.stage}`:"เปิดโรงงานประกอบของคุณ"}</h1>
       ${c?`<div class="lobby-stats"><span>💰 <b>${c.cash.toLocaleString()}</b> ฿</span><span>⭐ <b>${Math.round(c.total||0).toLocaleString()}</b></span><span>🛠️ <b>${Object.keys(c.up||{}).length}/9</b> อัปเกรด</span></div>`:`<p>บริหารไลน์ผลิต ผ่านด่าน อัปเกรดโรงงานด้วยหลัก Lean และ CPS 6 KUP เซฟอัตโนมัติ เล่นได้ทุกเมื่อ</p>`}
       <div class="actions"><button class="btn go big" id="hPlay">${c?(c.runCk?"▶ เล่นต่อจากที่ค้าง":"▶ เล่นต่อ ด่าน "+c.stage):"▶ เปิดโรงงาน"}</button><button class="btn ghost" id="hHow">🎬 วิธีเล่น</button></div>
@@ -1969,7 +1971,7 @@ async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin
     $("adS").onchange=e=>{sel=+e.target.value;draw()};$("adG").onchange=e=>{game=e.target.value;draw()};
     $("adXls").onclick=async()=>{try{const X=await loadXLSX();const wb=X.utils.book_new();X.utils.book_append_sheet(wb,X.utils.json_to_sheet((b&&b.rows||[]).map((r,i)=>({อันดับ:i+1,รหัสพนักงาน:r.emp,ชื่อ:r.name,แผนก:r.team,คะแนนซีซัน:r.score,คะแนนโรงงาน:r.career,ด่านสูงสุด:r.stage,ห้องเรียน:r.cls,LiveQuiz:r.live,วันที่เล่น:r.days,จำนวนครั้ง:r.plays,ระดับCPS:r.lvl||"",ทักษะCPS:r.skill}))),"อันดับซีซัน "+sel);
       X.utils.book_append_sheet(wb,X.utils.json_to_sheet((j.rows||[]).filter(r=>+r.season===+sel).map(r=>({เวลา:new Date(r.ts).toLocaleString("th-TH"),รหัสพนักงาน:r.emp,ชื่อ:r.name,แผนก:r.team,เกม:GN[r.game]||r.game,ชุด:r.title||"",ด่าน:r.stage,คะแนน:r.score,กำไร:r.profit,LBE:r.lbe,ส่งมอบ:r.deliv,ผ่าน:r.pass}))),"ประวัติการเล่น");
-      X.writeFile(wb,`LeanQuest-season${sel}.xlsx`)}catch(e){alert("ดาวน์โหลดไม่สำเร็จ ต้องมีอินเทอร์เน็ตเพื่อโหลดตัวสร้าง Excel")}}};
+      X.writeFile(wb,`LeanSimulation-season${sel}.xlsx`)}catch(e){alert("ดาวน์โหลดไม่สำเร็จ ต้องมีอินเทอร์เน็ตเพื่อโหลดตัวสร้าง Excel")}}};
   $("adTabs").querySelectorAll("button").forEach(bt=>bt.onclick=()=>{tab=bt.dataset.t;$("adTabs").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===bt));$("adMain").innerHTML=`<div class="notice"><b>กำลังโหลด…</b></div>`;if(tab==="players")drawPlayers();else draw()});
   drawPlayers()}
 
