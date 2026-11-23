@@ -1956,7 +1956,9 @@ async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin
   $("adOut").onclick=()=>{try{delete (window.LQ_MEM||{})["lq-admin-pin"];delete (window.LQ_MEM||{})["lq-center-ok"]}catch(e){}adExit()};$("adRefresh").onclick=renderAdmin;
   const j=await CLOUD.admin(pin,"list=scores&n=2000");if(!j||!j.ok){$("adMain").innerHTML=`<div class="notice"><b>โหลดไม่สำเร็จ</b></div>`;return}
   const seasons=j.seasons||[j.current],cur=j.current;let sel=cur,game="all",tab="players",pt=null;
-  const GN={career:"โรงงานของฉัน",factory:"ห้องเรียน",live:"Live Quiz"};
+  const GN={career:"โรงงานของฉัน",factory:"ห้องเรียน",live:"Live Quiz",auto:"Auto Plant",spot:"จับผิดภาพ",tr3d:"อบรม 3D"};
+  const PG={};(j.rows||[]).forEach(r=>{const k=String(r.emp||r.name||""),P=PG[k]||(PG[k]={}),g=P[r.game]||(P[r.game]={n:0,best:0,ok:{}});g.n++;g.best=Math.max(g.best,+r.score||0);if(r.pass!=="N")g.ok[r.stage+"|"+(r.title||"")]=1});
+  const gcell=(p,g,f)=>{const x=(PG[String(p.emp||p.name||"")]||{})[g];return x?f(x):"–"},bestN=x=>`${Math.round(x.best).toLocaleString()} · ${x.n} ครั้ง`;
   const ago=ms=>{const m=Math.round(ms/60000);return m<1?"เมื่อสักครู่":m<60?m+" นาทีที่แล้ว":m<1440?Math.round(m/60)+" ชม.ที่แล้ว":Math.round(m/1440)+" วันที่แล้ว"};
   const LVNAME=k=>window.CPSLV&&CPSLV.LV[k]?CPSLV.LV[k].em+" "+CPSLV.LV[k].n:"";
   const drawPlayers=async()=>{clearTimeout(pt);if(tab!=="players"||!document.getElementById("adBody"))return;const r=await CLOUD.admin(pin,"list=players");if(tab!=="players")return;
@@ -1967,12 +1969,12 @@ async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin
       <h2 class="sec-h">🟢 ออนไลน์ตอนนี้ <small class="note2">อัปเดตอัตโนมัติทุก 30 วินาที</small></h2>
       <div class="online">${on.length?on.map(o=>`<div class="on-i"><i></i><b>${esc(o.name)}</b><small>${esc(o.team||"")}${o.emp?" · "+esc(o.emp):""}</small><span>${esc(o.screen||"")}${o.stage?" · ด่าน "+o.stage:""}${o.lvl!==""&&o.lvl!=null?" · "+LVNAME(+o.lvl):""}</span><em>${ago(now-o.ts)}</em></div>`).join(""):`<p class="label" style="text-transform:none;letter-spacing:0">ยังไม่มีใครออนไลน์</p>`}</div>
       <h2 class="sec-h">👥 ผู้เล่นทั้งหมด</h2><label class="field" style="max-width:320px;margin-bottom:8px">ค้นหา ชื่อ / รหัส / แผนก<input id="adQ" value="${esc(q)}"></label>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>ระดับ CPS</th><th>ด่าน</th><th>เล่น (ครั้ง)</th><th>คะแนนสะสม</th><th>เล่นล่าสุด</th><th>เริ่มเล่น</th></tr></thead><tbody>${list.map(p=>`<tr><td>${onKey.has(p.emp||p.name)?'<span class="dot-on" title="ออนไลน์"></span>':""}</td><td>${esc(p.emp)}</td><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td>${esc(p.lvl||"")}${p.skill!==""&&p.skill!=null?" · "+p.skill+"%":""}</td><td>${p.stage||""}</td><td>${p.plays}</td><td>${Math.round(p.total).toLocaleString()}</td><td>${ago(now-p.last)}</td><td>${new Date(p.first).toLocaleDateString("th-TH",{day:"numeric",month:"short"})}</td></tr>`).join("")||`<tr><td colspan="10">ยังไม่มีผู้เล่น</td></tr>`}</tbody></table></div>`;
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>ระดับ CPS</th><th>โรงงานของฉัน (ด่าน)</th><th>ห้องเรียน</th><th>Auto Plant</th><th>Live Quiz</th><th>จับผิดภาพ</th><th>อบรม 3D</th><th>เล่น (ครั้ง)</th><th>คะแนนสะสม</th><th>เล่นล่าสุด</th><th>เริ่มเล่น</th></tr></thead><tbody>${list.map(p=>`<tr><td>${onKey.has(p.emp||p.name)?'<span class="dot-on" title="ออนไลน์"></span>':""}</td><td>${esc(p.emp)}</td><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td>${esc(p.lvl||"")}${p.skill!==""&&p.skill!=null?" · "+p.skill+"%":""}</td><td>${p.stage?"ด่าน "+p.stage:"–"}</td><td>${gcell(p,"factory",bestN)}</td><td>${gcell(p,"auto",bestN)}</td><td>${gcell(p,"live",bestN)}</td><td>${gcell(p,"spot",x=>`ผ่าน ${Object.keys(x.ok).length}/${window.SPOT?SPOT.SETS.length:20} · ${x.n} ครั้ง`)}</td><td>${gcell(p,"tr3d",x=>`ผ่าน ${Object.keys(x.ok).length} ด่าน`)}</td><td>${p.plays}</td><td>${Math.round(p.total).toLocaleString()}</td><td>${ago(now-p.last)}</td><td>${new Date(p.first).toLocaleDateString("th-TH",{day:"numeric",month:"short"})}</td></tr>`).join("")||`<tr><td colspan="15">ยังไม่มีผู้เล่น</td></tr>`}</tbody></table></div><p class="note2">ช่องรายเกมแสดง คะแนนดีที่สุด · จำนวนครั้ง จากประวัติ 2,000 รายการล่าสุด · “–” คือยังไม่เคยเล่น · กด ↻ โหลดใหม่ เพื่ออัปเดต</p>`;
     if($("adQ"))$("adQ").oninput=()=>{clearTimeout(window._adq);window._adq=setTimeout(drawPlayers,300)};
     pt=setTimeout(drawPlayers,30000)};
   const draw=async()=>{const b=await (async()=>{try{const r=await fetch(CLOUD.url()+(CLOUD.url().includes("?")?"&":"?")+"season="+sel+"&_="+Date.now());return await r.json()}catch(e){return null}})();
     const rows=(j.rows||[]).filter(r=>+r.season===+sel&&(game==="all"||r.game===game));if(tab!=="rank")return;
-    $("adMain").innerHTML=`<div class="tools" style="margin-bottom:10px"><label class="field">ซีซัน<select id="adS">${seasons.map(x=>`<option value="${x}" ${+x===+sel?"selected":""}>ซีซัน ${x}${+x===+cur?" (ปัจจุบัน)":""}</option>`).join("")}</select></label><label class="field">เกม<select id="adG">${[["all","ทุกเกม"],["career","โรงงานของฉัน"],["factory","ห้องเรียน"],["live","Live Quiz"]].map(x=>`<option value="${x[0]}" ${x[0]===game?"selected":""}>${x[1]}</option>`).join("")}</select></label><button class="btn small" id="adXls">⬇ Excel ซีซันนี้</button></div>
+    $("adMain").innerHTML=`<div class="tools" style="margin-bottom:10px"><label class="field">ซีซัน<select id="adS">${seasons.map(x=>`<option value="${x}" ${+x===+sel?"selected":""}>ซีซัน ${x}${+x===+cur?" (ปัจจุบัน)":""}</option>`).join("")}</select></label><label class="field">เกม<select id="adG">${[["all","ทุกเกม"],["career","โรงงานของฉัน"],["factory","ห้องเรียน"],["auto","Auto Plant"],["live","Live Quiz"],["spot","จับผิดภาพ"],["tr3d","อบรม 3D"]].map(x=>`<option value="${x[0]}" ${x[0]===game?"selected":""}>${x[1]}</option>`).join("")}</select></label><button class="btn small" id="adXls">⬇ Excel ซีซันนี้</button></div>
       <h2 class="sec-h">อันดับซีซัน ${sel}${b&&b.label?" · "+esc(b.label):""}</h2>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>คะแนน</th><th>โรงงาน</th><th>ด่าน</th><th>ห้องเรียน</th><th>Live</th><th>วัน</th><th>ครั้ง</th><th>ระดับ CPS</th><th>ทักษะ</th></tr></thead><tbody>${(b&&b.rows||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.emp)}</td><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td><b>${(+r.score).toLocaleString()}</b></td><td>${r.career}</td><td>${r.stage}</td><td>${r.cls}</td><td>${r.live}</td><td>${r.days}</td><td>${r.plays}</td><td>${esc(r.lvl||"")}</td><td>${r.skill!==""&&r.skill!=null?r.skill+"%":""}</td></tr>`).join("")||`<tr><td colspan="13">ยังไม่มีข้อมูล</td></tr>`}</tbody></table></div>
       <h2 class="sec-h">ประวัติการเล่น (${rows.length} รายการล่าสุด)</h2>
@@ -2366,11 +2368,30 @@ const W=960,H=540,SPEED=6,ROUND=720,NR=5;// 1 real minute = 6 shift minutes; dem
 const jphAt=(lv,r)=>r<NR?lv.jph[r]:Math.round(lv.jph[NR-1]*Math.pow(1.15,r-NR+1)/10)*10;
 const ECON={price:50,mat:14,scrap:5,hire:150,fire:100,rent:600,late:10,complaint:60,cash:4000};
 const LEVELS=[
-  {jph:[60,90,120,150,180],colorsFrom:2,pcFrom:2,brkFrom:3,absent:-1,goalC:[500,1000,1600]},
-  {jph:[90,120,150,180,240],colorsFrom:1,pcFrom:1,brkFrom:2,absent:3,leaveReq:1,goalC:[800,1600,2400]},
-  {jph:[120,150,180,240,300],colorsFrom:0,pcFrom:1,brkFrom:1,absent:2,leaveReq:1,resign:3,goalC:[1200,2200,3200]},
-  {jph:[150,180,240,300,360],colorsFrom:0,pcFrom:0,brkFrom:0,absent:1,absentEvery:2,leaveReq:0,resign:2,goalC:[1500,2800,4000],god:true,brk:1.8,dev:1.6}
+  {jph:[60,90,120,150,180],colorsFrom:2,pcFrom:2,brkFrom:3,absent:-1,vol:.15,goalC:[500,1000,1600]},
+  {jph:[90,120,150,180,240],colorsFrom:1,pcFrom:1,brkFrom:2,absent:3,leaveReq:1,vol:.3,evCtx:true,goalC:[800,1600,2400]},
+  {jph:[120,150,180,240,300],colorsFrom:0,pcFrom:1,brkFrom:1,absent:2,leaveReq:1,resign:3,vol:.45,evCtx:true,goalC:[1200,2200,3200]},
+  {jph:[150,180,240,300,360],colorsFrom:0,pcFrom:0,brkFrom:0,absent:1,absentEvery:2,leaveReq:0,resign:2,goalC:[1500,2800,4000],god:true,brk:1.8,dev:1.6,vol:.6}
 ];
+// Realism: a job never takes exactly the standard time. Spread depends on skill and on whether the
+// work instruction is in place; now and then someone fumbles a part (long tail).
+function ctVar(w,ok,st){const cv=(.05+.25*Math.max(0,1-w.sk))*(ok?1:1.4);let f=1+cv*(Math.random()+Math.random()+Math.random()-1.5)*1.15;
+  if(Math.random()<.035*Math.max(.1,1.3-w.sk)*(ok?1:1.5)){f+=.5+.4*Math.random();st.fumbles=(st.fumbles||0)+1}return Math.max(.75,f)}
+// Smart events: pick the shop-floor problem that fits what is happening on the line right now and the
+// KUP the player is weakest at, instead of a blind draw. Non-"god" levels only get a problem that fits.
+const KEV_CTX=[
+  ["KUP 1","tdm",(st,lv)=>st.rushLast===st.round-1||st.backlog>st.jph*ROUND/3600*.2],
+  ["KUP 2","tdm",(st,lv)=>{const h=st.hourly[st.round-1];return !!h&&h.act<h.plan*.95}],
+  ["KUP 3","ji",(st,lv)=>st.workers.some(w=>w.st>=0&&!w.absent&&w.sk<.7)],
+  ["KUP 4","vm",(st,lv)=>st.buf.slice(1,st.S.length).some(b=>b.length>=4)],
+  ["KUP 5","pc",(st,lv)=>st.S.some(x=>x.dev)||st.escaped>0],
+  ["KUP 6","ci",(st,lv)=>!!st.noMat],
+  ["TPM","vm",(st,lv)=>st.breaks>0],
+  ["Heijunka","std",(st,lv)=>st.round>=lv.colorsFrom]];
+function pickKev(st,lv,K){const pool=KEVENTS.filter(e=>!st.evDone.includes(e));if(!pool.length)return null;
+  const sc=pool.map(e=>{const c=KEV_CTX.find(x=>e.kup.indexOf(x[0])===0);let fit=false;try{fit=!!(c&&c[2](st,lv))}catch(_){}return {e,fit,w:.15+(fit?2.5:0)+(c?1-Math.min(1,(K||{})[c[1]]||0):.5)}});
+  let cand=sc;if(!lv.god){if(st.round<1||Math.random()>.6)return null;cand=sc.filter(x=>x.fit);if(!cand.length)return null}
+  let r=Math.random()*cand.reduce((a,x)=>a+x.w,0);for(const x of cand){r-=x.w;if(r<=0)return x.e}return cand[cand.length-1].e}
 // ระดับเทพ: ปัญหาหน้างานที่ต้องตอบด้วย 6 KUP ระหว่างเดินไลน์ (ไม่หยุดเวลา)
 const KEVENTS=[
   {kup:"KUP 1 · Policy Deployment",q:"ผู้จัดการโรงงานขอเพิ่มเป้าส่งมอบอีก 20% กลางกะ คุณจะทำอย่างไร",opts:[
@@ -2883,7 +2904,7 @@ function stageMap(c){const cur=c.stage,from=Math.max(1,cur-3),to=cur+4,N=to-from
   return `<div class="stage-map"><svg viewBox="0 0 ${W2} ${H2}" width="100%" role="img" aria-label="แผนที่ด่าน"><path d="${path}" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round" opacity=".9"/><path d="${path}" stroke="#ffc233" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="2 10"/>
     ${pts.map((p,i)=>{const st=from+i,isCur=st===cur,done=st<cur||passed.has(st),lock=st>cur;const J=careerLV(st).jph[0];return `<g><circle cx="${p[0]}" cy="${p[1]}" r="${isCur?22:17}" fill="${done?"#22c55e":isCur?"#ffc233":"#cbd5e1"}" stroke="#fff" stroke-width="4"/><text x="${p[0]}" y="${p[1]+1}" text-anchor="middle" dominant-baseline="middle" font-size="${isCur?16:13}" font-weight="700" fill="${lock?"#64748b":"#1b222a"}" font-family="Kanit,sans-serif">${st}</text><text x="${p[0]}" y="${p[1]+(isCur?36:30)}" text-anchor="middle" font-size="10" fill="#5b6b85" font-family="Kanit,sans-serif">${J}/ชม.${st>=5?" 🔥":""}</text>${done?`<text x="${p[0]+12}" y="${p[1]-14}" font-size="12">⭐</text>`:""}</g>`}).join("")}</svg></div>`}
 function careerLoad(){const c=lsGet(CKEY,null);return c&&c.v===1?c:null}
-function careerLV(stage){const J=Math.round(60*Math.pow(1.22,stage-1)/10)*10;return {jph:[J,J,J,J,J],colorsFrom:stage>=3?0:99,pcFrom:stage>=4?0:99,brkFrom:stage>=2?0:99,absent:stage>=6?1:-1,absentEvery:stage>=8?2:0,goalC:[500,1000,1600],god:stage>=5,brk:stage>=7?1.5:1,dev:stage>=7?1.4:1,stage,dur:1080}}
+function careerLV(stage){const J=Math.round(60*Math.pow(1.22,stage-1)/10)*10;return {jph:[J,J,J,J,J],colorsFrom:stage>=3?0:99,pcFrom:stage>=4?0:99,brkFrom:stage>=2?0:99,absent:stage>=6?1:-1,absentEvery:stage>=8?2:0,goalC:[500,1000,1600],god:stage>=5,evCtx:stage>=3,vol:Math.min(.55,.1+.05*stage),brk:stage>=7?1.5:1,dev:stage>=7?1.4:1,stage,dur:1080}}
 SIMS.push({id:"career",name:"โรงงานของฉัน · เล่นต่อเนื่อง",genre:"มือถือ · ผ่านด่าน · อัปเกรดโรงงาน",desc:"โรงงานปากกาของคุณที่เซฟอัตโนมัติ เล่นได้ทุกเมื่อ ด่านละ 3 นาที ออเดอร์ใหญ่ขึ้นทุกด่าน ใช้กำไรอัปเกรดโรงงาน แต่ทุกอัปเกรดต้องทำกิจกรรม Lean ให้ผ่านก่อน",
   chips:["เซฟอัตโนมัติ","ผ่านด่าน","อัปเกรด 9 อย่าง","6 KUP","กำไร + LBE"],levels:[{career:true}],
   lvlsHtml(){const c=careerLoad();return c?`<button type="button" class="trainer" data-g="career" data-l="0">▶ เล่นต่อ ด่าน ${c.stage}<small>เงินสด ${c.cash.toLocaleString()} ฿ · คะแนนรวม ${Math.round(c.total||0).toLocaleString()}</small></button><button type="button" data-g="career" data-l="0" data-reset="${CKEY}" class="ghost">เริ่มโรงงานใหม่</button>`:`<button type="button" class="trainer" data-g="career" data-l="0">▶ เปิดโรงงานใหม่<small>เริ่มด่าน 1</small></button>`},
@@ -3107,7 +3128,7 @@ function createGame(api,career){
           if(lv.leaveReq!=null&&rd>=lv.leaveReq&&!st.leaveReqDone){st.leaveReqDone=true;const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);(st.pq=st.pq||[]).push(leaveReqEv(w));ev.push(w.n+" ยื่นใบลาล่วงหน้า · อนุมัติที่แผงด้านล่าง")}}
           if(lv.resign!=null&&rd>=lv.resign&&!st.resignDone){st.resignDone=true;const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);w.leaving=true;(st.pq=st.pq||[]).push(resignEv(w));ev.push(w.n+" ยื่นใบลาออก · ตัดสินใจที่แผงด้านล่าง")}}
           if(rd===lv.absent||(lv.absentEvery&&rd>lv.absent&&(rd-lv.absent)%lv.absentEvery===0)){const cand=st.workers.filter(w=>w.st>=0&&!w.absent&&!w.plannedAbs&&!w.leaving);if(cand.length>1){const w=pick(cand);w.absent=true;w.st0=w.st;w.absNo=Math.random()<.45;w.absCount=(w.absCount||0)+1;w.wasAbs=true;if(w.job){st.buf[w.st].unshift(w.job.u);w.job=null}(st.pq=st.pq||[]).push(absenceEv(w,w.absNo));ev.push(w.n+(w.absNo?" ขาดงานไม่แจ้ง":" ลาป่วย")+" · ตัดสินใจที่แผงด้านล่าง")}}
-          if(lv.god&&!st.ev){const pool=KEVENTS.filter(e=>!st.evDone.includes(e));if(pool.length){st.ev={e:pick(pool),until:st.t+150+(EQB.evTime||0)*SPEED};ev.push("📋 มีปัญหาหน้างานรอการตัดสินใจ (แผงด้านล่าง)")}}
+          if((lv.god||lv.evCtx)&&!st.ev){const e=pickKev(st,lv,K);if(e){st.ev={e,until:st.t+150+(EQB.evTime||0)*SPEED};ev.push("📋 มีปัญหาหน้างานรอการตัดสินใจ (แผงด้านล่าง)")}}
           st.banner={t:`รอบ ${rd+1}: ลูกค้าเพิ่มเป็น ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที${ev.length?" · "+ev.join(" · "):""}`,life:5};SFXp("level");sync(true)}
         if(st.banner)st.banner.life-=dtp;
         if(st.ev&&st.t>=st.ev.until){applyEv(st.ev.e,null)}
@@ -3115,7 +3136,11 @@ function createGame(api,career){
           if(st.pq&&st.pq.length){const e=st.pq.shift();st.ev={e,until:st.t+180+(EQB.evTime||0)*SPEED};SFXp("bad");sync(true)}}
         const colorsOn=st.round>=lv.colorsFrom;
         // orders
-        st.nextOrd-=dt;while(st.nextOrd<=0){st.nextOrd+=3600/st.jph;st.orders++;st.backlog++}
+        const vol=lv.vol||0;st.nextOrd-=dt;while(st.nextOrd<=0){st.nextOrd+=3600/st.jph*(1-vol+2*vol*Math.random());st.orders++;st.backlog++}
+        if(vol>=.3&&st.round>=(career?0:1)){
+          if(st.rushRd!==st.round){st.rushRd=st.round;st.rushAt=st.round*ROUND+ROUND*(.2+.5*Math.random());st.rushOn=Math.random()<.35+vol*.5}
+          if(st.rushOn&&st.t>=st.rushAt){st.rushOn=false;const k=Math.max(2,Math.round(st.jph*ROUND/3600*(.08+.12*vol)));st.orders+=k;st.backlog+=k;st.rushN=(st.rushN||0)+k;st.rushLast=st.round;api.toast(wrap,`📦 ออเดอร์ด่วน! ลูกค้าขอเพิ่ม ${k} ด้ามทันที`);SFXp("bad")}
+          if(st.backlog>st.jph*ROUND/3600*.35&&Math.random()<dt/240*vol){const k=Math.max(1,Math.min(Math.round(st.backlog*.25),Math.round(st.jph*ROUND/3600*.3)));st.backlog-=k;st.cancelled=(st.cancelled||0)+k;api.toast(wrap,`🚫 ลูกค้ายกเลิก ${k} ด้าม เพราะส่งช้า`);SFXp("bad")}}
         // material release
         const newU=()=>{const ci=colorsOn?Math.floor(Math.random()*3):0;return {id:++st.uid,born:st.t,ci,ink:INKS[ci],tk:0}};
         const matC=Math.round(ECON.mat*(UP.kanban?.95:1)*(1-(EQB.mat||0))*100)/100;const buy=()=>{if(st.cash<matC){st.noMat=true;return false}st.noMat=false;st.cash-=matC;st.matCost+=matC;return true};
@@ -3128,7 +3153,7 @@ function createGame(api,career){
         // stations
         for(let i=n-1;i>=0;i--){const x=st.S[i];if(x.broken){st.downtime+=dt;continue}if(x.repair>0){x.repair-=dt;st.downtime+=dt;continue}
           st.workers.forEach(w=>{if(w.st!==i||w.absent)return;w.ph+=dtp*(w.job?9:2);
-            if(!w.job&&st.buf[i].length)w.job={u:st.buf[i].shift(),rem:x.wc/w.sk*(st.t<st.buffUntil?.92:1)};
+            if(!w.job&&st.buf[i].length)w.job={u:st.buf[i].shift(),rem:x.wc/w.sk*(st.t<st.buffUntil?.92:1)*ctVar(w,R.wiOk,st)};
             if(!w.job)return;if(w.job.rem>0)w.job.rem-=dt;if(w.job.rem>0)return;const u=w.job.u;
             if(st.mode==="pull"&&st.buf[i+1].length>=st.limit){w.blocked=true;return}w.blocked=false;
             // quality events happen when the station completes its tasks
@@ -3155,12 +3180,14 @@ function createGame(api,career){
       }
       function liveKPI(i){const k=GOALS[i].k;return k==="S"?R.risky:k==="Q"?Math.round((st.tested?1-st.firstFail/st.tested:1)*1000)/10:k==="D"?Math.round(st.orders?st.shipped/st.orders*100:100):k==="C"?Math.round(st.cash-(st.cash0!=null?st.cash0:ECON.cash)-(ended?st.backlog*ECON.late:0)):k==="P"?Math.round(st.lbeSum/Math.max(1,st.t)*100):k==="M"?Math.round(st.downtime/60*10)/10:st.scrap}
       function fmtKPI(i,v){const k=GOALS[i].k;return k==="C"?(Math.abs(v)>=1000?(v/1000).toFixed(1)+"k":String(v)):k==="Q"||k==="D"||k==="P"?v+"%":String(v)}
-      function result(){const penalty=st.backlog*ECON.late,profit=st.cash-(st.cash0!=null?st.cash0:ECON.cash)-penalty,lbe=st.lbeSum/Math.max(1,st.t);let gp=0,gok=0;const rows=GOALS.map((g,i)=>{const tv=tiersOf(g,lv)[goals[i]],v=liveKPI(i),ok=hit(g,tv,v);if(ok){gp+=(goals[i]+1)*100;gok++}return {g,tv,v,ok}});
+      function result(){const penalty=(st.backlog+(st.cancelled||0))*ECON.late,profit=st.cash-(st.cash0!=null?st.cash0:ECON.cash)-penalty,lbe=st.lbeSum/Math.max(1,st.t);let gp=0,gok=0;const rows=GOALS.map((g,i)=>{const tv=tiersOf(g,lv)[goals[i]],v=liveKPI(i),ok=hit(g,tv,v);if(ok){gp+=(goals[i]+1)*100;gok++}return {g,tv,v,ok}});
         if(career)gp=0;return {profit,penalty,lbe,gp,gok,rows,score:Math.max(0,Math.round(profit/2+lbe*1000+gp+(st.evScore||0)))}}
       function publish(done){if(!room)return;const who=WHO0,r=result();room.presence({g:"factory",n:(who.name||"ผู้เล่น").slice(0,16),tm:(who.team||"").slice(0,16),L,t:Math.round(st.t),jph:st.jph,cash:Math.round(st.cash),profit:Math.round(r.profit),lbe:Math.round(r.lbe*100),now:Math.round(lbeOf(st)*100),sh:st.shipped,or:st.orders,hired:st.workers.length,a:st.S.map((_,i)=>st.workers.filter(w=>w.st===i&&!w.absent).length),ct:st.S.map((_,i)=>{const t=stCT(st,i);return isFinite(t)?Math.round(t):0}),tk:Math.round(3600/st.jph),sc:r.score,gok:r.gok,done:!!done}).catch(()=>{})}
       function finish(){ended=true;const r=result();if(room)publish(true);
         const stars=r.gok>=6?3:r.gok>=4?2:r.gok>=2?1:0;
         const L2=career?[]:[`<b>SQDCPME:</b> ทำได้ตามเป้า ${r.gok}/7 ข้อ ${r.rows.map(x=>`${x.ok?"✅":"❌"} ${x.g.k} เป้า ${x.g.dir<0?"≤":"≥"} ${x.tv.toLocaleString()}${x.g.u.trim()} ได้ ${x.v.toLocaleString()}${x.g.u.trim()}`).join(" · ")}`];
+        if(st.rushN||st.cancelled)L2.push(`<b>ความต้องการลูกค้า:</b> ออเดอร์ด่วนเข้ามา ${st.rushN||0} ด้าม${st.cancelled?` · ลูกค้ายกเลิก ${st.cancelled} ด้ามเพราะส่งช้า (เสียยอดขายและโดนค่าปรับ)`:" · ไม่มีการยกเลิก"} · ออเดอร์จริงไม่มาเท่ากันทุก Takt จึงต้องดู Hourly Board และมีคนหลายทักษะไว้รับช่วงพีก`);
+        if(st.fumbles)L2.push(`<b>เวลาทำงานแกว่ง:</b> มีงานที่สะดุดจนช้ากว่ามาตรฐานมาก ${st.fumbles} ครั้ง · คนทักษะน้อยและสถานีที่ไม่มี OIS แกว่งมากกว่า ลดได้ด้วยการสอนงาน (JI) และงานมาตรฐาน`);
         if(st.peopleTot)L2.push(`<b>บริหารคน:</b> ตัดสินใจเรื่องคนลา/ลาล่วงหน้า/ลาออก/ไม่ทำตามมาตรฐานถูก ${st.peopleOk||0}/${st.peopleTot} ครั้ง${st.resigned&&st.resigned.length?` · ลาออก: ${st.resigned.join(", ")}`:""} · หลักคือ วางแผนคนสำรองตาม Skill Matrix คุยส่วนตัวและฟังเหตุผลก่อน แก้ที่สาเหตุ (ปรับ OIS/สอนซ้ำ/อธิบายเหตุผล) และใช้ระเบียบเป็นขั้นอย่างเป็นธรรม`);L2.push(`<b>ผลประกอบการ:</b> รายได้ ${baht(st.rev)} − วัตถุดิบ ${baht(st.matCost)} − ค่าแรง ${baht(st.wages)} − ค่าจ้างแรกเข้า ${baht((career?Math.max(0,st.hires-career.hired.length):st.hires)*ECON.hire)} − ค่าเช่าโรงงาน ${baht(st.rent)} − ของเสีย/ร้องเรียน ${baht(st.scrap*ECON.scrap+st.complaints*ECON.complaint)}${r.penalty?` − ค่าปรับส่งไม่ทัน ${baht(r.penalty)}`:""} = กำไร <b>${baht(r.profit)}</b>`);
         const miss=st.hourly.map((h,i)=>({i,gap:(i===st.round?h.plan*((st.t%ROUND)/ROUND):h.plan)-h.act})).filter(h=>h.gap>1&&h.i<=st.round);if(miss.length)L2.push(`<b>Time & Data:</b> รอบที่ทำไม่ทันแผน ${miss.map(h=>`R${h.i+1} (${jphAt(lv,h.i)} JPH ขาด ${Math.round(h.gap)})`).join(", ")} เมื่อ JPH เพิ่มต้องจ้างคนและแบ่งงานใหม่ให้ทุกสถานีต่ำกว่า Takt`);
         L2.push(`<b>Standardized Work:</b> โต๊ะของคุณ ${R.ct.toFixed(1)} วินาที/ด้าม (ดีที่สุด ${IDEAL_CT}) ท่าทางเสี่ยง ${R.risky} ครั้ง/ด้าม โอกาสหยิบไส้ผิดสี ${(R.riskRefill*100).toFixed(1)}%`);
@@ -3179,9 +3206,9 @@ function createGame(api,career){
         api.end(wrap,{score:r.score,stars,stats:[["เป้า SQDCPME",`${r.gok}/7`],["กำไร",baht(r.profit)],["LBE เฉลี่ย",pct(r.lbe)],["ส่งมอบ",`${st.shipped}/${st.orders}`],["FPY",pct(st.tested?1-st.firstFail/st.tested:1)],["คะแนน",r.score.toLocaleString()]],lessons:L2})}
       sync(true);render(c,st);ovRank();
       if(career){if(resumed){api.toast(wrap,"▶ เล่นต่อจากที่ค้างไว้");st.banner={t:"เล่นต่อจากที่ค้างไว้",s:`เหลือเวลา ${fmtT(Math.max(0,lv.dur-st.t)/SPEED)}`,life:3};st.started=true;loop=api.loop(dtp=>{const k=window.LQ_FAST||1;for(let j=0;j<k&&!ended;j++)step(dtp)});connectRank();return}
-        api.overlay(wrap,`<span class="label">โรงงานของฉัน · ด่าน ${career.stage}</span><h3>กะ 3 นาที · ลูกค้าต้องการ ${lv.jph[0]} ด้าม/ชม.</h3><ul><li>ผ่านด่านเมื่อส่งมอบ ≥85% และไม่ขาดทุนเกิน 500 ฿</li><li>กำไรที่ได้จะเก็บไว้อัปเกรดโรงงานในด่านถัดไป</li><li>เกมเซฟอัตโนมัติทุก 5 วินาที ปิดหน้าจอแล้วกลับมาเล่นต่อได้</li>${lv.god?"<li>🔥 มีปัญหาหน้างานให้ตัดสินใจด้วย 6 KUP</li>":""}</ul>`,[["เปิดกะ →",()=>{st.banner={t:`ด่าน ${career.stage}: ลูกค้าต้องการ ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที · 3 นาที`,life:4};st.started=true;loop=api.loop(dtp=>{const k=window.LQ_FAST||1;for(let j=0;j<k&&!ended;j++)step(dtp)});connectRank();ckSave()}]]);return}
+        api.overlay(wrap,`<span class="label">โรงงานของฉัน · ด่าน ${career.stage}</span><h3>กะ 3 นาที · ลูกค้าต้องการ ${lv.jph[0]} ด้าม/ชม.</h3><ul><li>ผ่านด่านเมื่อส่งมอบ ≥85% และไม่ขาดทุนเกิน 500 ฿</li><li>กำไรที่ได้จะเก็บไว้อัปเกรดโรงงานในด่านถัดไป</li><li>เกมเซฟอัตโนมัติทุก 5 วินาที ปิดหน้าจอแล้วกลับมาเล่นต่อได้</li><li>ออเดอร์เข้าไม่สม่ำเสมอ อาจมีออเดอร์ด่วน และลูกค้ายกเลิกถ้าส่งช้า · เวลาทำงานของแต่ละคนแกว่งตามทักษะ</li>${lv.god?"<li>🔥 มีปัญหาหน้างานให้ตัดสินใจด้วย 6 KUP</li>":""}</ul>`,[["เปิดกะ →",()=>{st.banner={t:`ด่าน ${career.stage}: ลูกค้าต้องการ ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที · 3 นาที`,life:4};st.started=true;loop=api.loop(dtp=>{const k=window.LQ_FAST||1;for(let j=0;j<k&&!ended;j++)step(dtp)});connectRank();ckSave()}]]);return}
       api.overlay(wrap,`<span class="label">เดินไลน์ · ระดับ${LVN[L]}</span><h3>เดินไลน์จนกว่าวิทยากรจะหยุดเกม</h3>
-        <ul><li>ทุก 2 นาที ลูกค้าเพิ่มออเดอร์: ${lv.jph.join(" → ")} → … ด้าม/ชม. เพิ่มขึ้นเรื่อยๆ ไม่มีเพดาน</li><li>เกมจบเมื่อวิทยากรกดหยุดที่จอกลาง แล้วสรุปผลพร้อมกันทุกคน</li>${lv.god?`<li>🔥 ระดับเทพ: ทุกรอบมีปัญหาหน้างานให้ตัดสินใจด้วยหลัก 6 KUP ภายใน 25 วินาที ถูก +150 และไลน์เร็วขึ้น 1 รอบ ผิดมีบทลงโทษจริง · 3 สีตั้งแต่ต้น เครื่องเสียและคนลาบ่อยขึ้น</li>`:""}<li>Takt สั้นลงเรื่อยๆ ต้องจ้างคนเพิ่ม แบ่งงานและย้ายคนให้ทุกแท่ง Yamazumi ต่ำกว่าเส้นแดง</li>
+        <ul><li>ทุก 2 นาที ลูกค้าเพิ่มออเดอร์: ${lv.jph.join(" → ")} → … ด้าม/ชม. เพิ่มขึ้นเรื่อยๆ ไม่มีเพดาน</li><li>เกมจบเมื่อวิทยากรกดหยุดที่จอกลาง แล้วสรุปผลพร้อมกันทุกคน</li><li>ออเดอร์เข้าไม่สม่ำเสมอ อาจมีออเดอร์ด่วน และลูกค้ายกเลิกถ้าส่งช้า · เวลาทำงานของแต่ละคนแกว่งตามทักษะ</li>${lv.god?`<li>🔥 ระดับเทพ: ทุกรอบมีปัญหาหน้างานให้ตัดสินใจด้วยหลัก 6 KUP ภายใน 25 วินาที ถูก +150 และไลน์เร็วขึ้น 1 รอบ ผิดมีบทลงโทษจริง · 3 สีตั้งแต่ต้น เครื่องเสียและคนลาบ่อยขึ้น</li>`:""}<li>Takt สั้นลงเรื่อยๆ ต้องจ้างคนเพิ่ม แบ่งงานและย้ายคนให้ทุกแท่ง Yamazumi ต่ำกว่าเส้นแดง</li>
         <li>ไฟแดงกระพริบ = Andon แตะที่สถานีเพื่อเรียกช่างหรือยืนยันกระบวนการ</li><li>ขายได้ด้ามละ ${ECON.price} ฿ วัตถุดิบ ${ECON.mat} ฿ ค่าเช่าโรงงาน ${ECON.rent} ฿/ชม.</li><li>คะแนน = กำไร ÷ 2 + LBE × 1,000 + คะแนนเป้า SQDCPME ที่ทำได้</li></ul>`,[["เริ่มกะ →",()=>{st.banner={t:`รอบ 1: ลูกค้าต้องการ ${st.jph} ด้าม/ชม.`,s:`Takt ${(3600/st.jph).toFixed(1)} วินาที`,life:4};SIMHUB.onCtl(ctl=>{if(ctl&&ctl.stop&&!ended&&loop){ended=true;loop.stop();api.toast(wrap,"วิทยากรหยุดเกม สรุปผล");finish()}});loop=api.loop(dtp=>{const k=window.LQ_FAST||1;for(let j=0;j<k&&!ended;j++)step(dtp)});
           connectRank()}]]);
     }
@@ -3646,7 +3673,7 @@ const SKILLS=(()=>{
     let tp=null;try{tp=JSON.parse(localStorage.getItem("leanquest-training-profile")||"null")}catch(e){}
     if(tp&&tp.completed){const s3=get(),done=s3.sync.tr||{};const MAP={1:{pc:30,q:25},2:{vm:30,std:25},3:{lbe:35,tdm:20},4:{ci:30,pc:20},5:{tdm:30,pd:25},6:{pd:15,tdm:15,std:15,vm:15,pc:15,ci:15,lbe:15,q:15}};
       const fresh=Object.keys(tp.completed).filter(k=>!(k in done));fresh.forEach(k=>done[k]=1);s3.sync.tr=done;put(s3);
-      fresh.forEach(k=>{const lvl=+k.split("-").pop()||1;got+=award(MAP[lvl]||MAP[1],`ผ่านด่าน ${lvl} หน้าอบรม 3D (${k.split("-")[0]})`);bump("tr3d");bump("games")})}
+      fresh.forEach(k=>{const lvl=+k.split("-").pop()||1;got+=award(MAP[lvl]||MAP[1],`ผ่านด่าน ${lvl} หน้าอบรม 3D (${k.split("-")[0]})`);bump("tr3d");bump("games");if(window.CLOUD)CLOUD.post({game:"tr3d",stage:lvl,score:0,title:k.split("-")[0],pass:true})})}
     // 3) Live Quiz sessions played on this device
     const days=lsGet("lq-day-results",[]),s4=get(),seenL=s4.sync.live||{};const newL=days.filter(g=>g&&g.id&&!seenL[g.id]);newL.forEach(g=>seenL[g.id]=1);s4.sync.live=seenL;put(s4);
     newL.forEach(g=>{got+=award({pd:12,tdm:8,ci:8},"Live Quiz: "+(g.title||"แบบทดสอบ"));bump("live")});
@@ -3940,6 +3967,7 @@ const SPOT=(()=>{
       const nF=found.size,all=nF===S.p.length,score=Math.max(0,nF*100+(all?Math.round(left)*3:0)-miss*20-hints*50);
       const stars=all?(miss<=1&&!hints?3:2):nF>=2?1:0;
       const p=prog(),r=p[S.n]||{};p[S.n]={stars:Math.max(r.stars||0,stars),best:Math.max(r.best||0,score),plays:(r.plays||0)+1};lsSet(KEY,p);
+      if(window.CLOUD)CLOUD.post({game:"spot",stage:S.n,score,title:S.th,pass:stars>0});
       let got=0;if(window.SKILLS){const m={};Object.entries(S.sk).forEach(([k,f])=>m[k]=(10+nF*8+stars*6)*f);got=SKILLS.award(m,`จับผิดภาพ ${String(S.n).padStart(2,"0")} ${S.t} · ${"⭐".repeat(stars)||"ยังไม่ผ่าน"}`);try{const d=SKILLS.day();d.c.spot=(d.c.spot||0)+1;lsSet("lq-skill-day",d)}catch(e){}}
       if(stars>=2&&typeof confetti==="function")confetti(stars===3?100:50);
       const nx=SPOT_SETS.find(s=>s.n>S.n);
