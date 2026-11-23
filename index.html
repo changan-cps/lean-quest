@@ -482,6 +482,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .net-start{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
 .net-start .card{display:grid;gap:10px;align-content:start}
 .net-start h2{font-size:24px}
+body.admin-only #tabs,body.admin-only #bnav,body.admin-only .hud,body.admin-only #adBack{display:none!important}
 .net-bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between;background:var(--surface);border:2px solid var(--tape);border-radius:10px;padding:12px 16px;margin-bottom:12px}
 .net-code{display:block;font-family:var(--f-mono);font-size:44px;letter-spacing:.12em;line-height:1}
 .net-bar small{color:var(--muted);font-size:13px;display:block;margin-top:4px}
@@ -1031,7 +1032,8 @@ body{background:
   <!-- EDITOR -->
   <section id="scrEditor" hidden>
     <div class="live-head">
-      <div><span class="label">Question Bank</span><h1>สร้างคำถามเอง</h1></div>
+      <div><span class="label">Question Bank · ออกข้อสอบเอง</span><h1>ออกข้อสอบเอง</h1></div>
+      <div class="tools"><button type="button" class="btn ghost small" id="edBack">← กลับไป Live Quiz</button></div>
     </div>
     <div id="edBox"></div>
   </section>
@@ -1200,6 +1202,7 @@ function show(id){
   window.scrollTo(0,0);
 }
 function goTab(t){
+  if(window.LQ_ADMIN)return renderAdmin();
   if(window.SIMHUB)SIMHUB.leave();
   if(t==="home"){show("scrHome");renderHome()}
   else if(t==="sims"){show("scrSims");SIMHUB.open()}
@@ -1321,12 +1324,12 @@ $("roleSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ROLE=b.dataset
 
 function qHtml(lq){return `${lq.img?`<img class="qimg" src="${imgSrc(lq.img)}" alt="">`:""}<p class="lq-text">${LIVE.idx+1}. ${esc(lq.q)}</p>`}
 function sourceOptions(){
-  let h=`<optgroup label="วันอบรม AL-01 + AL-02">${["g1","g2","quiz"].map(k=>`<option value="train:${k}">${TR_liveSet(k).title} (${TR_liveSet(k).qs.length} ข้อ)</option>`).join("")}</optgroup><optgroup label="ด่านมาตรฐาน">`;
+  const sets=BANK.sets.filter(s=>(s.qs||[]).length);
+  let h=sets.length?`<optgroup label="ข้อสอบที่ออกเอง">${sets.map(s=>`<option value="custom:${esc(s.id)}">${esc(s.title)} (${s.qs.length} ข้อ)</option>`).join("")}</optgroup>`:"";
+  h+=`<optgroup label="วันอบรม AL-01 + AL-02">${["g1","g2","quiz"].map(k=>`<option value="train:${k}">${TR_liveSet(k).title} (${TR_liveSet(k).qs.length} ข้อ)</option>`).join("")}</optgroup><optgroup label="ด่านมาตรฐาน">`;
   LK.forEach(l=>{h+=`<option value="mix:${l}">รวม 5 ด่าน (10 ข้อ) · ${LEVELS[l].name}</option>`});
   STAGES.forEach((s,i)=>LK.forEach(l=>{h+=`<option value="stage:${i}:${l}">ด่าน ${i+1} ${esc(s.n)} · ${LEVELS[l].name}</option>`}));
   h+=`</optgroup>`;
-  const sets=BANK.sets.filter(s=>(s.qs||[]).length);
-  if(sets.length)h+=`<optgroup label="ชุดคำถามที่สร้างเอง">${sets.map(s=>`<option value="custom:${esc(s.id)}">${esc(s.title)} (${s.qs.length} ข้อ)</option>`).join("")}</optgroup>`;
   return h;
 }
 
@@ -1336,12 +1339,14 @@ const SKEL={
   "h-idle":()=>`<div class="card" style="display:grid;gap:18px">
     <div class="notice"><b>ผู้เล่นเข้าร่วมอย่างไร</b><span>กดปุ่ม Share ของหน้านี้ แชร์ให้ผู้เข้าอบรม (ต้องล็อกอิน claude.ai) แล้วให้เปิดแท็บ “Live Quiz” บนมือถือ ใส่ชื่อเล่นแล้วรอเริ่มเกม</span></div>
     <div class="setup">
-      <label class="field">ชุดคำถาม<select id="lvSrc">${sourceOptions()}</select></label>
+      <label class="field">ชุดข้อสอบ<select id="lvSrc">${sourceOptions()}</select></label>
+      <label class="field">ชื่อการสอบ (ไม่บังคับ)<input id="lvTitle" maxlength="60" placeholder="เว้นว่าง = ใช้ชื่อชุดข้อสอบ"></label>
       <label class="field">เวลาต่อข้อ<select id="lvT"><option value="10">10 วินาที</option><option value="20" selected>20 วินาที</option><option value="30">30 วินาที</option><option value="45">45 วินาที</option></select></label>
       <button class="btn go" id="lvOpen">เปิดห้อง Live</button>
     </div>
     <p class="label">คะแนน: ตอบถูกได้สูงสุด 1,000 คะแนน ยิ่งตอบเร็วยิ่งได้มาก (ตอบตอนหมดเวลาพอดีได้ 500)</p>
-    <span class="msg" id="lvMsg"></span></div>`,
+    <span class="msg" id="lvMsg"></span>
+    <div class="actions"><button type="button" class="btn ghost small" id="lvMake">✏️ ออกข้อสอบเอง (สร้าง / แก้ไขชุดข้อสอบ)</button><span class="label" style="text-transform:none;letter-spacing:0">${BANK.sets.length?`มีข้อสอบที่ออกเอง ${BANK.sets.length} ชุด`:"ยังไม่มีข้อสอบที่ออกเอง"}</span></div></div>`,
   "h-lobby":()=>`<div class="card" style="display:grid;gap:18px">
     <div class="lq-bar"><div><span class="label">${esc(LIVE.title)} · ${LIVE.qs.length} ข้อ · ${LIVE.T} วินาที/ข้อ</span><h2 style="font-size:26px;margin-top:4px">ห้องเปิดแล้ว รอผู้เล่นเข้าร่วม</h2></div><div style="text-align:right"><div class="bigcount" id="lvCount">0</div><span class="label">ผู้เล่น</span></div></div>
     <div class="players" id="lvPlayers"></div>
@@ -1378,7 +1383,8 @@ const SKEL={
   "p-end":()=>`<div class="card" style="display:grid;gap:14px"><div id="lvMe"></div><div id="lvPodium"></div><div id="lvBoard"></div></div>`
 };
 const BIND={
-  "h-idle":()=>{$("lvOpen").onclick=hostOpen;if(window.TR_applyPreset)TR_applyPreset()},
+  "h-idle":()=>{$("lvOpen").onclick=hostOpen;$("lvMake").onclick=()=>goTab("editor");if(window.TR_applyPreset)TR_applyPreset();
+    if(window.LQ_LASTSET){const s=$("lvSrc"),v="custom:"+window.LQ_LASTSET;if([...s.options].some(o=>o.value===v))s.value=v;window.LQ_LASTSET=null}},
   "h-lobby":()=>{$("lvStart").onclick=()=>hostStartQ(0);$("lvClose").onclick=hostClose},
   "h-q":()=>{$("lvReveal").onclick=hostReveal},
   "h-r":()=>{$("lvXls").onclick=e=>exportLive(e.currentTarget);$("lvNext").onclick=()=>LIVE.idx<LIVE.qs.length-1?hostStartQ(LIVE.idx+1):hostWrite({status:"end"})},
@@ -1422,6 +1428,7 @@ async function hostOpen(){
   const lvl=S.level;if(v[0]==="stage")S.level=v[2];
   const info=srcInfo(src);S.level=lvl;if(!info)return;
   const qs=prepQs(info.qs,src.kind!=="custom");if(!qs.length){$("lvMsg").textContent="ชุดนี้ยังไม่มีคำถามที่สมบูรณ์";return}
+  const custom=(($("lvTitle")||{}).value||"").trim().slice(0,60);if(custom)info.title=custom;
   const gameId=rid();
   const secret={gameId,keys:qs.map(q=>q.opts.findIndex(o=>o.ok)),ex:qs.map(q=>q.e||"")};
   $("lvOpen").disabled=true;$("lvMsg").textContent="กำลังเปิดห้อง…";
@@ -1481,7 +1488,7 @@ function onLiveState(){
 // =====================================================================
 let ED={sel:null,draft:null,dirty:false,msg:"",err:false,delArm:null};
 const canSaveBank=()=>CAP.db&&!window.LQ_STANDALONE?CAP.canEdit:true;
-function newSet(){return {id:rid(),title:"ชุดคำถามใหม่",desc:"",qs:[blankQ()]}}
+function newSet(){return {id:rid(),title:"",desc:"",qs:[blankQ()]}}
 function blankQ(){return {q:"",o:["","","",""],c:0,e:"",img:null}}
 function selectSet(id){const s=BANK.sets.find(x=>x.id===id);ED.sel=id;ED.draft=s?JSON.parse(JSON.stringify(s)):null;ED.dirty=false;ED.msg="";ED.delArm=null;renderEditor()}
 function renderEditor(){
@@ -1490,13 +1497,13 @@ function renderEditor(){
   if(!canSaveBank()){
     box.innerHTML=`<div class="notice"><b>เฉพาะเจ้าของหรือผู้แก้ไขหน้านี้ที่สร้างคำถามได้</b><span>ชุดคำถามที่มีอยู่ ${BANK.sets.length} ชุด เล่นได้ที่แท็บ “เล่นเกม” ในหัวข้อชุดคำถามที่สร้างเอง</span></div>`;return}
   if(ED.sel&&!ED.draft&&!BANK.sets.find(s=>s.id===ED.sel))ED.sel=null;
-  const list=BANK.sets.map(s=>`<button type="button" data-id="${esc(s.id)}" aria-current="${s.id===ED.sel}"><b>${esc(s.title)}</b><small>${(s.qs||[]).length} ข้อ</small></button>`).join("");
+  const list=BANK.sets.map(s=>`<button type="button" data-id="${esc(s.id)}" aria-current="${s.id===ED.sel}"><b>${esc(s.title||"(ยังไม่ตั้งชื่อ)")}</b><small>${(s.qs||[]).length} ข้อ</small></button>`).join("");
   let form="";
   const d=ED.draft;
   if(!d){form=`<div class="empty"><span>${BANK.sets.length?"เลือกชุดคำถามทางซ้ายเพื่อแก้ไข หรือสร้างชุดใหม่":"ยังไม่มีชุดคำถาม เริ่มสร้างชุดแรก เช่น “ความสูญเปล่าในไลน์ประกอบ” แล้วใส่รูปจากหน้างานจริงได้"}</span><button class="btn go small" id="edNew2">+ สร้างชุดใหม่</button></div>`}
   else{
     form=`<div style="display:grid;gap:14px">
-      <div class="setup"><label class="field">ชื่อชุดคำถาม<input id="edTitle" maxlength="60" value="${esc(d.title)}"></label><label class="field">คำอธิบายสั้นๆ<input id="edDesc" maxlength="80" value="${esc(d.desc||"")}" placeholder="เช่น สำหรับพนักงานไลน์ Trim"></label></div>
+      <div class="setup"><label class="field">ชื่อข้อสอบ<input id="edTitle" maxlength="60" value="${esc(d.title)}" placeholder="เช่น สอบท้ายบท 5ส ไลน์ Trim"></label><label class="field">คำอธิบายสั้นๆ<input id="edDesc" maxlength="80" value="${esc(d.desc||"")}" placeholder="เช่น สำหรับพนักงานไลน์ Trim"></label></div>
       ${d.qs.map((q,i)=>`<div class="qed" data-i="${i}">
         <div class="qed-h"><span class="label">คำถามที่ ${i+1}</span><button type="button" class="btn ghost small" data-del="${i}">${ED.delArm===i?"ยืนยันลบ":"ลบ"}</button></div>
         <label class="field">คำถาม<textarea data-f="q" rows="2">${esc(q.q)}</textarea></label>
@@ -1548,7 +1555,7 @@ function renderEditor(){
     const sets=BANK.sets.filter(s=>s.id!==d.id);if(await writeBank(sets)){ED.sel=null;ED.draft=null;ED.delArm=null;renderEditor()}};
 }
 function validate(d){
-  const errs=[];if(!d.title.trim())errs.push("ใส่ชื่อชุดคำถาม");
+  const errs=[];if(!d.title.trim())errs.push("ใส่ชื่อข้อสอบ");
   if(!d.qs.length)errs.push("ต้องมีอย่างน้อย 1 คำถาม");
   d.qs.forEach((q,i)=>{const filled=q.o.filter(x=>String(x||"").trim()).length;
     if(!q.q.trim())errs.push(`ข้อ ${i+1}: ยังไม่มีคำถาม`);
@@ -1560,15 +1567,16 @@ async function writeBank(sets){
   ED.msg="กำลังบันทึก…";ED.err=false;const m=$("edMsg");if(m)m.textContent=ED.msg;
   if(CAP.db&&!window.LQ_STANDALONE){try{await CAP.db.doc("qbank/main").set({sets,updatedAt:Date.now()})}catch(e){ED.err=true;ED.msg=e&&e.code==="invalid_argument"?"บันทึกไม่สำเร็จ ชุดคำถามอาจใหญ่เกินไป หรือคุณไม่มีสิทธิ์แก้ไข":"บันทึกไม่สำเร็จ ลองอีกครั้ง";renderEditor();return false}}
   else lsSet("leanquest-bank",sets);
-  BANK.sets=sets;ED.dirty=false;ED.msg="บันทึกแล้ว · เล่นได้ที่แท็บเล่นเกม และเลือกใน Live Quiz ได้";renderCustomGrid();return true;
+  BANK.sets=sets;ED.dirty=false;ED.msg="บันทึกแล้ว · กลับไป Live Quiz แล้วเลือกชุดนี้ตอนเปิดห้องได้เลย";return true;
 }
 async function saveDraft(){
   const d=ED.draft;const errs=validate(d);
   if(errs.length){ED.err=true;ED.msg=errs.slice(0,3).join(" · ")+(errs.length>3?` (และอีก ${errs.length-3})`:"");renderEditor();return}
   d.title=d.title.trim();d.qs=d.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>String(x||"").trim()),c:q.c,e:(q.e||"").trim(),img:q.img||null}));
   const sets=BANK.sets.slice();const i=sets.findIndex(s=>s.id===d.id);if(i>=0)sets[i]=JSON.parse(JSON.stringify(d));else sets.push(JSON.parse(JSON.stringify(d)));
-  if(await writeBank(sets))renderEditor();
+  if(await writeBank(sets)){window.LQ_LASTSET=d.id;renderEditor()}
 }
+$("edBack").onclick=()=>goTab("live");
 
 // =====================================================================
 // CAPABILITIES BOOT
@@ -1810,7 +1818,7 @@ const CLOUD=(()=>{
   async function admin(pin,q){if(!enabled())return null;try{const r=await fetch(url()+(url().includes("?")?"&":"?")+"admin="+encodeURIComponent(pin)+"&"+(q||"")+"&_="+Date.now());return await r.json()}catch(e){return null}}
   async function test(u){try{const r=await fetch(u+"?ping=1&_="+Date.now());const j=await r.json();return !!(j&&j.ok)}catch(e){return false}}
   let hbT=null,lastHb=0;
-  function heartbeat(force){if(!enabled()||document.hidden)return;if(!force&&Date.now()-lastHb<80000)return;lastHb=Date.now();const w=who(),c=lsGet("lq-career",null);let lvl="";try{if(window.CPSLV&&c)lvl=CPSLV.level(c).lv.k}catch(e){}
+  function heartbeat(force){if(window.LQ_ADMIN||!enabled()||document.hidden)return;if(!force&&Date.now()-lastHb<80000)return;lastHb=Date.now();const w=who(),c=lsGet("lq-career",null);let lvl="";try{if(window.CPSLV&&c)lvl=CPSLV.level(c).lv.k}catch(e){}
     const scr=(SCREENS||[]).find(s=>{const e=document.getElementById(s);return e&&!e.hidden})||"";const playing=document.getElementById("pWrap")?"เล่นโรงงาน":"";
     fetch(url(),{method:"POST",body:JSON.stringify({hb:{emp:w.emp||"",name:w.name||"ผู้เล่น",team:w.team||"",dev:dev(),screen:playing||({scrHome:"หน้าแรก",scrSims:"โรงงาน",scrLive:"Live Quiz",scrRank:"อันดับ",scrProfile:"ฉัน",scrEquip:"ห้องแต่งตัว",scrEditor:"สร้างคำถาม"}[scr]||scr),stage:c?c.stage:"",lvl}})}).catch(()=>{})}
   function startHb(){clearInterval(hbT);hbT=setInterval(()=>heartbeat(false),30000);heartbeat(true)}
@@ -1922,29 +1930,30 @@ function renderProfile(){const p=PROF.get(),sk=lsGet("lq-streak",{days:[]}),c=ls
       <div class="cps-ladder">${CPSLV.LV.map(L=>`<div class="${L.k<=X.lv.k?"on":""} ${L.k===X.lv.k?"cur":""}"><i>${L.em}</i><b>${L.n}</b><small>ด่าน ${L.stage}+ · ทักษะ ${Math.round(L.skill*100)}%+</small></div>`).join("")}</div>
       <div class="cps-dims">${CPSLV.DIM.map(x=>{const v=X.skill.d[x.id]||0;return `<div><span>${x.n}</span><div class="cps-bar sm"><i style="width:${Math.round(v*100)}%;background:${v>=.8?"var(--go)":v>=.5?"var(--warn)":"var(--stop)"}"></i></div><b>${Math.round(v*100)}%</b>${v<.8?`<small>${x.fix}</small>`:""}</div>`}).join("")}</div>`})()}
     <h2 class="sec-h">สำหรับวิทยากร</h2>
-    <div class="actions"><button class="btn" id="pfAdmin">🔐 หลังบ้านวิทยากร (อันดับ + ประวัติ)</button><button class="btn" id="pfCenter">📺 เปิดจอกลาง (ห้องเรียน)</button><button class="btn ghost" id="pfEditor">✍️ สร้างชุดคำถาม Live Quiz</button><button class="btn ghost" id="pfHow">🎬 วิดีโอวิธีเล่น</button></div>
+    <div class="actions"><button class="btn" id="pfCenter">📺 เปิดจอกลาง (ห้องเรียน)</button><button class="btn ghost" id="pfEditor">✍️ สร้างชุดคำถาม Live Quiz</button><button class="btn ghost" id="pfHow">🎬 วิดีโอวิธีเล่น</button></div>
     <details class="bulk" style="margin-top:14px"><summary>⚙️ กระดานคะแนนกลาง (Google Sheets) · ${window.CLOUD&&CLOUD.enabled()?"เชื่อมต่อแล้ว":"ยังไม่เชื่อมต่อ"}</summary><label class="field">URL ของ Apps Script Web App<input id="pfSheet" value="${esc((window.CLOUD&&CLOUD.url())||"")}" placeholder="https://script.google.com/macros/s/…/exec"></label><div class="actions"><button class="btn small" id="pfSheetSave">บันทึกและทดสอบ</button></div><p class="note2" id="pfSheetMsg">${window.LQ_SHEET_URL?"ค่าตั้งต้นจากตัวเกม: "+esc(window.LQ_SHEET_URL):"ใส่เฉพาะตอนทดสอบ เมื่อยืนยันแล้วผมจะฝังลงในตัวเกมให้ทุกคน"}</p></details>
     <p class="note2" style="margin-top:14px">ข้อมูลโปรไฟล์เก็บในเครื่องนี้ ใช้ระบุคะแนนของคุณบนกระดานกลาง</p>`;
   const save=()=>{const q=PROF.get();q.name=$("pfName").value.trim();q.emp=$("pfEmp").value.trim();q.team=$("pfTeam").value.trim();PROF.set(q)};
   $("pfEquip").onclick=()=>EQUIP.open();bindQuests($("profBody"));
   ["pfName","pfEmp","pfTeam"].forEach(id=>$(id).oninput=save);
   $("pfSheetSave").onclick=async()=>{const u=$("pfSheet").value.trim();$("pfSheetMsg").textContent="กำลังทดสอบ…";if(!u){CLOUD.setUrl("");$("pfSheetMsg").textContent="ล้างค่าแล้ว";return}const ok=await CLOUD.test(u);if(ok){CLOUD.setUrl(u);CLOUD.flush();$("pfSheetMsg").textContent="✅ เชื่อมต่อสำเร็จ คะแนนที่ค้างในเครื่องส่งแล้ว"}else $("pfSheetMsg").textContent="❌ เชื่อมต่อไม่ได้ ตรวจว่า Deploy เป็น Web app แบบ Anyone และ URL ลงท้ายด้วย /exec"};
-  $("pfAdmin").onclick=()=>renderAdmin();
   $("pfCenter").onclick=()=>{show("scrSims");SIMHUB.open();setTimeout(()=>SIMHUB.center(),50)};
   $("pfEditor").onclick=()=>goTab("editor");$("pfHow").onclick=()=>SIMHUB.howto()}
 
 // ---------- admin back office (trainer) ----------
+const adExit=()=>window.LQ_ADMIN?renderAdmin():renderProfile();
 async function renderAdmin(){show("scrProfile");const root=$("profBody");let pin="";try{pin=(window.LQ_MEM||{})["lq-admin-pin"]||""}catch(e){}
   {let ok=false;try{ok=(window.LQ_MEM||{})["lq-center-ok"]==="94b2"}catch(e){}
    if(!ok){const H=v=>{let h=7;for(const c of String(v))h=(h*131+c.charCodeAt(0))%65521;return h.toString(16)};
     root.innerHTML=`<div class="live-head"><div><span class="label">Admin · เฉพาะวิทยากร</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form class="pin-box" id="adLF"><b>ใส่รหัสวิทยากร</b><input id="adLIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="รหัสวิทยากร"><button class="btn go" type="submit">เข้าหลังบ้าน →</button><small id="adLMsg"></small></form>`;
-    $("adBack").onclick=renderProfile;$("adLIn").focus();
+    $("adBack").onclick=adExit;$("adLIn").focus();
     $("adLF").onsubmit=e=>{e.preventDefault();const v=$("adLIn").value.trim();if(H(v)==="94b2"){try{LQ_MEMSET("lq-center-ok","94b2");LQ_MEMSET("lq-admin-pin",v)}catch(e){}renderAdmin()}else{$("adLMsg").textContent="รหัสไม่ถูกต้อง";$("adLIn").value=""}};return}}
-  if(!(window.CLOUD&&CLOUD.enabled())){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><div class="notice"><b>ยังไม่ได้เชื่อมต่อกระดานคะแนนกลาง</b><span>ตั้งค่า Google Sheets ที่แท็บ ฉัน ก่อน (ดูไฟล์ SHEETS-SETUP.md) · ระหว่างนี้ดูผล Live Quiz ที่เล่นบนเครื่องนี้ได้ที่แท็บ อันดับ</span></div>`;$("adBack").onclick=renderProfile;return}
-  if(!pin){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form id="adF" class="kz-board" style="max-width:420px"><label class="field">รหัส PIN (ตั้งไว้ในสคริปต์ ADMIN_PIN)<input id="adPin" inputmode="numeric" maxlength="8" autocomplete="off"></label><div class="actions"><button class="btn go" type="submit">เข้าหลังบ้าน →</button></div><p class="note2" id="adMsg"></p></form>`;$("adBack").onclick=renderProfile;
+  if(!(window.CLOUD&&CLOUD.enabled())){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><div class="notice"><b>ยังไม่ได้เชื่อมต่อกระดานคะแนนกลาง</b><span>หลังบ้านอ่านข้อมูลผู้เล่นจาก Google Sheets (ดูไฟล์ SHEETS-SETUP.md) วาง URL ของ Apps Script Web App ด้านล่างเพื่อเชื่อมต่อเครื่องนี้ · ผู้เล่นจะถูกบันทึกก็ต่อเมื่อ URL เดียวกันถูกฝังไว้ในตัวเกมแล้ว</span></div><form id="adUF" class="kz-board" style="max-width:560px;margin-top:12px"><label class="field">URL ของ Apps Script Web App<input id="adUrl" placeholder="https://script.google.com/macros/s/…/exec"></label><div class="actions"><button class="btn go" type="submit">บันทึกและทดสอบ</button></div><p class="note2" id="adUMsg"></p></form>`;$("adBack").onclick=adExit;
+    $("adUF").onsubmit=async e=>{e.preventDefault();const u=$("adUrl").value.trim();if(!u)return;$("adUMsg").textContent="กำลังทดสอบ…";if(await CLOUD.test(u)){CLOUD.setUrl(u);renderAdmin()}else $("adUMsg").textContent="❌ เชื่อมต่อไม่ได้ ตรวจว่า Deploy เป็น Web app แบบ Anyone และ URL ลงท้ายด้วย /exec"};return}
+  if(!pin){root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><button class="btn ghost small" id="adBack">← กลับ</button></div><form id="adF" class="kz-board" style="max-width:420px"><label class="field">รหัส PIN (ตั้งไว้ในสคริปต์ ADMIN_PIN)<input id="adPin" inputmode="numeric" maxlength="8" autocomplete="off"></label><div class="actions"><button class="btn go" type="submit">เข้าหลังบ้าน →</button></div><p class="note2" id="adMsg"></p></form>`;$("adBack").onclick=adExit;
     $("adF").onsubmit=async e=>{e.preventDefault();const v=$("adPin").value.trim();$("adMsg").textContent="กำลังตรวจสอบ…";const j=await CLOUD.admin(v,"list=scores&n=5");if(j&&j.ok){try{LQ_MEMSET("lq-admin-pin",v)}catch(e){}renderAdmin()}else $("adMsg").textContent=j&&j.err==="pin"?"PIN ไม่ถูกต้อง":"เชื่อมต่อไม่ได้"};return}
   root.innerHTML=`<div class="live-head"><div><span class="label">Admin</span><h1>หลังบ้านวิทยากร</h1></div><div class="tools"><div class="seg" id="adTabs"><button type="button" data-t="players" aria-pressed="true">👥 ผู้เล่น / ออนไลน์</button><button type="button" data-t="rank" aria-pressed="false">🏆 อันดับ + ประวัติ</button></div><button class="btn ghost small" id="adRefresh">↻ โหลดใหม่</button><a class="btn ghost small" href="${esc(CLOUD.url().replace(/\/exec.*$/,"").replace("/macros/s/","/macros/s/"))}" target="_blank" rel="noopener" hidden>Sheets</a><button class="btn ghost small" id="adOut">ออก</button></div></div><div id="adBody"><div id="adMain"><div class="notice"><b>กำลังโหลด…</b></div></div></div>`;
-  $("adOut").onclick=()=>{try{delete (window.LQ_MEM||{})["lq-admin-pin"]}catch(e){}renderProfile()};$("adRefresh").onclick=renderAdmin;
+  $("adOut").onclick=()=>{try{delete (window.LQ_MEM||{})["lq-admin-pin"];delete (window.LQ_MEM||{})["lq-center-ok"]}catch(e){}adExit()};$("adRefresh").onclick=renderAdmin;
   const j=await CLOUD.admin(pin,"list=scores&n=2000");if(!j||!j.ok){$("adMain").innerHTML=`<div class="notice"><b>โหลดไม่สำเร็จ</b></div>`;return}
   const seasons=j.seasons||[j.current],cur=j.current;let sel=cur,game="all",tab="players",pt=null;
   const GN={career:"โรงงานของฉัน",factory:"ห้องเรียน",live:"Live Quiz"};
@@ -2839,11 +2848,11 @@ const UPACT={
 // ---------- CPS level: needs both progress (stage) and skill (8 dimensions) ----------
 const CPS_LV=[
   {k:0,em:"👶",n:"ทารก CPS",stage:1,skill:0,desc:"เพิ่งเริ่มรู้จัก Lean และ CPS"},
-  {k:1,em:"🎒",n:"นักเรียน CPS",stage:3,skill:.40,desc:"เข้าใจ Takt งานมาตรฐาน และ 5ส เบื้องต้น"},
-  {k:2,em:"🎓",n:"มหาลัย CPS",stage:5,skill:.55,desc:"จัดสมดุลไลน์และใช้ 6 KUP ได้"},
-  {k:3,em:"🥋",n:"เซียน CPS",stage:8,skill:.70,desc:"แก้ปัญหาหน้างานได้เร็ว ไลน์สมดุล คุณภาพดี"},
-  {k:4,em:"⚡",n:"เทพ CPS",stage:12,skill:.82,desc:"บริหารไลน์ความต้องการสูงได้ครบทุก KUP"},
-  {k:5,em:"👑",n:"ตำนาน CPS",stage:16,skill:.90,desc:"เป็นต้นแบบ CPS ให้คนอื่นได้"}];
+  {k:1,em:"🎒",n:"นักเรียน CPS",stage:4,skill:.50,desc:"เข้าใจ Takt งานมาตรฐาน และ 5ส เบื้องต้น"},
+  {k:2,em:"🎓",n:"มหาลัย CPS",stage:7,skill:.65,desc:"จัดสมดุลไลน์และใช้ 6 KUP ได้"},
+  {k:3,em:"🥋",n:"เซียน CPS",stage:11,skill:.78,desc:"แก้ปัญหาหน้างานได้เร็ว ไลน์สมดุล คุณภาพดี"},
+  {k:4,em:"⚡",n:"เทพ CPS",stage:16,skill:.88,desc:"บริหารไลน์ความต้องการสูงได้ครบทุก KUP"},
+  {k:5,em:"👑",n:"ตำนาน CPS",stage:22,skill:.93,desc:"เป็นต้นแบบ CPS ให้คนอื่นได้"}];
 const CPS_DIM=[
   {id:"pd",sh:"Policy",n:"Policy Deployment",fix:"ส่งมอบให้ได้ ≥95% ทุกด่าน และตอบปัญหาหน้างานให้ถูก"},
   {id:"tdm",sh:"Time&Data",n:"Time & Data",fix:"ทำกิจกรรม Takt time ใน 6 KUP และติดตาม Hourly Board"},
@@ -3954,6 +3963,7 @@ hud();
   if(h==="#sims"||/^#f\d{4}$/.test(h)){show("scrSims");SIMHUB.open()}
   else if(h==="#center"){show("scrSims");SIMHUB.open();setTimeout(()=>SIMHUB.center(),300)}
   else if(h==="#live"||/^#j\d{4}$/.test(h)||/^#host/.test(h)){show("scrLive")}
+  else if(h==="#admin"){window.LQ_ADMIN=true;document.body.classList.add("admin-only");document.title="หลังบ้าน · Lean Simulation";renderAdmin()}
   else if(h==="#editor"){show("scrEditor")}
   else if(h==="#rank"){show("scrRank");renderRank()}
   else if(h==="#equip"){EQUIP.open()}
@@ -4025,8 +4035,9 @@ boot();
   // connection screen replaces the "needs login" notice
   SKEL.na=()=>`<div class="net-start"><div class="card"><span class="label">วิทยากร · คอมที่ต่อโปรเจกเตอร์</span><h2>เปิดห้อง Live Quiz</h2><p>ได้รหัสห้อง 4 หลักและ QR ให้ผู้เรียนสแกน เปิดหน้านี้ค้างไว้ตลอดเกม</p><button class="btn go" id="netHost">เปิดห้อง →</button></div>
     <div class="card"><span class="label">ผู้เรียน · มือถือ</span><h2>เข้าร่วมด้วยรหัสห้อง</h2><form id="netJoin" style="display:grid;gap:10px"><label class="field">รหัสห้อง 4 หลัก<input id="netCode" inputmode="numeric" maxlength="4" autocomplete="off" value="${esc(PENDING||"")}"></label><button class="btn" type="submit">เข้าร่วม →</button></form></div>
+    <div class="card"><span class="label">วิทยากร · ออกข้อสอบเอง</span><h2>ออกข้อสอบเอง</h2><p>ตั้งชื่อข้อสอบ พิมพ์คำถามเองหรือวางจาก Excel แล้วเลือกชุดนี้ตอนเปิดห้อง ${BANK.sets.length?`(มีแล้ว ${BANK.sets.length} ชุด)`:""}</p><button class="btn" type="button" id="netMake">สร้าง / แก้ไขข้อสอบ →</button></div>
     <p class="label" id="netMsg" style="text-transform:none;letter-spacing:0"></p></div>`;
-  BIND.na=()=>{$("netHost").onclick=openHost;$("netJoin").onsubmit=e=>{e.preventDefault();joinRoom($("netCode").value)};if(PENDING){const p=PENDING;PENDING=null;joinRoom(p)}};
+  BIND.na=()=>{$("netHost").onclick=openHost;$("netMake").onclick=()=>goTab("editor");$("netJoin").onsubmit=e=>{e.preventDefault();joinRoom($("netCode").value)};if(PENDING){const p=PENDING;PENDING=null;joinRoom(p)}};
   let PENDING=null;const m=/^#j(\d{4})$/.exec(location.hash);if(m){PENDING=m[1];setTimeout(()=>{show("scrLive");renderLive(true)},50)}
   const hm=/^#host(?:-(g1|g2|quiz))?$/.exec(location.hash);
   if(hm){if(hm[1])window.TR_PRESET={src:"train:"+hm[1],t:hm[1]==="quiz"?"20":"30"};setTimeout(()=>{show("scrLive");renderLive(true);openHost()},50)}
