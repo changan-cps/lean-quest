@@ -1570,6 +1570,13 @@ function validate(d){
 async function writeBank(sets){
   ED.msg="กำลังบันทึก…";ED.err=false;const m=$("edMsg");if(m)m.textContent=ED.msg;
   if(CAP.db&&!window.LQ_STANDALONE){try{await CAP.db.doc("qbank/main").set({sets,updatedAt:Date.now()})}catch(e){ED.err=true;ED.msg=e&&e.code==="invalid_argument"?"บันทึกไม่สำเร็จ ชุดคำถามอาจใหญ่เกินไป หรือคุณไม่มีสิทธิ์แก้ไข":"บันทึกไม่สำเร็จ ลองอีกครั้ง";renderEditor();return false}}
+  else if(window.LQ_STANDALONE&&CLOUD.enabled()){
+    const old=BANK.sets,ops=[];
+    sets.forEach(s=>{const o=old.find(x=>x.id===s.id);if(!o||JSON.stringify(o)!==JSON.stringify(s))ops.push({op:"put",set:s})});
+    old.forEach(o=>{if(!sets.find(s=>s.id===o.id))ops.push({op:"del",id:o.id})});
+    for(const op of ops){const j=await CLOUD.bank(op);if(!j){ED.err=true;ED.msg="บันทึกขึ้นระบบกลางไม่สำเร็จ (เช็กอินเทอร์เน็ต) แล้วกดบันทึกอีกครั้ง";renderEditor();return false}sets=j.sets}
+    lsSet("leanquest-bank",sets);
+  }
   else lsSet("leanquest-bank",sets);
   BANK.sets=sets;ED.dirty=false;ED.msg="บันทึกแล้ว · กลับไป Live Quiz แล้วเลือกชุดนี้ตอนเปิดห้องได้เลย";return true;
 }
@@ -1585,6 +1592,15 @@ $("edBack").onclick=()=>goTab("live");
 // =====================================================================
 // CAPABILITIES BOOT
 // =====================================================================
+// Standalone site: custom quiz sets live on the Google Sheet (qbank) so every device sees the same sets.
+async function syncBank(){
+  let j=await CLOUD.bank();if(!j)return;
+  const local=lsGet("leanquest-bank",[]).filter(s=>s&&s.id&&(s.qs||[]).length&&!j.sets.find(x=>x.id===s.id));
+  if(local.length){const k=await CLOUD.bank({op:"add",sets:local});if(k)j=k}
+  BANK.sets=j.sets;lsSet("leanquest-bank",j.sets);
+  if(ED.draft&&!ED.dirty){const fresh=BANK.sets.find(x=>x.id===ED.draft.id);ED.draft=fresh?JSON.parse(JSON.stringify(fresh)):null}
+  if(!$("scrEditor").hidden&&!ED.dirty)renderEditor();if(typeof liveView!=="undefined"&&liveView==="h-idle")renderLive(true);
+}
 async function boot(){
   let c=window.claude,tries=0;
   while((!c||!c.use)&&tries<30&&!window.LQ_STANDALONE){await new Promise(r=>setTimeout(r,100));c=window.claude;tries++}
@@ -1594,6 +1610,7 @@ async function boot(){
     if(user){try{CAP.canEdit=!!(await user.canEdit())}catch(e){}try{CAP.uid=await user.id()}catch(e){}}
   }
   CAP.ready=true;ROLE=CAP.canEdit?"host":"player";
+  if(window.LQ_STANDALONE&&CLOUD.enabled())syncBank();
   if(CAP.db){
     CAP.db.doc("qbank/main").onSnapshot(s=>{const d=s.exists?s.data():null;BANK.sets=d&&Array.isArray(d.sets)?d.sets:[];
       if(ED.draft&&!ED.dirty){const fresh=BANK.sets.find(x=>x.id===ED.draft.id);ED.draft=fresh?JSON.parse(JSON.stringify(fresh)):null}
@@ -1820,6 +1837,8 @@ const CLOUD=(()=>{
   function postLive(gameId,title,players){if(!enabled())return;const rows=players.map(p=>({ts:Date.now(),dev:"live",emp:p.emp||"",name:p.name,team:p.team||"",game:"live",stage:0,score:p.score,title,gid:gameId}));send(rows)}
   async function board(force){if(!enabled())return null;if(!force&&cache&&Date.now()-cacheAt<30000)return cache;try{const r=await fetch(url()+(url().includes("?")?"&":"?")+"season=current&_="+Date.now());const j=await r.json();if(j&&j.rows){cache=j;cacheAt=Date.now();return j}}catch(e){}return cache}
   async function admin(pin,q){if(!enabled())return null;try{const r=await fetch(url()+(url().includes("?")?"&":"?")+"admin="+encodeURIComponent(pin)+"&"+(q||"")+"&_="+Date.now());return await r.json()}catch(e){return null}}
+  async function bank(op){if(!enabled())return null;try{if(!op){const r=await fetch(url()+(url().includes("?")?"&":"?")+"bank=1&_="+Date.now());const j=await r.json();return j&&j.ok?j:null}
+    const r=await fetch(url(),{method:"POST",body:JSON.stringify({bank:Object.assign({dev:dev()},op)})});const j=await r.json();return j&&j.ok?j:null}catch(e){return null}}
   async function test(u){try{const r=await fetch(u+"?ping=1&_="+Date.now());const j=await r.json();return !!(j&&j.ok)}catch(e){return false}}
   let hbT=null,lastHb=0;
   function heartbeat(force){if(window.LQ_ADMIN||!enabled()||document.hidden)return;if(!force&&Date.now()-lastHb<80000)return;lastHb=Date.now();const w=who(),c=lsGet("lq-career",null);let lvl="";try{if(window.CPSLV&&c)lvl=CPSLV.level(c).lv.k}catch(e){}
@@ -1828,7 +1847,7 @@ const CLOUD=(()=>{
   function startHb(){clearInterval(hbT);hbT=setInterval(()=>heartbeat(false),30000);heartbeat(true)}
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)heartbeat(true)});
   setTimeout(()=>{flush();startHb()},2000);window.addEventListener("online",flush);
-  return {post,postLive,board,admin,heartbeat,flush,enabled,test,url,setUrl(u){try{if(u)localStorage.setItem("lq-sheet-url",u);else localStorage.removeItem("lq-sheet-url")}catch(e){}cache=null}};
+  return {post,postLive,board,admin,heartbeat,flush,enabled,test,url,bank,setUrl(u){try{if(u)localStorage.setItem("lq-sheet-url",u);else localStorage.removeItem("lq-sheet-url")}catch(e){}cache=null}};
 })();
 window.CLOUD=CLOUD;
 

@@ -11,7 +11,8 @@ var ADMIN_PIN    = '0361';                  // รหัสเข้าหลั
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
-  if (p.ping) return out_({ ok: true, v: 1 });
+  if (p.ping) return out_({ ok: true, v: 2 });
+  if (p.bank) return out_({ ok: true, sets: bankList_() });
   var sn = p.season === 'current' || !p.season ? currentSeason_() : Number(p.season);
   if (p.admin != null) {
     if (String(p.admin) !== String(ADMIN_PIN)) return out_({ ok: false, err: 'pin' });
@@ -26,6 +27,7 @@ function doPost(e) {
   try {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (body.hb) { online_(body.hb); return out_({ ok: true }); }
+    if (body.bank) return out_(bankWrite_(body.bank));
     var rows = Array.isArray(body.rows) ? body.rows : [];
     if (!rows.length) return out_({ ok: false, err: 'no rows' });
     var sh = sheet_('scores', ['เวลา', 'ซีซัน', 'รหัสพนักงาน', 'ชื่อ', 'แผนก', 'เกม', 'ด่าน/ระดับ', 'คะแนน', 'กำไร', 'LBE', 'ส่งมอบ%', 'ผ่าน', 'วันที่เล่น', 'ชุดคำถาม', 'เครื่อง', 'gid', 'ระดับ CPS', 'ทักษะ CPS %']);
@@ -130,6 +132,55 @@ function playersList_() {
 }
 
 // ---------- helpers ----------
+// ---------- custom quiz bank (ข้อสอบที่ออกเอง) — one row per set; deleted sets stay in the sheet marked Y ----------
+var BANK_HEAD = ['id', 'ชื่อข้อสอบ', 'จำนวนข้อ', 'แก้ล่าสุด', 'เครื่อง', 'ลบแล้ว', 'ข้อมูล (JSON)'];
+var BANK_CHUNK = 45000;
+function bankSheet_() { return sheet_('qbank', BANK_HEAD); }
+function bankRows_() {
+  var sh = bankSheet_(), last = sh.getLastRow(), w = sh.getLastColumn();
+  if (last < 2) return [];
+  return sh.getRange(2, 1, last - 1, Math.max(w, 7)).getValues().map(function (r, i) {
+    return { row: i + 2, id: String(r[0]), deleted: r[5] === 'Y', json: r.slice(6).join('') };
+  });
+}
+function bankList_() {
+  var out = [];
+  bankRows_().forEach(function (r) { if (r.deleted || !r.id) return; try { out.push(JSON.parse(r.json)); } catch (e) { /* skip broken row */ } });
+  return out;
+}
+function bankClean_(s) {
+  if (!s || !s.id) throw new Error('no id');
+  var qs = (Array.isArray(s.qs) ? s.qs : []).slice(0, 200).map(function (q) {
+    return { q: String(q.q || '').slice(0, 1000), o: (Array.isArray(q.o) ? q.o : []).slice(0, 6).map(function (x) { return String(x || '').slice(0, 300); }), c: Number(q.c) || 0, e: String(q.e || '').slice(0, 1000), img: q.img && String(q.img).length < 300 ? String(q.img) : null };
+  });
+  return { id: String(s.id).slice(0, 40), title: String(s.title || '').slice(0, 200), desc: String(s.desc || '').slice(0, 1000), qs: qs };
+}
+function bankWrite_(b) {
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = bankSheet_(), rows = bankRows_(), byId = {};
+    rows.forEach(function (r) { byId[r.id] = r; });
+    var dev = String(b.dev || '').slice(0, 20), now = new Date();
+    var put = function (s, onlyNew) {
+      s = bankClean_(s);
+      var cur = byId[s.id];
+      if (onlyNew && cur) return;
+      var json = JSON.stringify(s), parts = [];
+      for (var i = 0; i < json.length; i += BANK_CHUNK) parts.push(json.slice(i, i + BANK_CHUNK));
+      var vals = [s.id, s.title, s.qs.length, now, dev, ''].concat(parts);
+      var row = cur ? cur.row : sh.getLastRow() + 1;
+      if (cur) { var w = sh.getLastColumn(); if (w > 6) sh.getRange(row, 7, 1, w - 6).clearContent(); }
+      sh.getRange(row, 1, 1, vals.length).setValues([vals]);
+      byId[s.id] = { row: row, id: s.id };
+    };
+    if (b.op === 'put') put(b.set, false);
+    else if (b.op === 'add') (Array.isArray(b.sets) ? b.sets : []).slice(0, 50).forEach(function (s) { put(s, true); });
+    else if (b.op === 'del') { var r = byId[String(b.id)]; if (r) { sh.getRange(r.row, 4, 1, 3).setValues([[now, dev, 'Y']]); } }
+    else return { ok: false, err: 'bad op' };
+    return { ok: true, sets: bankList_() };
+  } finally { lock.releaseLock(); }
+}
+
 function currentSeason_() { return seasonOf_(new Date()); }
 function seasonOf_(d) { var days = Math.floor((d - SEASON_EPOCH) / 864e5); return Math.max(1, Math.floor(days / SEASON_DAYS) + 1); }
 function seasonLabel_(n) { var a = new Date(SEASON_EPOCH.getTime() + (n - 1) * SEASON_DAYS * 864e5), b = new Date(a.getTime() + (SEASON_DAYS - 1) * 864e5); var f = function (d) { return Utilities.formatDate(d, Session.getScriptTimeZone(), 'd MMM yyyy'); }; return f(a) + ' – ' + f(b); }
