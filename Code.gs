@@ -151,7 +151,9 @@ function bankList_() {
 function bankClean_(s) {
   if (!s || !s.id) throw new Error('no id');
   var qs = (Array.isArray(s.qs) ? s.qs : []).slice(0, 200).map(function (q) {
-    return { q: String(q.q || '').slice(0, 1000), o: (Array.isArray(q.o) ? q.o : []).slice(0, 6).map(function (x) { return String(x || '').slice(0, 300); }), c: Number(q.c) || 0, e: String(q.e || '').slice(0, 1000), img: q.img && String(q.img).length < 300 ? String(q.img) : null };
+    var o = { q: String(q.q || '').slice(0, 1000), o: (Array.isArray(q.o) ? q.o : []).slice(0, 6).map(function (x) { return String(x || '').slice(0, 300); }), c: Number(q.c) || 0, e: String(q.e || '').slice(0, 1000), img: q.img && String(q.img).length < 300 ? String(q.img) : null };
+    if (q.m) { o.m = true; o.cs = (Array.isArray(q.cs) ? q.cs : []).map(Number).filter(function (k) { return k >= 0 && k < 6; }).slice(0, 6); }  // several correct answers
+    return o;
   });
   return { id: String(s.id).slice(0, 40), title: String(s.title || '').slice(0, 200), desc: String(s.desc || '').slice(0, 1000), qs: qs };
 }

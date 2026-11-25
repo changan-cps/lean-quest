@@ -279,6 +279,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .qed-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .optrow{display:grid;grid-template-columns:auto 34px minmax(0,1fr);gap:8px;align-items:center}
 .optrow input[type="radio"]{width:20px;height:20px;accent-color:var(--go)}
+.multi-tag{margin:6px 0 10px;font-weight:700;color:var(--ink)}
+.qmode{display:flex;gap:6px;flex-wrap:wrap}.qmode button{border:1px solid var(--line);background:var(--paper,#fff);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}.qmode button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.optrow input[type="checkbox"]{width:20px;height:20px;accent-color:var(--go)}
 .optrow .k{height:30px;display:grid;place-items:center;border-radius:4px;color:#fff;background:var(--tc);font-family:var(--f-mono);font-size:14px}
 .optrow input[type="text"]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0;width:100%}
 .imgrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -1229,10 +1232,15 @@ function srcInfo(src){
   if(src.kind==="mix"){let all=[];STAGES.forEach((_,i)=>all=all.concat(shuffle(builtinQs(i,src.level)).slice(0,2)));return {title:"รวม 5 ด่าน · "+LEVELS[src.level].name,tag:"MIX",qs:all}}
   const set=BANK.sets.find(s=>s.id===src.id);return set?{title:set.title,tag:"CUSTOM",qs:set.qs||[]}:null;
 }
+// multi-answer questions: key and pick are sorted arrays of option indexes; a pick scores only when it matches the key exactly
+const sameAns=(p,k)=>Array.isArray(k)?Array.isArray(p)&&p.length===k.length&&k.every(x=>p.includes(x)):p===k;
+const hasAns=(v,k)=>Array.isArray(v)?v.includes(k):v===k;
+const ansLabel=(v,o)=>v==null?"":(Array.isArray(v)?v:[v]).map(c=>"ABCDEFGH"[c]+". "+((o||[])[c]||"")).join(" + ");
+const qCorrect=x=>x.m?(Array.isArray(x.cs)?x.cs:[]):[x.c];
 function prepQs(qs,shuf){
   return (shuf?shuffle(qs):qs).map(x=>{
-    const opts=(x.o||[]).map((t,k)=>({t:String(t||"").trim(),ok:k===x.c})).filter(o=>o.t);
-    return {q:x.q,e:x.e||"",img:x.img||null,opts:shuffle(opts)};
+    const cs=qCorrect(x),opts=(x.o||[]).map((t,k)=>({t:String(t||"").trim(),ok:cs.includes(k)})).filter(o=>o.t);
+    return {q:x.q,e:x.e||"",img:x.img||null,m:!!x.m,opts:shuffle(opts)};
   }).filter(x=>x.q&&x.opts.some(o=>o.ok));
 }
 
@@ -1250,7 +1258,7 @@ function board(){
   PEERS.forEach(p=>{
     const pr=p.presence||{};if(pr.g!==LIVE.gameId||!pr.n)return;
     const a=(pr.a&&typeof pr.a==="object")?pr.a:{};let s=0,c=0,last=null;
-    Object.keys(keys).forEach(i=>{const x=a[i];const ok=Array.isArray(x)&&x[0]===keys[i];const pts=ok?ptsFor(x[1],T):0;s+=pts;if(ok)c++;if(+i===LIVE.idx)last=pts});
+    Object.keys(keys).forEach(i=>{const x=a[i];const ok=Array.isArray(x)&&sameAns(x[0],keys[i]);const pts=ok?ptsFor(x[1],T):0;s+=pts;if(ok)c++;if(+i===LIVE.idx)last=pts});
     const cur=a[LIVE.idx];
     rows.push({peer:p.peer,name:String(pr.n).slice(0,24),score:s,correct:c,last,me:p.isMe&&p.sameTab,answered:Array.isArray(cur),pick:Array.isArray(cur)?cur[0]:null});
   });
@@ -1263,7 +1271,7 @@ function rememberPlayers(){if(!LIVE||!LIVE.gameId)return;if(LIVE_SEEN_G!==LIVE.g
 function loadXLSX(){return new Promise((ok,bad)=>{if(window.XLSX)return ok(window.XLSX);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=()=>ok(window.XLSX);sc.onerror=()=>bad(new Error("load"));document.head.appendChild(sc)})}
 // results of every finished game are kept on the facilitator's computer for a whole-day Excel
 function saveDayResult(){if(!LIVE||!LIVE.qs||!LIVE.gameId)return;rememberPlayers();const T=(LIVE.T||20)*1000,keys=LIVE.keys||{};
-  const players=Object.values(LIVE_SEEN).map(pl=>{let score=0,right=0;LIVE.qs.forEach((q,i)=>{const x=pl.a[i];if(Array.isArray(x)&&keys[i]!=null&&x[0]===keys[i]){score+=ptsFor(x[1],T);right++}});return {name:pl.name,emp:pl.emp||"",team:pl.team||"",score,right}});
+  const players=Object.values(LIVE_SEEN).map(pl=>{let score=0,right=0;LIVE.qs.forEach((q,i)=>{const x=pl.a[i];if(Array.isArray(x)&&keys[i]!=null&&sameAns(x[0],keys[i])){score+=ptsFor(x[1],T);right++}});return {name:pl.name,emp:pl.emp||"",team:pl.team||"",score,right}});
   const day=lsGet("lq-day-results",[]).filter(g=>g.id!==LIVE.gameId);day.push({id:LIVE.gameId,title:LIVE.title||"Live Quiz",when:Date.now(),n:LIVE.qs.length,players});lsSet("lq-day-results",day);if(window.CLOUD)CLOUD.postLive(LIVE.gameId,LIVE.title||"Live Quiz",players)}
 async function exportDay(btn){const day=lsGet("lq-day-results",[]);if(!day.length){if(btn)btn.textContent="ยังไม่มีผลเกมที่จบแล้ว";return}
   const old=btn?btn.textContent:"";try{const X=await loadXLSX();const names=[...new Set(day.flatMap(g=>g.players.map(p=>p.name.trim())))];
@@ -1280,12 +1288,12 @@ async function exportLive(btn){
   rememberPlayers();if(!LIVE||!LIVE.qs){return}
   const T=(LIVE.T||20)*1000,keys=LIVE.keys||{},n=LIVE.qs.length,old=btn?btn.textContent:"";if(btn){btn.disabled=true;btn.textContent="กำลังสร้างไฟล์…"}
   try{const X=await loadXLSX();
-    const players=Object.values(LIVE_SEEN).map(pl=>{let score=0,right=0,tsum=0,tn=0;const det=LIVE.qs.map((q,i)=>{const x=pl.a[i],k=keys[i];const ans=Array.isArray(x)?x[0]:null,ms=Array.isArray(x)?+x[1]:null;const ok=ans!=null&&k!=null&&ans===k;const pts=ok?ptsFor(ms,T):0;score+=pts;if(ok)right++;if(ms!=null){tsum+=ms;tn++}return {i,q,ans,ok,ms,pts,k}});return {name:pl.name,score,right,avg:tn?tsum/tn/1000:null,det}}).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+    const players=Object.values(LIVE_SEEN).map(pl=>{let score=0,right=0,tsum=0,tn=0;const det=LIVE.qs.map((q,i)=>{const x=pl.a[i],k=keys[i];const ans=Array.isArray(x)?x[0]:null,ms=Array.isArray(x)?+x[1]:null;const ok=ans!=null&&k!=null&&sameAns(ans,k);const pts=ok?ptsFor(ms,T):0;score+=pts;if(ok)right++;if(ms!=null){tsum+=ms;tn++}return {i,q,ans,ok,ms,pts,k}});return {name:pl.name,score,right,avg:tn?tsum/tn/1000:null,det}}).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
     const L=c=>c==null?"":"ABCDEFGH"[c],when=new Date(),dt=when.toLocaleDateString("th-TH"),tm=when.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
     const rank=[["อันดับ","ชื่อผู้เล่น","คะแนนรวม","ตอบถูก (ข้อ)","จำนวนข้อ","% ถูก","เวลาตอบเฉลี่ย (วินาที)"]].concat(players.map((p,i)=>[i+1,p.name,p.score,p.right,n,Math.round(p.right/n*100),p.avg==null?"":+p.avg.toFixed(1)]));
     const det=[["ชื่อผู้เล่น","ข้อ","คำถาม","คำตอบที่เลือก","คำตอบที่ถูก","ผล","เวลาตอบ (วินาที)","คะแนน"]];
-    players.forEach(p=>p.det.forEach(d=>det.push([p.name,d.i+1,d.q.q,d.ans==null?"ไม่ได้ตอบ":L(d.ans)+". "+d.q.o[d.ans],d.k==null?"ยังไม่เฉลย":L(d.k)+". "+d.q.o[d.k],d.ans==null?"ไม่ได้ตอบ":d.ok?"ถูก":"ผิด",d.ms==null?"":+(d.ms/1000).toFixed(1),d.pts])));
-    const sum=[["ข้อ","คำถาม","คำตอบที่ถูก","ตอบถูก (คน)","ผู้เล่นทั้งหมด","% ถูก"]].concat(LIVE.qs.map((q,i)=>{const k=keys[i],c=players.filter(p=>p.det[i].ok).length;return [i+1,q.q,k==null?"ยังไม่เฉลย":L(k)+". "+q.o[k],c,players.length,players.length?Math.round(c/players.length*100):0]}));
+    players.forEach(p=>p.det.forEach(d=>det.push([p.name,d.i+1,d.q.q,d.ans==null?"ไม่ได้ตอบ":ansLabel(d.ans,d.q.o),d.k==null?"ยังไม่เฉลย":ansLabel(d.k,d.q.o),d.ans==null?"ไม่ได้ตอบ":d.ok?"ถูก":"ผิด",d.ms==null?"":+(d.ms/1000).toFixed(1),d.pts])));
+    const sum=[["ข้อ","คำถาม","คำตอบที่ถูก","ตอบถูก (คน)","ผู้เล่นทั้งหมด","% ถูก"]].concat(LIVE.qs.map((q,i)=>{const k=keys[i],c=players.filter(p=>p.det[i].ok).length;return [i+1,q.q,k==null?"ยังไม่เฉลย":ansLabel(k,q.o),c,players.length,players.length?Math.round(c/players.length*100):0]}));
     const info=[["ชุดคำถาม",LIVE.title||""],["วันที่",dt],["เวลาส่งออก",tm],["จำนวนผู้เล่น",players.length],["จำนวนข้อ",n],["เวลาต่อข้อ (วินาที)",LIVE.T||20],["วิธีคิดคะแนน","ตอบถูกได้สูงสุด 1,000 คะแนน ยิ่งตอบเร็วยิ่งได้มาก ตอบตอนหมดเวลาได้ 500"]];
     const wb=X.utils.book_new(),add=(rows,name,w)=>{const ws=X.utils.aoa_to_sheet(rows);ws["!cols"]=w.map(x=>({wch:x}));X.utils.book_append_sheet(wb,ws,name)};
     add(rank,"อันดับ",[8,24,12,12,10,8,20]);add(det,"คำตอบรายคน",[22,6,60,40,40,10,14,10]);add(sum,"สรุปรายข้อ",[6,60,40,12,14,8]);add(info,"ข้อมูลเกม",[20,70]);
@@ -1357,7 +1365,7 @@ const SKEL={
     <div class="actions"><button class="btn go" id="lvStart">เริ่มเกม →</button><button class="btn ghost" id="lvClose">ปิดห้อง</button></div></div>`,
   "h-q":()=>{const lq=LIVE.qs[LIVE.idx];return `<div class="card">
     <div class="lq-bar"><span class="label">ข้อ ${LIVE.idx+1}/${LIVE.qs.length} · ${esc(LIVE.title)}</span><span class="label" id="lvAns">ตอบแล้ว 0/0</span><span class="lq-timer" id="lvTimer">${LIVE.T}</span></div>
-    ${qHtml(lq)}
+    ${qHtml(lq)}${lq.m?`<p class="multi-tag">✅ เลือกได้หลายข้อ · ต้องเลือกให้ครบทุกข้อที่ถูก</p>`:""}
     <div class="tiles">${lq.o.map((t,k)=>`<div class="tile t${k+1}"><span class="k">${KEYS[k]}</span><span class="tt">${esc(t)}</span></div>`).join("")}</div>
     <div class="actions" style="margin-top:16px"><button class="btn ghost" id="lvReveal">เฉลยทันที</button></div></div>`},
   "h-r":()=>{const lq=LIVE.qs[LIVE.idx],last=LIVE.idx>=LIVE.qs.length-1;return `<div class="two">
@@ -1380,8 +1388,9 @@ const SKEL={
     <button class="btn ghost small" id="lvRename">เปลี่ยนชื่อ</button></div>`,
   "p-q":()=>{const lq=LIVE.qs[LIVE.idx];return `<div class="card">
     <div class="lq-bar"><span class="label">ข้อ ${LIVE.idx+1}/${LIVE.qs.length}</span><span class="lq-timer" id="lvTimer">${LIVE.T}</span></div>
-    ${qHtml(lq)}
+    ${qHtml(lq)}${lq.m?`<p class="multi-tag">✅ เลือกได้หลายข้อ แล้วกด “ส่งคำตอบ” · ต้องเลือกให้ครบทุกข้อที่ถูก</p>`:""}
     <div class="tiles" id="lvPick">${lq.o.map((t,k)=>`<button class="tile t${k+1}" data-k="${k}"><span class="k">${KEYS[k]}</span><span class="tt">${esc(t)}</span></button>`).join("")}</div>
+    ${lq.m?`<div class="actions" style="margin-top:12px;justify-content:center"><button type="button" class="btn go" id="lvSubmit" disabled>ส่งคำตอบ</button></div>`:""}
     <p class="label" id="lvLock" style="margin-top:12px;text-align:center">ตอบเร็ว = คะแนนมาก</p></div>`},
   "p-r":()=>`<div class="card" style="display:grid;gap:14px"><div id="lvMe"></div><div id="lvTiles" class="tiles"></div>${(LIVE.ex||{})[LIVE.idx]?`<div class="feedback"><span>${esc(LIVE.ex[LIVE.idx])}</span></div>`:""}<h2 style="font-size:20px">อันดับ 5 อันดับแรก</h2><div id="lvBoard"></div></div>`,
   "p-end":()=>`<div class="card" style="display:grid;gap:14px"><div id="lvMe"></div><div id="lvPodium"></div><div id="lvBoard"></div></div>`
@@ -1395,12 +1404,12 @@ const BIND={
   "h-end":()=>{$("lvAgain").onclick=hostClose;$("lvClose").onclick=hostClose;$("lvXls").onclick=e=>exportLive(e.currentTarget)},
   "p-join":()=>{$("lvJoin").onsubmit=e=>{e.preventDefault();const n=$("lvName").value.trim().slice(0,20);if(!n)return;ME.name=n;lsSet("lq-name",n);joinGame()}},
   "p-lobby":()=>{$("lvRename").onclick=()=>{ME.g=null;renderLive(true)}},
-  "p-q":()=>{$("lvPick").querySelectorAll("button").forEach(b=>b.onclick=()=>playerPick(+b.dataset.k))}
+  "p-q":()=>{const lq=LIVE.qs[LIVE.idx];$("lvPick").querySelectorAll("button").forEach(b=>b.onclick=()=>lq.m?playerToggle(+b.dataset.k):playerPick(+b.dataset.k));if($("lvSubmit"))$("lvSubmit").onclick=()=>playerPick((MSEL.i===LIVE.idx&&MSEL.g===LIVE.gameId?MSEL.s:[]).slice().sort((a,b)=>a-b))}
 };
 function tilesResult(withCounts,rows,myPick){
   const lq=LIVE.qs[LIVE.idx],key=(LIVE.keys||{})[LIVE.idx],cnt=[0,0,0,0];
-  rows.forEach(r=>{if(r.answered&&cnt[r.pick]!=null)cnt[r.pick]++});
-  return lq.o.map((t,k)=>`<div class="tile t${k+1} ${k===key?"correct":"dim"} ${k===myPick?"picked":""}"><span class="k">${KEYS[k]}</span><span class="tt">${esc(t)}</span>${withCounts?`<span class="cnt">${cnt[k]}</span>`:""}</div>`).join("");
+  rows.forEach(r=>{if(r.answered)(Array.isArray(r.pick)?r.pick:[r.pick]).forEach(p=>{if(cnt[p]!=null)cnt[p]++})});
+  return lq.o.map((t,k)=>`<div class="tile t${k+1} ${hasAns(key,k)?"correct":"dim"} ${myPick!=null&&hasAns(myPick,k)?"picked":""}"><span class="k">${KEYS[k]}</span><span class="tt">${esc(t)}</span>${withCounts?`<span class="cnt">${cnt[k]}</span>`:""}</div>`).join("");
 }
 function podiumHtml(rows){
   const top=rows.slice(0,3);if(!top.length)return "";
@@ -1413,10 +1422,11 @@ const UPD={
   "h-r":()=>{const rows=board();$("lvTiles").innerHTML=tilesResult(true,rows,null);$("lvBoard").innerHTML=boardHtml(rows,8,true)},
   "h-end":()=>{const rows=board();saveDayResult();$("lvPodium").innerHTML=podiumHtml(rows);$("lvBoard").innerHTML=boardHtml(rows,50,false)},
   "p-lobby":()=>{$("lvCount").textContent=board().length},
-  "p-q":()=>{const a=ME.ans[LIVE.idx];const picked=Array.isArray(a)?a[0]:null;
-    $("lvPick").querySelectorAll("button").forEach(b=>{const k=+b.dataset.k;b.disabled=picked!=null||liveRemain()<=0;b.classList.toggle("picked",k===picked);b.classList.toggle("dim",picked!=null&&k!==picked)});
-    $("lvLock").textContent=picked!=null?"ล็อกคำตอบแล้ว รอเฉลย…":liveRemain()<=0?"หมดเวลา รอเฉลย…":"ตอบเร็ว = คะแนนมาก"},
-  "p-r":()=>{const rows=board(),i=rows.findIndex(r=>r.me),me=rows[i],a=ME.ans[LIVE.idx],key=(LIVE.keys||{})[LIVE.idx],ok=Array.isArray(a)&&a[0]===key;
+  "p-q":()=>{const a=ME.ans[LIVE.idx];const picked=Array.isArray(a)?a[0]:null,lq=LIVE.qs[LIVE.idx],sel=MSEL.i===LIVE.idx&&MSEL.g===LIVE.gameId?MSEL.s:[];
+    $("lvPick").querySelectorAll("button").forEach(b=>{const k=+b.dataset.k,on=picked!=null?hasAns(picked,k):lq.m&&sel.includes(k);b.disabled=picked!=null||liveRemain()<=0;b.classList.toggle("picked",on);b.classList.toggle("dim",picked!=null&&!on);b.setAttribute("aria-pressed",on)});
+    if($("lvSubmit")){$("lvSubmit").disabled=picked!=null||liveRemain()<=0||!sel.length;$("lvSubmit").hidden=picked!=null}
+    $("lvLock").textContent=picked!=null?"ล็อกคำตอบแล้ว รอเฉลย…":liveRemain()<=0?"หมดเวลา รอเฉลย…":lq.m?(sel.length?`เลือกแล้ว ${sel.length} ข้อ · กดส่งคำตอบเมื่อพร้อม`:"แตะเลือกได้หลายข้อ"):"ตอบเร็ว = คะแนนมาก"},
+  "p-r":()=>{const rows=board(),i=rows.findIndex(r=>r.me),me=rows[i],a=ME.ans[LIVE.idx],key=(LIVE.keys||{})[LIVE.idx],ok=Array.isArray(a)&&sameAns(a[0],key);
     $("lvMe").innerHTML=`<div class="me-res ${ok?"ok":"ng"}"><b>${ok?"ถูกต้อง!":Array.isArray(a)?"ยังไม่ถูก":"ไม่ได้ตอบ"}</b><span class="pts">+${ok?ptsFor(a[1],(LIVE.T||20)*1000):0}</span><span>${me?`อันดับ ${i+1} จาก ${rows.length} · รวม ${me.score.toLocaleString()} คะแนน`:""}</span></div>`;
     $("lvTiles").innerHTML=tilesResult(false,rows,Array.isArray(a)?a[0]:null);$("lvBoard").innerHTML=boardHtml(rows,5,true)},
   "p-end":()=>{const rows=board(),i=rows.findIndex(r=>r.me),me=rows[i];
@@ -1434,11 +1444,11 @@ async function hostOpen(){
   const qs=prepQs(info.qs,src.kind!=="custom");if(!qs.length){$("lvMsg").textContent="ชุดนี้ยังไม่มีคำถามที่สมบูรณ์";return}
   const custom=(($("lvTitle")||{}).value||"").trim().slice(0,60);if(custom)info.title=custom;
   const gameId=rid();
-  const secret={gameId,keys:qs.map(q=>q.opts.findIndex(o=>o.ok)),ex:qs.map(q=>q.e||"")};
+  const secret={gameId,keys:qs.map(q=>q.m?q.opts.map((o,k)=>o.ok?k:-1).filter(k=>k>=0):q.opts.findIndex(o=>o.ok)),ex:qs.map(q=>q.e||"")};
   $("lvOpen").disabled=true;$("lvMsg").textContent="กำลังเปิดห้อง…";
   try{
     await CAP.db.doc("live/secret").set(secret);SECRET=secret;
-    await CAP.db.doc("live/state").set({gameId,status:"lobby",title:info.title,T,idx:-1,startedAt:0,keys:{},ex:{},qs:qs.map(q=>({q:q.q,img:q.img||null,o:q.opts.map(o=>o.t)}))});
+    await CAP.db.doc("live/state").set({gameId,status:"lobby",title:info.title,T,idx:-1,startedAt:0,keys:{},ex:{},qs:qs.map(q=>Object.assign({q:q.q,img:q.img||null,o:q.opts.map(o=>o.t)},q.m?{m:true}:{}))});
   }catch(e){$("lvOpen").disabled=false;$("lvMsg").textContent="เปิดห้องไม่สำเร็จ ("+(e&&e.code||"error")+") ลองอีกครั้ง"}
 }
 function hostStartQ(i){revealing=-1;return hostWrite({status:"question",idx:i,startedAt:Date.now()})}
@@ -1460,9 +1470,15 @@ function joinGame(){
   {const pf=lsGet("lq-sim-who",{});CAP.room.presence({g:ME.g,n:ME.name,e:pf.emp||"",tm:pf.team||"",a:ME.ans}).catch(()=>{})}
   renderLive(true);
 }
+let MSEL={g:null,i:-1,s:[]};
+function playerToggle(k){
+  if(!LIVE||LIVE.status!=="question"||ME.ans[LIVE.idx]!=null||liveRemain()<=0)return;
+  if(MSEL.g!==LIVE.gameId||MSEL.i!==LIVE.idx)MSEL={g:LIVE.gameId,i:LIVE.idx,s:[]};
+  MSEL.s=MSEL.s.includes(k)?MSEL.s.filter(x=>x!==k):MSEL.s.concat(k);renderLive();
+}
 function playerPick(k){
   if(!LIVE||LIVE.status!=="question")return;
-  const i=LIVE.idx;if(ME.ans[i]!=null||liveRemain()<=0)return;
+  const i=LIVE.idx;if(ME.ans[i]!=null||liveRemain()<=0||(Array.isArray(k)&&!k.length))return;
   const ms=Math.round(T0==null?0:performance.now()-T0);
   ME.ans[i]=[k,ms];lsSet("lq-ans-"+ME.g,ME.ans);
   CAP.room.presence({a:ME.ans}).catch(()=>{});
@@ -1511,8 +1527,9 @@ function renderEditor(){
       ${d.qs.map((q,i)=>`<div class="qed" data-i="${i}">
         <div class="qed-h"><span class="label">คำถามที่ ${i+1}</span><button type="button" class="btn ghost small" data-del="${i}">${ED.delArm===i?"ยืนยันลบ":"ลบ"}</button></div>
         <label class="field">คำถาม<textarea data-f="q" rows="2">${esc(q.q)}</textarea></label>
-        <div style="display:grid;gap:6px"><span class="label">ตัวเลือก (เลือกวงกลมหน้าข้อที่ถูก)</span>
-        ${[0,1,2,3].map(k=>`<div class="optrow t${k+1}"><input type="radio" name="c${i}" data-c="${k}" ${q.c===k?"checked":""} aria-label="ข้อ ${KEYS[k]} ถูก"><span class="k">${KEYS[k]}</span><input type="text" data-o="${k}" value="${esc(q.o[k]||"")}" placeholder="${k<2?"ตัวเลือกที่ "+KEYS[k]:"ไม่บังคับ"}"></div>`).join("")}</div>
+        <div class="qmode" role="group" aria-label="รูปแบบคำตอบ"><button type="button" data-m="0" aria-pressed="${!q.m}">คำตอบเดียว</button><button type="button" data-m="1" aria-pressed="${!!q.m}">หลายคำตอบ</button></div>
+        <div style="display:grid;gap:6px"><span class="label">${q.m?"ตัวเลือก (ติ๊กทุกข้อที่ถูก)":"ตัวเลือก (เลือกวงกลมหน้าข้อที่ถูก)"}</span>
+        ${[0,1,2,3].map(k=>`<div class="optrow t${k+1}"><input type="${q.m?"checkbox":"radio"}" name="c${i}" data-c="${k}" ${(q.m?(q.cs||[]).includes(k):q.c===k)?"checked":""} aria-label="ข้อ ${KEYS[k]} ถูก"><span class="k">${KEYS[k]}</span><input type="text" data-o="${k}" value="${esc(q.o[k]||"")}" placeholder="${k<2?"ตัวเลือกที่ "+KEYS[k]:"ไม่บังคับ"}"></div>`).join("")}</div>
         <label class="field">คำอธิบายเฉลย (แสดงหลังตอบ)<input data-f="e" value="${esc(q.e||"")}"></label>
         ${CAP.assets||q.img?`<div class="imgrow">${q.img?`<img src="${imgSrc(q.img)}" alt="รูปประกอบคำถาม"><button type="button" class="btn ghost small" data-rmimg="${i}">เอารูปออก</button>`:""}${CAP.assets?`<label class="btn ghost small" style="cursor:pointer">${q.img?"เปลี่ยนรูป":"+ ใส่รูปหน้างาน"}<input type="file" accept="image/*" data-img="${i}" hidden></label>`:""}</div>`:""}
       </div>`).join("")}
@@ -1536,7 +1553,8 @@ function renderEditor(){
     const q=d.qs[+el.dataset.i];
     el.querySelectorAll("[data-f]").forEach(f=>f.oninput=()=>{q[f.dataset.f]=f.value;dirty()});
     el.querySelectorAll("[data-o]").forEach(f=>f.oninput=()=>{q.o[+f.dataset.o]=f.value;dirty()});
-    el.querySelectorAll("[data-c]").forEach(f=>f.onchange=()=>{q.c=+f.dataset.c;dirty()});
+    el.querySelectorAll("[data-c]").forEach(f=>f.onchange=()=>{const k=+f.dataset.c;if(q.m){const s=new Set(q.cs||[]);f.checked?s.add(k):s.delete(k);q.cs=[...s].sort((a,b)=>a-b)}else q.c=k;dirty()});
+    el.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{const m=b.dataset.m==="1";if(m===!!q.m)return;if(m){q.m=true;q.cs=[q.c||0]}else{q.c=(q.cs&&q.cs.length)?q.cs[0]:0;delete q.m;delete q.cs}dirty();renderEditor()});
   });
   box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const i=+b.dataset.del;if(ED.delArm===i){d.qs.splice(i,1);ED.delArm=null;dirty()}else ED.delArm=i;renderEditor()});
   box.querySelectorAll("[data-rmimg]").forEach(b=>b.onclick=()=>{d.qs[+b.dataset.rmimg].img=null;dirty();renderEditor()});
@@ -1564,7 +1582,8 @@ function validate(d){
   d.qs.forEach((q,i)=>{const filled=q.o.filter(x=>String(x||"").trim()).length;
     if(!q.q.trim())errs.push(`ข้อ ${i+1}: ยังไม่มีคำถาม`);
     else if(filled<2)errs.push(`ข้อ ${i+1}: ต้องมีตัวเลือกอย่างน้อย 2 ข้อ`);
-    else if(!String(q.o[q.c]||"").trim())errs.push(`ข้อ ${i+1}: ตัวเลือกที่ตั้งเป็นคำตอบถูกยังว่าง`)});
+    else if(q.m&&!(q.cs||[]).length)errs.push(`ข้อ ${i+1}: ติ๊กข้อที่ถูกอย่างน้อย 1 ข้อ`);
+    else if(q.m?(q.cs||[]).some(c=>!String(q.o[c]||"").trim()):!String(q.o[q.c]||"").trim())errs.push(`ข้อ ${i+1}: ตัวเลือกที่ตั้งเป็นคำตอบถูกยังว่าง`)});
   return errs;
 }
 async function writeBank(sets){
@@ -1583,7 +1602,7 @@ async function writeBank(sets){
 async function saveDraft(){
   const d=ED.draft;const errs=validate(d);
   if(errs.length){ED.err=true;ED.msg=errs.slice(0,3).join(" · ")+(errs.length>3?` (และอีก ${errs.length-3})`:"");renderEditor();return}
-  d.title=d.title.trim();d.qs=d.qs.map(q=>({q:q.q.trim(),o:q.o.map(x=>String(x||"").trim()),c:q.c,e:(q.e||"").trim(),img:q.img||null}));
+  d.title=d.title.trim();d.qs=d.qs.map(q=>Object.assign({q:q.q.trim(),o:q.o.map(x=>String(x||"").trim()),c:q.m?(q.cs||[0])[0]:q.c,e:(q.e||"").trim(),img:q.img||null},q.m?{m:true,cs:(q.cs||[]).slice()}:{}));
   const sets=BANK.sets.slice();const i=sets.findIndex(s=>s.id===d.id);if(i>=0)sets[i]=JSON.parse(JSON.stringify(d));else sets.push(JSON.parse(JSON.stringify(d)));
   if(await writeBank(sets)){window.LQ_LASTSET=d.id;renderEditor()}
 }
@@ -1796,7 +1815,7 @@ const PARTY=(()=>{
     parts=parts.filter(p=>p.y<cv.height+30);if(parts.length)raf=requestAnimationFrame(loop);else{raf=0;c.clearRect(0,0,cv.width,cv.height)}}
   const AV=["🦊","🐼","🐯","🦁","🐸","🐵","🐧","🦉","🐙","🦄","🐳","🐝","🐢","🦖","🐨","🐰","🦀","🐬","🐞","🦜"];
   const avatar=n=>{let h=0;for(const ch of String(n))h=(h*31+ch.charCodeAt(0))>>>0;return AV[h%AV.length]};
-  function streakOf(){if(!LIVE||!LIVE.keys)return 0;let s=0;for(let i=LIVE.idx;i>=0;i--){const a=ME.ans[i],k=LIVE.keys[i];if(k==null)continue;if(Array.isArray(a)&&a[0]===k)s++;else break}return s}
+  function streakOf(){if(!LIVE||!LIVE.keys)return 0;let s=0;for(let i=LIVE.idx;i>=0;i--){const a=ME.ans[i],k=LIVE.keys[i];if(k==null)continue;if(Array.isArray(a)&&sameAns(a[0],k))s++;else break}return s}
   function countUp(el,to){if(!el)return;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/700);el.textContent="+"+Math.round(to*k*(2-k));if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
   function muteBtn(){let b=document.getElementById("lqMute");if(!b){b=document.createElement("button");b.id="lqMute";b.type="button";b.className="mute-btn";b.onclick=()=>{muted=!muted;try{localStorage.setItem("lq-mute",muted?"1":"0")}catch(e){}b.textContent=muted?"🔇":"🔊";ensure()};document.body.appendChild(b)}b.textContent=muted?"🔇":"🔊";b.hidden=$("scrLive").hidden||ROLE!=="host"}
   function after(v){
@@ -1809,7 +1828,7 @@ const PARTY=(()=>{
     if(changed){
       if(base==="h-q"||base==="p-q"){SFX.go();lastSec=-1}
       if(base==="h-r")SFX.reveal();
-      if(base==="p-r"){const a=ME.ans[LIVE.idx],ok=Array.isArray(a)&&a[0]===(LIVE.keys||{})[LIVE.idx];if(ok){SFX.right();vib([60,40,60]);confetti(70)}else{SFX.wrong();vib(250)}
+      if(base==="p-r"){const a=ME.ans[LIVE.idx],ok=Array.isArray(a)&&sameAns(a[0],(LIVE.keys||{})[LIVE.idx]);if(ok){SFX.right();vib([60,40,60]);confetti(70)}else{SFX.wrong();vib(250)}
         const pts=document.querySelector("#lvMe .me-res .pts");if(pts)countUp(pts,parseInt(pts.textContent.replace(/\D/g,""))||0)}
       if(base==="h-end"||base==="p-end"){SFX.fanfare();confetti(220)}}
     if(base==="p-r"){const box=document.querySelector("#lvMe .me-res.ok");if(box&&!box.querySelector(".streak")){const st=streakOf();if(st>=2)box.insertAdjacentHTML("beforeend",`<span class="streak">🔥 ตอบถูกติดกัน ${st} ข้อ</span>`)}}
