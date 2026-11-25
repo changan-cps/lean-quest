@@ -1524,7 +1524,7 @@ function renderEditor(){
       <div class="savebar"><button type="button" class="btn go" id="edSave">บันทึกชุดคำถาม</button><button type="button" class="btn ghost small" id="edDelSet">${ED.delArm==="set"?"ยืนยันลบทั้งชุด":"ลบชุดนี้"}</button><span class="msg ${ED.err?"err":""}" id="edMsg">${esc(ED.msg)}</span></div>
     </div>`;
   }
-  box.innerHTML=`<div class="ed"><div class="setlist">${list}<button type="button" class="btn ghost small" id="edNew">+ สร้างชุดใหม่</button>${CAP.db?"":`<p class="label" style="text-transform:none;letter-spacing:0">บันทึกไว้ในเบราว์เซอร์นี้เท่านั้น</p>`}</div><div style="min-width:0">${form}</div></div>`;
+  box.innerHTML=`<div class="ed"><div class="setlist">${list}<button type="button" class="btn ghost small" id="edNew">+ สร้างชุดใหม่</button>${CAP.db&&!window.LQ_STANDALONE?"":`<p class="label" style="text-transform:none;letter-spacing:0">${window.LQ_STANDALONE&&CLOUD.enabled()?"บันทึกไว้ในระบบกลาง (Google Sheet) · เห็นทุกเครื่อง":"บันทึกไว้ในเบราว์เซอร์นี้เท่านั้น"}</p>`}</div><div style="min-width:0">${form}</div></div>`;
   box.querySelectorAll(".setlist button[data-id]").forEach(b=>b.onclick=()=>selectSet(b.dataset.id));
   const mk=()=>{const s=newSet();ED.sel=s.id;ED.draft=s;ED.dirty=true;ED.msg="ยังไม่ได้บันทึก";ED.err=false;renderEditor()};
   $("edNew").onclick=mk;if($("edNew2"))$("edNew2").onclick=mk;
