@@ -581,11 +581,16 @@ body.party[data-stage="h-r"] .tile.correct{box-shadow:0 0 0 5px #fff,0 0 34px 8p
 .rv-stats>div{background:#f3f1fb;border-radius:14px;padding:12px 14px;display:grid;gap:2px;animation:pop .4s both}
 .rv-stats>div:nth-child(2){animation-delay:.15s}.rv-stats>div:nth-child(3){animation-delay:.3s}
 .rv-stats b{font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rv-stats span{font-size:14px;color:var(--muted)}
-.race{background:linear-gradient(90deg,#ff5a8a,#f2b705);color:#fff;border-radius:12px;padding:10px 14px;font-size:17px;animation:bump .6s ease-out}
-.race.lead{background:linear-gradient(90deg,#7e3ff2,#1368ce)}
+.race{background:#fff0f4;color:#b4234a;border-radius:10px;padding:8px 12px;font-size:16px;animation:bump .6s ease-out}
+.race.lead{background:#f3eefe;color:#5b2bb5}
 .sboard .brow{grid-template-columns:44px minmax(0,1fr) auto auto auto;position:relative;font-size:18px}
 body.party .sboard .brow.bar{animation:none}
-.sboard .mv{font-family:var(--f-mono);font-size:14px;font-weight:700;min-width:3ch;text-align:right}.sboard .mv.up{color:#15803d}.sboard .mv.dn{color:#c2410c}
+body.party .sboard .brow.bar::before{display:none}
+body.party .sboard .brow:not(.top1):not(.top2):not(.top3){background:#f6f5fb}
+.sboard .gain{font-family:var(--f-mono);font-size:14px;color:#15803d;min-width:5ch;text-align:right}
+body.party[data-stage="h-r"] .tile .cnt{background:none;padding:0}
+.rv-line{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;margin-top:12px;font-size:17px;color:var(--muted)}.rv-line b{color:var(--ink);font-size:19px}
+.sboard .mv{font-family:var(--f-mono);font-size:14px;font-weight:700;min-width:3ch;text-align:right}.sboard .mv.mv-up{color:#15803d}.sboard .mv.mv-dn{color:#c2410c}
 body.party .sboard .brow.top1,body.party .sboard .brow.top2,body.party .sboard .brow.top3{border-radius:14px}
 body.party[data-stage="h-r"] .two{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
 body.party .sboard .brow.top1{padding:18px 18px;font-size:24px;background:linear-gradient(90deg,#fff4c2,#ffd84d);box-shadow:0 0 0 3px #f2b705,0 10px 26px rgba(242,183,5,.45)}
@@ -1446,7 +1451,7 @@ const SKEL={
     <div class="qpips" aria-hidden="true">${LIVE.qs.map((_,j)=>`<i class="${j<i?"done":j===i?"now":""}"></i>`).join("")}</div>
     ${qHtml(lq)}${lq.m?`<p class="multi-tag">✅ เลือกได้หลายข้อ · ต้องเลือกให้ครบทุกข้อที่ถูก</p>`:""}
     <div class="tiles">${lq.o.map((t,k)=>`<div class="tile t${k+1}"><span class="k">${KEYS[k]}</span><span class="tt">${esc(t)}</span></div>`).join("")}</div>
-    <div class="ans-meter"><div class="am-bar"><i id="lvAnsBar"></i></div><div class="am-avs" id="lvAnsAv"></div></div>
+    <div class="ans-meter"><div class="am-avs" id="lvAnsAv"></div></div>
     <div class="actions" style="margin-top:14px"><button class="btn ghost" id="lvReveal">เฉลยทันที</button></div></div>`},
   "h-r":()=>{const lq=LIVE.qs[LIVE.idx],last=LIVE.idx>=LIVE.qs.length-1;return `<div class="two stage-r">
     <div class="card"><div class="lq-bar"><span class="label">เฉลยข้อ ${LIVE.idx+1}/${LIVE.qs.length}</span></div>${qHtml(lq)}
@@ -1495,13 +1500,13 @@ function stageStats(i){const k=(LIVE.keys||{})[i],out={n:0,right:0,fast:null,str
     if(st>=2&&(!out.streak||st>out.streak.n))out.streak={name:nm,n:st}});
   return out}
 function statsHtml(st){if(!st.n)return "";const pct=Math.round(st.right/st.n*100);
-  return `<div class="rv-stats"><div><b>${st.right}/${st.n}</b><span>ตอบถูก · ${pct}%</span></div>${st.fast?`<div><b>⚡ ${esc(st.fast.name)}</b><span>ตอบถูกเร็วที่สุด ${(st.fast.ms/1000).toFixed(1)} วิ</span></div>`:""}${st.streak?`<div><b>🔥 ${esc(st.streak.name)}</b><span>ตอบถูกติดกัน ${st.streak.n} ข้อ</span></div>`:""}</div>`}
+  return `<p class="rv-line"><b>ตอบถูก ${st.right}/${st.n} คน (${pct}%)</b>${st.fast?`<span>⚡ เร็วสุด ${esc(st.fast.name)} ${(st.fast.ms/1000).toFixed(1)} วิ</span>`:""}${st.streak?`<span>🔥 ${esc(st.streak.name)} ถูกติดกัน ${st.streak.n} ข้อ</span>`:""}</p>`}
 function raceLine(rows){if(rows.length<2||!rows[0].score)return "";const g=rows[0].score-rows[1].score;
   return g<=300?`<div class="race">⚔️ สูสีมาก! <b>${esc(rows[0].name)}</b> นำ <b>${esc(rows[1].name)}</b> แค่ ${g.toLocaleString()} คะแนน</div>`:`<div class="race lead">👑 <b>${esc(rows[0].name)}</b> นำอยู่ ${g.toLocaleString()} คะแนน</div>`}
 function stageBoard(rows,limit){if(!rows.length)return `<p class="label">ยังไม่มีผู้เล่น</p>`;
   const prev=rows.map(r=>({p:r.peer,s:r.score-(r.last||0)})).sort((a,b)=>b.s-a.s),was={};prev.forEach((x,i)=>was[x.p]=i);const first=LIVE.idx<=0;
   return `<div class="board sboard">${rows.slice(0,limit).map((r,i)=>{const from=first?i:was[r.peer],mv=from-i;
-    return `<div class="brow${i<3?" top"+(i+1):""}" data-from="${from}"><span class="pos">${i+1}</span><span class="nm">${i<3&&r.score>0?`<span class="crown c${i+1}" aria-hidden="true">👑</span>`:""}${esc(r.name)}</span><span class="mv ${mv>0?"up":mv<0?"dn":""}">${mv>0?"▲"+mv:mv<0?"▼"+(-mv):""}</span><span class="gain ${r.last?"":"zero"}">${r.last?"+"+r.last:"+0"}</span><span class="sc">${r.score.toLocaleString()}</span></div>`}).join("")}</div>`}
+    return `<div class="brow${i<3?" top"+(i+1):""}" data-from="${from}"><span class="pos">${i+1}</span><span class="nm">${i<3&&r.score>0?`<span class="crown c${i+1}" aria-hidden="true">👑</span>`:""}${esc(r.name)}</span><span class="mv ${mv>0?"mv-up":mv<0?"mv-dn":""}">${mv>0?"▲"+mv:mv<0?"▼"+(-mv):""}</span><span class="gain">${r.last?"+"+r.last:""}</span><span class="sc">${r.score.toLocaleString()}</span></div>`}).join("")}</div>`}
 let FLIPPED="";
 function flipBoard(){const bd=document.querySelector("#lvBoard .sboard"),key=LIVE&&LIVE.gameId+":"+LIVE.idx;if(!bd||FLIPPED===key)return;FLIPPED=key;
   if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -1526,7 +1531,7 @@ function podiumHtml(rows){
 const UPD={
   "h-lobby":()=>{const rows=board();$("lvCount").textContent=rows.length;$("lvPlayers").innerHTML=rows.length?rows.map(r=>`<span class="pchip">${esc(r.name)}</span>`).join(""):`<span class="label">ยังไม่มีผู้เล่น</span>`},
   "h-q":()=>{const rows=board(),done=rows.filter(r=>r.answered);$("lvAns").textContent=`ตอบแล้ว ${done.length}/${rows.length}`;
-    if($("lvAnsN")){$("lvAnsN").textContent=done.length;$("lvAnsT").textContent=rows.length;$("lvAnsBar").style.width=(rows.length?done.length/rows.length*100:0)+"%";
+    if($("lvAnsN")){$("lvAnsN").textContent=done.length;$("lvAnsT").textContent=rows.length;
       const av=$("lvAnsAv"),have=new Set([...av.children].map(c=>c.dataset.p));
       done.filter(r=>!have.has(r.peer)).forEach(r=>{av.insertAdjacentHTML("beforeend",`<span class="ava" data-p="${esc(r.peer)}">${PARTY.avatar(r.name)}<small>${esc(r.name)}</small></span>`);PARTY.SFX.blip()})}},
   "h-r":()=>{const rows=board();setOnce("lvTiles",tilesResult(true,rows,null));setOnce("lvStats",statsHtml(stageStats(LIVE.idx)));setOnce("lvRace",raceLine(rows));setOnce("lvBoard",stageBoard(rows,8));setTimeout(flipBoard,30)},
@@ -1947,7 +1952,7 @@ const PARTY=(()=>{
     if(base==="p-r"){const box=document.querySelector("#lvMe .me-res.ok");if(box&&!box.querySelector(".streak")){const st=streakOf();if(st>=2)box.insertAdjacentHTML("beforeend",`<span class="streak">🔥 ตอบถูกติดกัน ${st} ข้อ</span>`)}}
     // leaderboard bars + crown
     document.querySelectorAll("#lvBoard .board").forEach(bd=>{const rows=[...bd.querySelectorAll(".brow")],mx=Math.max(1,...rows.map(r=>parseInt((r.querySelector(".sc")||{}).textContent?.replace(/\D/g,"")||"0")));
-      rows.forEach((r,i)=>{const sc=parseInt(r.querySelector(".sc").textContent.replace(/\D/g,""))||0;r.style.setProperty("--w",(sc/mx*100)+"%");r.style.setProperty("--d",(i*.06)+"s");r.classList.add("bar");const nm=r.querySelector(".nm");if(nm&&!nm.dataset.av){nm.dataset.av=1;if(bd.classList.contains("sboard")){const cr=nm.querySelector(".crown"),t=nm.textContent.replace("👑","");nm.textContent=avatar(t)+" "+t;if(cr)nm.prepend(cr)}else nm.textContent=(i===0&&sc>0?"👑 ":"")+avatar(nm.textContent.replace(" (คุณ)",""))+" "+nm.textContent}})});
+      rows.forEach((r,i)=>{const sc=parseInt(r.querySelector(".sc").textContent.replace(/\D/g,""))||0;r.style.setProperty("--w",(sc/mx*100)+"%");r.style.setProperty("--d",(i*.06)+"s");r.classList.add("bar");const nm=r.querySelector(".nm");if(nm&&!nm.dataset.av){nm.dataset.av=1;if(bd.classList.contains("sboard")){const cr=nm.querySelector(".crown"),t=nm.textContent.replace("👑","");nm.textContent=cr?t:avatar(t)+" "+t;if(cr)nm.prepend(cr)}else nm.textContent=(i===0&&sc>0?"👑 ":"")+avatar(nm.textContent.replace(" (คุณ)",""))+" "+nm.textContent}})});
     lastView=v}
   function tick(r){const s=Math.ceil(r);if(s!==lastSec){lastSec=s;if(s<=5&&s>0)SFX.tick();else if(s>5&&ROLE==="host")SFX.tock()}
     document.body.classList.toggle("hurry",ROLE==="host"&&r>0&&r<=5)}
